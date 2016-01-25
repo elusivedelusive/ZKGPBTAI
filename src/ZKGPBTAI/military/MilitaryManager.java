@@ -15,19 +15,16 @@ import java.util.List;
 public class MilitaryManager extends Manager {
 
     public List<Unit> soldiers;
-    public OOAICallback callback;
     HashMap<Integer, Enemy> enemies;
     HashMap<Integer, Fighter> fighters;
     ArrayList<Unit> caretakers;
     public ArrayList<Squad> squads;
     public Squad nextSquad;
     public static RadarDef radarDef;
-    public int frame = 0;
 
     public SquadHandler squadHandler;
 
-    public MilitaryManager(Main doh) {
-        callback = doh.getCallback();
+    public MilitaryManager() {
         soldiers = new ArrayList<>();
         enemies = new HashMap<>();
         fighters = new HashMap<>();
@@ -37,8 +34,6 @@ public class MilitaryManager extends Manager {
         squads = new ArrayList<>();
 
         squadHandler = new SquadHandler(this);
-        m = callback.getResourceByName("Metal");
-        e = callback.getResourceByName("Energy");
         setMilitaryManager(this);
     }
 
@@ -56,7 +51,7 @@ public class MilitaryManager extends Manager {
         try {
             squadHandler.update(frame, callback);
         } catch (Exception e) {
-            callback.getGame().sendTextMessage(getModuleName() + " " + e.getMessage(), 0);
+            write(getModuleName() + " " + e.getMessage());
         }
 
         try {
@@ -64,7 +59,7 @@ public class MilitaryManager extends Manager {
                 this.caretakers = economyManager.caretakers;
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("Caretaker call " + e.getMessage(), 0);
+            write("Caretaker call " + e.getMessage());
         }
         return 0;
     }
@@ -97,7 +92,7 @@ public class MilitaryManager extends Manager {
                 squadHandler.addFighter(f);
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM unitFinished" + e.getMessage(), 0);
+            write("MM unitFinished" + e.getMessage());
         }
         return 0;
     }
@@ -113,7 +108,7 @@ public class MilitaryManager extends Manager {
                 }
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM unitDestroyed" + e.getMessage(), 0);
+            write("MM unitDestroyed" + e.getMessage());
         }
         return 0;
     }
@@ -130,7 +125,7 @@ public class MilitaryManager extends Manager {
                 enemies.put(u.getUnitId(), e);
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM enemyEnterLOS" + e.getMessage(), 0);
+            write("MM enemyEnterLOS" + e.getMessage());
         }
         return 0;
     }
@@ -142,7 +137,7 @@ public class MilitaryManager extends Manager {
                 enemies.get(u.getUnitId()).visible = false;
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM EneemyLeaveLOS" + e.getMessage(), 0);
+            write("MM EneemyLeaveLOS" + e.getMessage());
         }
         return 0;
     }
@@ -165,7 +160,7 @@ public class MilitaryManager extends Manager {
                 }
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM enemyEnterRadar" + e.getMessage(), 0);
+            write("MM enemyEnterRadar" + e.getMessage());
         }
 
         return 0;
@@ -182,7 +177,7 @@ public class MilitaryManager extends Manager {
                 }
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM enemeyLeaveRadar" + e.getMessage(), 0);
+            write("MM enemeyLeaveRadar" + e.getMessage());
         }
         return 0;
     }
@@ -194,7 +189,7 @@ public class MilitaryManager extends Manager {
                 enemies.remove(u.getUnitId());
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage("MM enemyDestoyed" + e.getMessage(), 0);
+            write("MM enemyDestoyed" + e.getMessage());
         }
         return 0;
     }

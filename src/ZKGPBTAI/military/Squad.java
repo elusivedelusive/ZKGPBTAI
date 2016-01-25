@@ -15,7 +15,7 @@ public class Squad {
     List<Fighter> fighters;
     public float metalValue;
     public AIFloat3 target;
-    OOAICallback cb;
+    MilitaryManager mm;
     SquadHandler sh;
 
     public enum STATUS {
@@ -42,7 +42,7 @@ public class Squad {
         f.squad = this;
         metalValue += f.metalValue;
         f.getUnit().setMoveState(1, (short) 0, frame + 30);
-        commandUnits(f, target, cb);
+        commandUnits(f, target);
     }
 
     public void removeUnit(Fighter f) {
@@ -51,26 +51,26 @@ public class Squad {
 
     }
 
-    public void setTarget(AIFloat3 pos, int frame, OOAICallback cb) {
+    public void setTarget(AIFloat3 pos, int frame, MilitaryManager mm) {
         // set a target for the squad to attack.
-        this.cb = cb;
         target = pos;
+        this.mm = mm;
         for (Fighter f : fighters) {
-            commandUnits(f, pos, cb);
+            commandUnits(f, pos);
 
         }
     }
 
-    public void commandUnits(Fighter f, AIFloat3 pos, OOAICallback cb) {
+    public void commandUnits(Fighter f, AIFloat3 pos) {
         try {
-            f.fightTo(pos, cb);
+            f.fightTo(pos, mm);
         } catch (Exception e) {
             //Catch dead units that have managed to be reassigned
             if (f.unit.getHealth() <= 0) {
                 sh.removeFighter(f);
             } else {
                 //this probably wont happen
-                cb.getGame().sendTextMessage((f.unit.getHealth() > 0 ? "HANDLED" : "FAIL IN CLASS SQUAD->commandUnits"), 0);
+                mm.write((f.unit.getHealth() > 0 ? "HANDLED" : "FAIL IN CLASS SQUAD->commandUnits"));
                 reassignUnit(f);
             }
 
@@ -105,7 +105,7 @@ public class Squad {
         AIFloat3 pos = getPos();
         boolean rallied = true;
         for (Fighter f : fighters) {
-            commandUnits(f, pos, cb);
+            commandUnits(f, pos);
             if (Utility.distance(pos, f.getPos()) > 350) {
                 rallied = false;
             }

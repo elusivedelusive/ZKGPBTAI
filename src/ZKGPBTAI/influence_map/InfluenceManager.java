@@ -13,18 +13,13 @@ import java.awt.image.BufferedImage;
  */
 public class InfluenceManager extends Manager {
 
-
-    protected OOAICallback callback;
     public InfluenceMap im;
     BufferedImage threatmap;
     Graphics2D threatGraphics;
-    public Main parent;
 
-    public InfluenceManager(Main doh) {
-        callback = doh.getCallback();
-        im = new InfluenceMap(callback, this);
+    public InfluenceManager() {
+        im = new InfluenceMap(this);
         threatmap = new BufferedImage(callback.getMap().getWidth(), callback.getMap().getHeight(), BufferedImage.TYPE_INT_ARGB);
-        parent = doh;
         threatGraphics = threatmap.createGraphics();
         setInfluenceManager(this);
     }
@@ -37,10 +32,11 @@ public class InfluenceManager extends Manager {
 
     @Override
     public int update(int frame) {
+        this.frame = frame;
         try {
             im.fadeInfluence();
         } catch (Exception e) {
-            callback.getGame().sendTextMessage(getModuleName() + " 1 " + e.getMessage(), 0);
+            write(getModuleName() + " 1 " + e.getMessage());
         }
         try {
             if (frame % 50 == 0) {
@@ -48,7 +44,7 @@ public class InfluenceManager extends Manager {
                 paintThreatMap();
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage(getModuleName() + " 2 " + e.getMessage(), 0);
+            write(getModuleName() + " 2 " + e.getMessage());
         }
 
         return 0;

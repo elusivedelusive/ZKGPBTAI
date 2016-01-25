@@ -27,7 +27,7 @@ public class Fighter {
         return unit.getPos();
     }
 
-    public void fightTo(AIFloat3 pos, OOAICallback cb){
+    public void fightTo(AIFloat3 pos, MilitaryManager mm){
         AIFloat3 target = getRadialPoint(pos, 200f);
         unit.fight(target, (short) 0, 6000);
     }

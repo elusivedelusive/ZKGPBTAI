@@ -19,8 +19,6 @@ import java.util.List;
  * Created by Jonatan on 30-Nov-15.
  */
 public class EconomyManager extends Manager {
-    Main parent;
-
     public static final int MAX_BUILD_DIST = 1000;
     public static final int BUILDING_DIST = 7;
 
@@ -35,26 +33,23 @@ public class EconomyManager extends Manager {
     float metal = 0;
     float energy = 0;
 
-    int frame = 0;
-
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
 
-    Economy eco;
-    private OOAICallback callback;
-    //InfluenceMap im;
     Deque<Worker> idlers;
     public ArrayList<Worker> workers, factories, commanders;
     public ArrayList<Unit> metalExtractors, solarPlants, radars, defences, aas, storages, caretakers;
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
 
-    public EconomyManager(Main parent) {
-        this.parent = parent;
-        this.callback = parent.getCallback();
-        this.eco = callback.getEconomy();
-        m = callback.getResourceByName("Metal");
-        e = callback.getResourceByName("Energy");
+    //must be called before other managers
+    public EconomyManager(OOAICallback cb) {
+        //set variables in Manager
+        this.callback = cb;
+        this.economy = cb.getEconomy();
+        this.game = cb.getGame();
+        this.m = callback.getResourceByName("Metal");
+        this.e = callback.getResourceByName("Energy");
 
         availablemetalspots = new ArrayList<>();
         metalExtractors = new ArrayList<>();
@@ -94,15 +89,15 @@ public class EconomyManager extends Manager {
 
             if (frame % 5 == 0) {
                 //update economy
-                effectiveIncomeMetal = eco.getIncome(m);
-                effectiveIncomeEnergy = eco.getIncome(e);
-                metal = eco.getCurrent(m);
-                energy = eco.getCurrent(e);
-                float expendMetal = eco.getUsage(m);
-                float expendEnergy = eco.getUsage(e);
+                effectiveIncomeMetal = economy.getIncome(m);
+                effectiveIncomeEnergy = economy.getIncome(e);
+                metal = economy.getCurrent(m);
+                energy = economy.getCurrent(e);
+                float expendMetal = economy.getUsage(m);
+                float expendEnergy = economy.getUsage(e);
                 effectiveIncome = Math.min(effectiveIncomeMetal, effectiveIncomeEnergy);
                 effectiveExpenditure = Math.min(expendMetal, expendEnergy);
-                entries ++;
+                entries++;
                 totalEco += effectiveIncome;
             }
 
@@ -110,18 +105,18 @@ public class EconomyManager extends Manager {
                 try {
                     cleanWorkers();
                 } catch (Exception e) {
-                    callback.getGame().sendTextMessage("ERROR cleanWorkers EM", 0);
+                    write("ERROR cleanWorkers EM");
                 }
 /*                try {
                     cleanTasks();
                 } catch (Exception e) {
-                    callback.getGame().sendTextMessage("ERROR cleanTasks EM", 0);
+                    write("ERROR cleanTasks EM", 0);
                 }*/
 
 /*                if (workers.size() < constructionTasks.size()) {
-                    callback.getGame().sendTextMessage("TASK OVERLOAD", 0);
+                    write("TASK OVERLOAD", 0);
                     for (ConstructionTask ct : constructionTasks) {
-                        callback.getGame().sendTextMessage("    " + ct.toString() + ct.assignedWorkers, 0);
+                        write("    " + ct.toString() + ct.assignedWorkers, 0);
                     }
                 }*/
                 for (Worker w : idlers) {
@@ -129,27 +124,27 @@ public class EconomyManager extends Manager {
                         try {
                             createWorkerTask(w);
                         } catch (Exception e) {
-                            callback.getGame().sendTextMessage("createWorkerTask " + e.getMessage() + " HEALTH " + w.getUnit().getHealth(), 0);
+                            write("createWorkerTask " + e.getMessage() + " HEALTH " + w.getUnit().getHealth());
                         }
                         ConstructionTask ct = (ConstructionTask) w.getTask();
                         try {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                         } catch (Exception e) {
-                            callback.getGame().sendTextMessage("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"), 0);
+                            write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
                             idlers.addAll(w.getTask().stopWorkers(frame));
                             removeTaskFromAllLists(ct);
                             w.setTask(null, frame);
                         }
                     } /*else if (w.getUnit().getCurrentCommands().size() == 0 && w.getTask() != null && w.getUnit().getHealth() > 0) {
-                        callback.getGame().sendTextMessage("reminded worker", 0);
+                        write("reminded worker", 0);
                         ConstructionTask ct = (ConstructionTask) w.getTask();
-                        //callback.getGame().sendTextMessage("reminded worker to do " + ct, 0);
+                        //write("reminded worker to do " + ct, 0);
                         w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     }*/
                 }
             }
         } catch (Exception e) {
-            callback.getGame().sendTextMessage(getModuleName() + " " + e.getMessage(), 0);
+            write(getModuleName() + " " + e.getMessage());
         }
 
         if (frame % 300 == 0)
@@ -225,7 +220,9 @@ public class EconomyManager extends Manager {
         return nearest;
     }
 
-    public int getAvgEco(){ return totalEco/entries;}
+    public int getAvgEco() {
+        return totalEco / entries;
+    }
 
     public boolean isStationary(Unit u) {
         return u.getMaxSpeed() == 0;
@@ -361,7 +358,7 @@ public class EconomyManager extends Manager {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                             idlers.remove(w);
                         } catch (Exception e) {
-                            callback.getGame().sendTextMessage("Cant build there " + e.getMessage(), 0);
+                            write("Cant build there " + e.getMessage());
                             removeTaskFromAllLists(ct);
                         }
                     }
@@ -476,31 +473,31 @@ public class EconomyManager extends Manager {
         else if ((effectiveIncome < 15 && metalExtractors.size() > solarPlants.size() + solarTasks.size())
                 || (effectiveIncome > 15 && energy < 400 && solarTasks.size() < workers.size())
                 || (effectiveIncome > 20 && (metalExtractors.size() * ((metalExtractors.size() / 10) + 1)) > solarPlants.size() + solarTasks.size() && solarTasks.size() < workers.size())) {
-            //callback.getGame().sendTextMessage("creating energy task", 0);
+            //write("creating energy task", 0);
             createEnergyTask(worker);
         } else if (needRadar(position) && effectiveIncome > 10) {
-            //callback.getGame().sendTextMessage("creating radar task", 0);
+            //write("creating radar task", 0);
             createRadarTask(worker);
         } else if (needDefender(position) && effectiveIncome > 10 && metal > 50) {
             if (effectiveIncome > 30 && metal > 100) {
-                //callback.getGame().sendTextMessage("creating gauss task", 0);
+                //write("creating gauss task", 0);
                 createGaussTask(worker);
             } else if (effectiveIncome > 10) {
-                //callback.getGame().sendTextMessage("creating lotus task", 0);
+                //write("creating lotus task", 0);
                 createLotusTask(worker);
             }
 /*        } else if (needCaretaker() && effectiveIncome > 15 && metal > 50) {
             createCaretakerTask(worker);*/
-        } else if (effectiveIncome > 15 && metal > (eco.getStorage(m) - 100) || energy > (eco.getStorage(e) - 100)) {
-            // callback.getGame().sendTextMessage("creating storage task", 0);
+        } else if (effectiveIncome > 15 && metal > (economy.getStorage(m) - 100) || energy > (economy.getStorage(e) - 100)) {
+            // write("creating storage task", 0);
             createStorageTask(worker);
         } else {
-            //callback.getGame().sendTextMessage("creating metal task", 0);
+            //write("creating metal task", 0);
             createMetalExtractorTask(worker);
         }
 
         if (worker.getTask() == null) {
-            callback.getGame().sendTextMessage("No suitable task", 0);
+            write("No suitable task");
         }
     }
 
@@ -717,7 +714,7 @@ public class EconomyManager extends Manager {
         }
 
         if (availablemetalspots.isEmpty()) {
-            callback.getGame().sendTextMessage("Out of metal spots", 0);
+            write("Out of metal spots");
         }
     }
 
@@ -761,5 +758,4 @@ public class EconomyManager extends Manager {
                 return "armanni";
         }
     }
-
 }

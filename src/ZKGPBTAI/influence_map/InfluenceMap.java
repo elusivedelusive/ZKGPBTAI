@@ -12,7 +12,6 @@ import java.util.*;
  * Created by Jonatan on 20-Nov-15.
  */
 public class InfluenceMap {
-    OOAICallback callback;
     float[][] myInfluence;
     float[][] opponentInfluence;
     float[][] influenceMap;
@@ -23,13 +22,12 @@ public class InfluenceMap {
     public static final int GRANULARITY = 10;
     public static final int POS_CONVERSION_RATIO = 8;
     public static final int CONVERT_TO_MAP_POS_VALUE = GRANULARITY * POS_CONVERSION_RATIO;
-    InfluenceManager parent;
+    InfluenceManager influenceManager;
 
-    public InfluenceMap(OOAICallback callback, InfluenceManager im) {
-        this.parent = im;
-        this.callback = callback;
-        width = callback.getMap().getWidth() / GRANULARITY;
-        height = callback.getMap().getHeight() / GRANULARITY;
+    public InfluenceMap(InfluenceManager im) {
+        this.influenceManager = im;
+        width = im.callback.getMap().getWidth() / GRANULARITY;
+        height = im.callback.getMap().getHeight() / GRANULARITY;
         myInfluence = new float[this.width][this.height];
         opponentInfluence = new float[this.width][this.height];
         vulnerabilityMap = new float[this.width][this.height];
@@ -141,7 +139,7 @@ public class InfluenceMap {
     public void updateInfluence() {
         String progress = "none";
         try {
-            for (Unit u : callback.getFriendlyUnits()) {
+            for (Unit u : influenceManager.callback.getFriendlyUnits()) {
                 int x = ((int) Math.floor(u.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(u.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
                 myInfluence[x][z] += u.getPower();
@@ -150,7 +148,7 @@ public class InfluenceMap {
             progress = "friendly";
 
             //TODO occasionly errors here
-            for (Enemy e : parent.militaryManager.getEnemies().values()) {
+            for (Enemy e : influenceManager.militaryManager.getEnemies().values()) {
                 int x = ((int) Math.floor(e.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(e.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
                 if (e.isIdentified()) {
@@ -168,7 +166,7 @@ public class InfluenceMap {
             calculateVulnerabilityMap();
             calculateModifiedVulnerabilityMap();
         } catch(Exception e){
-            parent.callback.getGame().sendTextMessage("IM " + progress, 0);
+            influenceManager.write("IM " + progress);
         }
     }
 

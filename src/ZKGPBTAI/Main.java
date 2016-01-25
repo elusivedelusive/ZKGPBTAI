@@ -32,11 +32,12 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         this.callback = callback;
         this.teamId = teamId;
         managers = new ArrayList<>();
-        economyManager = new EconomyManager(this);
+        //Eco must be called before other managers
+        economyManager = new EconomyManager(callback);
         managers.add(economyManager);
-        influenceManager = new InfluenceManager(this);
+        influenceManager = new InfluenceManager();
         managers.add(influenceManager);
-        militaryManager = new MilitaryManager(this);
+        militaryManager = new MilitaryManager();
         managers.add(militaryManager);
 
         economyManager.setInfluenceManager(influenceManager);

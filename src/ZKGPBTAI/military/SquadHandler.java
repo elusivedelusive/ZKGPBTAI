@@ -42,7 +42,7 @@ public class SquadHandler {
 
         if (newSquad == null) {
             newSquad = new Squad(this);
-            newSquad.setTarget(getDefenceRally(0), frame, mm.callback);
+            newSquad.setTarget(getDefenceRally(0), frame, mm);
         }
 
         newSquad.addUnit(f, frame);
@@ -82,7 +82,7 @@ public class SquadHandler {
         try {
             //set Defence rally for forming squads
             if (newSquad != null) {
-                newSquad.setTarget(getDefenceRally(0), frame, callback);
+                newSquad.setTarget(getDefenceRally(0), frame, mm);
                 //See if a squad is done forming
                 if (newSquad.status == Squad.STATUS.FORMING && newSquad.metalValue > mm.economyManager.effectiveIncome * 60) {
                     newSquad.status = Squad.STATUS.RALLYING;
@@ -104,9 +104,9 @@ public class SquadHandler {
                     if (s.status == Squad.STATUS.RALLYING && s.isRallied()) {
                         s.status = Squad.STATUS.ATTACKING;
                         if(Main.state == GameState.OFFENSIVE)
-                            s.setTarget(getAttackLocation(i), frame, mm.callback);
+                            s.setTarget(getAttackLocation(i), frame, mm);
                         else
-                            s.setTarget(getDefenceRally(i), frame, mm.callback);
+                            s.setTarget(getDefenceRally(i), frame, mm);
                     }
                 } catch (Exception e) {
                     callback.getGame().sendTextMessage("MM SH see if squad is rallied" + e.getMessage(), 0);
@@ -115,7 +115,7 @@ public class SquadHandler {
                 try {
                     //get new attack location
                     if (s.isRallied()) {
-                        s.setTarget(getAttackLocation(i), frame, mm.callback);
+                        s.setTarget(getAttackLocation(i), frame, mm);
                     }
                 } catch (Exception e) {
                     callback.getGame().sendTextMessage("MM SH getNewAttackLocation" + e.getMessage(), 0);
@@ -174,7 +174,7 @@ public class SquadHandler {
                     nearest = u.getPos();
                 }
             }
-            mm.callback.getGame().sendTextMessage("careTaker Pos = " + nearest, 0);
+            mm.write("careTaker Pos = " + nearest);
             f.moveTo(nearest);
         }
     }
