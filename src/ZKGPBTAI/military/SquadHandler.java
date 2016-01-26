@@ -42,7 +42,7 @@ public class SquadHandler {
 
         if (newSquad == null) {
             newSquad = new Squad(this);
-            newSquad.setTarget(getDefenceRally(0), frame, mm);
+            newSquad.setTarget(getDefenceRally(0), mm);
         }
 
         newSquad.addUnit(f, frame);
@@ -82,7 +82,7 @@ public class SquadHandler {
         try {
             //set Defence rally for forming squads
             if (newSquad != null) {
-                newSquad.setTarget(getDefenceRally(0), frame, mm);
+                newSquad.setTarget(getDefenceRally(0), mm);
                 //See if a squad is done forming
                 if (newSquad.status == Squad.STATUS.FORMING && newSquad.metalValue > mm.economyManager.effectiveIncome * 60) {
                     newSquad.status = Squad.STATUS.RALLYING;
@@ -104,9 +104,9 @@ public class SquadHandler {
                     if (s.status == Squad.STATUS.RALLYING && s.isRallied()) {
                         s.status = Squad.STATUS.ATTACKING;
                         if(Main.state == GameState.OFFENSIVE)
-                            s.setTarget(getAttackLocation(i), frame, mm);
+                            s.setTarget(getAttackLocation(i), mm);
                         else
-                            s.setTarget(getDefenceRally(i), frame, mm);
+                            s.setTarget(getDefenceRally(i), mm);
                     }
                 } catch (Exception e) {
                     callback.getGame().sendTextMessage("MM SH see if squad is rallied" + e.getMessage(), 0);
@@ -115,7 +115,7 @@ public class SquadHandler {
                 try {
                     //get new attack location
                     if (s.isRallied()) {
-                        s.setTarget(getAttackLocation(i), frame, mm);
+                        s.setTarget(getAttackLocation(i), mm);
                     }
                 } catch (Exception e) {
                     callback.getGame().sendTextMessage("MM SH getNewAttackLocation" + e.getMessage(), 0);
@@ -216,21 +216,23 @@ public class SquadHandler {
     }
 
     public void removeFighter(Fighter f) {
+
         fighters.remove(f.id);
         for (Squad s : squads) {
             s.removeUnit(f);
         }
+
     }
 
     private AIFloat3 getDefenceRally(int squadNumber) {
         if (squadNumber >= 4)
-            squadNumber -= 4;
-        return mm.influenceManager.im.getNTopLocations(35, mm.influenceManager.im.getTensionMap()).get(squadNumber);
+            squadNumber = 0;
+        return mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getTensionMap()).get(squadNumber);
     }
 
     private AIFloat3 getAttackLocation(int squadNumber) {
         if (squadNumber >= 4)
-            squadNumber -= 4;
-        return (mm.influenceManager.im.getNTopLocations(5, mm.influenceManager.im.getOpponentInfluence())).get(squadNumber);
+            squadNumber = 0;
+        return (mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getOpponentInfluence())).get(squadNumber);
     }
 }

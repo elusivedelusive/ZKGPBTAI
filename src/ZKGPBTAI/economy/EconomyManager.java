@@ -107,18 +107,6 @@ public class EconomyManager extends Manager {
                 } catch (Exception e) {
                     write("ERROR cleanWorkers EM");
                 }
-/*                try {
-                    cleanTasks();
-                } catch (Exception e) {
-                    write("ERROR cleanTasks EM", 0);
-                }*/
-
-/*                if (workers.size() < constructionTasks.size()) {
-                    write("TASK OVERLOAD", 0);
-                    for (ConstructionTask ct : constructionTasks) {
-                        write("    " + ct.toString() + ct.assignedWorkers, 0);
-                    }
-                }*/
                 for (Worker w : idlers) {
                     if ((w.getTask() == null || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
                         try {
@@ -135,12 +123,7 @@ public class EconomyManager extends Manager {
                             removeTaskFromAllLists(ct);
                             w.setTask(null, frame);
                         }
-                    } /*else if (w.getUnit().getCurrentCommands().size() == 0 && w.getTask() != null && w.getUnit().getHealth() > 0) {
-                        write("reminded worker", 0);
-                        ConstructionTask ct = (ConstructionTask) w.getTask();
-                        //write("reminded worker to do " + ct, 0);
-                        w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
-                    }*/
+                    }
                 }
             }
         } catch (Exception e) {
@@ -266,12 +249,6 @@ public class EconomyManager extends Manager {
                 idlers.add(worker);
             }
         }
-
-        for (Worker f : factories) {
-            if (f.id == u.getUnitId()) {
-                assignFactoryTask(f);
-            }
-        }
         return 0;
     }
 
@@ -382,7 +359,7 @@ public class EconomyManager extends Manager {
             if (def.getName().contains("factory") || def.getName().contains("hub")) {
                 Worker fac = new Worker(u);
                 factories.add(fac);
-                assignFactoryTask(fac);
+                //assignFactoryTask(fac);
                 //assign task
             } else if (u.getMaxSpeed() > 0) {
                 Worker w = new Worker(u);
@@ -393,24 +370,6 @@ public class EconomyManager extends Manager {
                 }
             }
         }
-    }
-
-    void assignFactoryTask(Worker fac) {
-        UnitDef unit;
-        if (fac.getUnit().getDef().getName().equals("factorycloak")) {
-            unit = callback.getUnitDefByName(getUnitFromCloakFac());
-            fac.getUnit().build(unit, fac.getPos(), (short) 0, (short) 0, frame + 3000);
-        } else if (fac.getUnit().getDef().getName().equals("factoryhover")) {
-            unit = callback.getUnitDefByName(getUnitFromHoverkFac());
-            fac.getUnit().build(unit, fac.getPos(), (short) 0, (short) 0, frame + 3000);
-        }
-    }
-
-    private Boolean needWorkers() {
-        if (((float) workers.size() - 1 < Math.floor(effectiveIncome / 5))) {
-            return true;
-        }
-        return false;
     }
 
     private boolean needRadar(AIFloat3 pos) {
@@ -504,31 +463,6 @@ public class EconomyManager extends Manager {
     //TODO maybe fix redundancy between this and needCaretaker()
     void createCaretakerTask(Worker worker) {
 
-/*        UnitDef caretaker = callback.getUnitDefByName("armnanotc");
-        for (Worker f : factories) {
-            //find amount of caretakers close to a factory
-            int cCount = 0;
-            for (Unit c : caretakers) {
-                if (Utility.distance(f.getPos(), c.getPos()) < 350) cCount++;
-                for (WorkerTask wt : caretakerTasks) {
-                    if (Utility.distance(f.getPos(), wt.getPos()) < 350) cCount--;
-                }
-
-            }
-            if ((cCount < Math.floor(effectiveIncome / 15) && caretakers.size() < factories.size())) {
-                AIFloat3 position = f.getPos();
-                position = callback.getMap().findClosestBuildSite(caretaker, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-                ConstructionTask ct = new ConstructionTask(caretaker, position, 0);
-                if (!caretakerTasks.contains(ct)) {
-                    constructionTasks.add(ct);
-                    caretakerTasks.add(ct);
-                }
-                worker.setTask(ct, frame);
-                return;
-            }
-
-        }
-    }*/
         UnitDef caretaker = callback.getUnitDefByName("armnanotc");
         for (Worker f : factories) {
             //find amount of caretakers close to a factory
@@ -645,27 +579,8 @@ public class EconomyManager extends Manager {
     }
 
     void createFactoryTask(Worker worker) {
-        UnitDef factory;
-        switch (factories.size()) {
-            case 0:
-                factory = callback.getUnitDefByName("factorycloak");
-                break;
-            case 1:
-                factory = callback.getUnitDefByName("factoryhover");
-                break;
-            case 2:
-                factory = callback.getUnitDefByName("factorycloak");
-                break;
-            case 3:
-                factory = callback.getUnitDefByName("factorycloak");
-                break;
-            default:
-                factory = callback.getUnitDefByName("factorycloak");
-                break;
-        }
-
+        UnitDef factory = recruitmentManager.chooseNewFactory();
         AIFloat3 position = worker.getUnit().getPos();
-
         ConstructionTask ct = new ConstructionTask(factory, callback.getMap().findClosestBuildSite(factory, position, 600f, 5, 0), 0);
         if (!factoryTasks.contains(ct)) {
             constructionTasks.add(ct);
@@ -715,47 +630,6 @@ public class EconomyManager extends Manager {
 
         if (availablemetalspots.isEmpty()) {
             write("Out of metal spots");
-        }
-    }
-
-    private String getUnitFromCloakFac() {
-        if (needWorkers()) return "armrectr";
-        double rand = Math.random();
-        if (effectiveIncome < 70) {
-            if (rand > 0.5)
-                return "armrock";
-            else if (rand > 0.3)
-                return "armzeus";
-            else if (rand > 0.1)
-                return "armwar";
-            else
-                return "armzeus";
-        } else {
-            if (rand > 0.6)
-                return "armrock";
-            else if (rand > 0.4)
-                return "armzeus";
-            else
-                return "armwar";
-        }
-    }
-
-    private String getUnitFromHoverkFac() {
-        //TODO corches never build buildings for some reason
-        //if (needWorkers()) return "corch";
-        double rand = Math.random();
-        if (effectiveIncome < 30) {
-            if (rand > 0.1)
-                return "nsaclash";
-            else
-                return "hoverriot";
-        } else {
-            if (rand > 0.35)
-                return "nsaclash";
-            else if (rand > 0.1)
-                return "hoverriot";
-            else
-                return "armanni";
         }
     }
 }

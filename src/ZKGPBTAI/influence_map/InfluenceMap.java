@@ -140,31 +140,40 @@ public class InfluenceMap {
         String progress = "none";
         try {
             for (Unit u : influenceManager.callback.getFriendlyUnits()) {
+                progress = "friendly";
                 int x = ((int) Math.floor(u.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(u.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
+                progress += " math";
+                //TODO occasionly errors here
                 myInfluence[x][z] += u.getPower();
-                propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getPower() * 2, getFullInfluenceArea(u));
+                progress += " power";
+                propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getPower(), getFullInfluenceArea(u));
+                progress += " propagate";
             }
-            progress = "friendly";
 
-            //TODO occasionly errors here
             for (Enemy e : influenceManager.militaryManager.getEnemies().values()) {
+                progress = "enemy";
                 int x = ((int) Math.floor(e.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(e.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
+                progress += " math";
                 if (e.isIdentified()) {
                     opponentInfluence[x][z] += e.unit.getPower();
+                    progress += " power1";
                     propagate(opponentInfluence, x, z, getMovementDissipationArea(e.unit), e.unit.getPower(), getFullInfluenceArea(e.unit));
+                    progress += " propagate1";
                 } else {
-                    opponentInfluence[x][z] += e.getPower();
-                    propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower(), e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
+                    opponentInfluence[x][z] += e.getPower()/10;
+                    progress += " power2";
+                    propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower()/10, e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
+                    progress += " propagate2";
                 }
             }
-            progress = "enemy";
+
 
             calculateInfluenceMap();
             calculateTensionMap();
-            calculateVulnerabilityMap();
-            calculateModifiedVulnerabilityMap();
+            //calculateVulnerabilityMap();
+            //calculateModifiedVulnerabilityMap();
         } catch(Exception e){
             influenceManager.write("IM " + progress);
         }

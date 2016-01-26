@@ -35,7 +35,7 @@ public class DebugView extends JFrame {
         super();
         this.ai = parent;
         this.setVisible(true);
-        this.setTitle("ZKGBAI");
+        this.setTitle("ZKGPBTAI");
 
         this.mapWidth  =  parent.getCallback().getMap().getWidth();
         this.mapHeight = parent.getCallback().getMap().getHeight()+200;

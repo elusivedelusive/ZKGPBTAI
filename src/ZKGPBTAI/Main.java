@@ -1,6 +1,7 @@
 package ZKGPBTAI;
 
 import ZKGPBTAI.economy.EconomyManager;
+import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.military.MilitaryManager;
@@ -23,6 +24,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public EconomyManager economyManager;
     public MilitaryManager militaryManager;
     public InfluenceManager influenceManager;
+    public RecruitmentManager recruitmentManager;
     public static Main INSTANCE = new Main();
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
@@ -39,15 +41,17 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(influenceManager);
         militaryManager = new MilitaryManager();
         managers.add(militaryManager);
+        recruitmentManager = new RecruitmentManager();
+        managers.add(recruitmentManager);
 
-        economyManager.setInfluenceManager(influenceManager);
+/*        economyManager.setInfluenceManager(influenceManager);
         economyManager.setMilitaryManager(militaryManager);
 
         militaryManager.setInfluenceManager(influenceManager);
         militaryManager.setEcoManager(economyManager);
 
         influenceManager.setEcoManager(economyManager);
-        influenceManager.setMilitaryManager(militaryManager);
+        influenceManager.setMilitaryManager(militaryManager);*/
 
         startTime = System.nanoTime();
         return 0;
@@ -85,7 +89,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     @Override
     public int release(int reason){
         int time = (int)TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
-        callback.getGame().sendTextMessage("END " + "time: " +  time/1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
+        callback.getGame().sendTextMessage("END " + "teamId: "+ this.teamId + " time: " +  time/1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
         return 0;
     }
 
@@ -93,9 +97,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         if (!debugActivated) {
             try {
                 debugView = new DebugView(this);
-                // debugView.setLosImage(losManager.getImage());
                 debugView.setThreatImage(influenceManager.getThreatMap());
-                //debugView.setGraphImage(graphManager.getGraphImage());
                 debugView.repaint();
                 this.debugActivated = true;
             } catch (Exception e) {

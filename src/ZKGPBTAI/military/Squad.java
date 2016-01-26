@@ -51,7 +51,7 @@ public class Squad {
 
     }
 
-    public void setTarget(AIFloat3 pos, int frame, MilitaryManager mm) {
+    public void setTarget(AIFloat3 pos, MilitaryManager mm) {
         // set a target for the squad to attack.
         target = pos;
         this.mm = mm;
