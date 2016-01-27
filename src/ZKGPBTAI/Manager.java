@@ -3,6 +3,7 @@ package ZKGPBTAI;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.influence_map.InfluenceManager;
+import ZKGPBTAI.los.LOSManager;
 import ZKGPBTAI.military.MilitaryManager;
 import com.springrts.ai.oo.AbstractOOAI;
 import com.springrts.ai.oo.clb.Economy;
@@ -19,9 +20,10 @@ public abstract class Manager extends AbstractOOAI {
     public static MilitaryManager militaryManager;
     public static InfluenceManager influenceManager;
     public static RecruitmentManager recruitmentManager;
+    public static LOSManager losManager;
     public static Resource m, e;
-    protected Game game;
-    protected Economy economy;
+    protected static Game game;
+    protected static Economy economy;
     public static OOAICallback callback;
     protected int frame = 0;
 
@@ -32,15 +34,19 @@ public abstract class Manager extends AbstractOOAI {
     }
 
     public void setMilitaryManager(MilitaryManager mm) {
-        this.militaryManager = mm;
+        militaryManager = mm;
     }
 
     public void setEcoManager(EconomyManager em) {
-        this.economyManager = em;
+        economyManager = em;
     }
 
     public void setRecruitmentManager(RecruitmentManager rm) {
-        this.recruitmentManager = rm;
+        recruitmentManager = rm;
+    }
+
+    public void setLosManager(LOSManager lm) {
+        losManager = lm;
     }
 
     public void write(String msg){

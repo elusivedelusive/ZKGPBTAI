@@ -4,6 +4,7 @@ import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
+import ZKGPBTAI.los.LOSManager;
 import ZKGPBTAI.military.MilitaryManager;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
@@ -25,6 +26,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public MilitaryManager militaryManager;
     public InfluenceManager influenceManager;
     public RecruitmentManager recruitmentManager;
+    public LOSManager losManager;
     public static Main INSTANCE = new Main();
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
@@ -43,6 +45,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(militaryManager);
         recruitmentManager = new RecruitmentManager();
         managers.add(recruitmentManager);
+        losManager = new LOSManager();
+        managers.add(losManager);
 
 /*        economyManager.setInfluenceManager(influenceManager);
         economyManager.setMilitaryManager(militaryManager);

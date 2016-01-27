@@ -23,7 +23,7 @@ public class EconomyManager extends Manager {
     public static final int BUILDING_DIST = 7;
 
     boolean metalmap = false;
-    List<AIFloat3> availablemetalspots;
+    public List<AIFloat3> availablemetalspots;
     float effectiveIncomeMetal = 0;
     float effectiveIncomeEnergy = 0;
 
@@ -119,7 +119,7 @@ public class EconomyManager extends Manager {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                         } catch (Exception e) {
                             write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
-                            idlers.addAll(w.getTask().stopWorkers(frame));
+                            idlers.addAll(ct.stopWorkers(frame));
                             removeTaskFromAllLists(ct);
                             w.setTask(null, frame);
                         }

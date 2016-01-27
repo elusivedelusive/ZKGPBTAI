@@ -162,9 +162,9 @@ public class InfluenceMap {
                     propagate(opponentInfluence, x, z, getMovementDissipationArea(e.unit), e.unit.getPower(), getFullInfluenceArea(e.unit));
                     progress += " propagate1";
                 } else {
-                    opponentInfluence[x][z] += e.getPower()/10;
+                    opponentInfluence[x][z] += e.getPower() / 15;
                     progress += " power2";
-                    propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower()/10, e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
+                    propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower() / 15, e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
                     progress += " propagate2";
                 }
             }
@@ -174,7 +174,7 @@ public class InfluenceMap {
             calculateTensionMap();
             //calculateVulnerabilityMap();
             //calculateModifiedVulnerabilityMap();
-        } catch(Exception e){
+        } catch (Exception e) {
             influenceManager.write("IM " + progress);
         }
     }
@@ -201,6 +201,21 @@ public class InfluenceMap {
     }
 
     //http://gameschoolgems.blogspot.no/2009/12/influence-maps-i.html
+
+    public float getAvgScoreFromTopNLocations(int n, float[][] grid) {
+        ArrayList<Float> scores = new ArrayList<>(n);
+        float[][] gridCopy = grid.clone();
+        for (int i = 0; i < n; i++) {
+            int[] top = getTopLocation(gridCopy);
+            scores.add(grid[top[0]][top[1]]);
+            gridCopy[top[0]][top[1]] = 0;
+        }
+
+        int sum = 0;
+        for (float i : scores)
+            sum += i;
+        return sum / scores.size();
+    }
 
     public ArrayList<AIFloat3> getNTopLocations(int n, float[][] grid) {
         ArrayList<AIFloat3> locations = new ArrayList<>(n);
