@@ -35,6 +35,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     public BehaviourTree<Main> bt;
+
     @Override
     public int init(int teamId, OOAICallback callback) {
         this.callback = callback;
@@ -51,14 +52,15 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(recruitmentManager);
 
         startTime = System.nanoTime();
-/*
+
         @SuppressWarnings("unchecked")
         Class<? extends Task>[] c = new Class[]{
                 Defensive.class, Offensive.class,
                 HasEco.class, HasArmy.class
         };
-        bt = TreeInterpreter.create(this, c, "failer(offensive)");
-*/
+        Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
+        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, "failer(offensive)");
+        bt = opt.get();
         return 0;
     }
 
@@ -73,12 +75,12 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
                 m.update(frame);
 
             } catch (Exception e) {
-                callback.getGame().sendTextMessage("AAAsAAAAAARGH "+e.getMessage(), 0);
+                callback.getGame().sendTextMessage("AAAsAAAAAARGH " + e.getMessage(), 0);
                 printException(e);
             }
         }
 
-       if (frame % 10 == 0) {
+        if (frame % 10 == 0) {
             if (!debugActivated)
                 activateDebug();
             else
@@ -86,17 +88,17 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         }
 
-        if(frame % 100 == 0){
-            //bt.step();
+        if (frame % 100 == 0) {
+            bt.step();
         }
         return 0;
     }
 
     //when the ai is released AKA when game has ended
     @Override
-    public int release(int reason){
-        int time = (int)TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
-        callback.getGame().sendTextMessage("END " + "teamId: "+ this.teamId + " time: " +  time/1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
+    public int release(int reason) {
+        int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+        callback.getGame().sendTextMessage("END " + "teamId: " + this.teamId + " time: " + time / 1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
         return 0;
     }
 

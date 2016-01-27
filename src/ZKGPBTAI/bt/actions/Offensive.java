@@ -19,6 +19,7 @@ public class Offensive extends Action<Main>{
     @Override
     public TaskState execute() {
         Main.state = GameState.OFFENSIVE;
+        Main.INSTANCE.getCallback().getGame().sendTextMessage("Offensive", 0);
         return TaskState.SUCCEEDED;
     }
 
