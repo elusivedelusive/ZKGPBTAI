@@ -1,10 +1,15 @@
 package ZKGPBTAI;
 
+import ZKGPBTAI.bt.actions.*;
+import ZKGPBTAI.bt.conditions.*;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.military.MilitaryManager;
+import bt.BehaviourTree;
+import bt.Task;
+import bt.utils.TreeInterpreter;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
@@ -29,6 +34,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    public BehaviourTree<Main> bt;
     @Override
     public int init(int teamId, OOAICallback callback) {
         this.callback = callback;
@@ -44,19 +50,17 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         recruitmentManager = new RecruitmentManager();
         managers.add(recruitmentManager);
 
-/*        economyManager.setInfluenceManager(influenceManager);
-        economyManager.setMilitaryManager(militaryManager);
-
-        militaryManager.setInfluenceManager(influenceManager);
-        militaryManager.setEcoManager(economyManager);
-
-        influenceManager.setEcoManager(economyManager);
-        influenceManager.setMilitaryManager(militaryManager);*/
-
         startTime = System.nanoTime();
+/*
+        @SuppressWarnings("unchecked")
+        Class<? extends Task>[] c = new Class[]{
+                Defensive.class, Offensive.class,
+                HasEco.class, HasArmy.class
+        };
+        bt = TreeInterpreter.create(this, c, "failer(offensive)");
+*/
         return 0;
     }
-
 
     public OOAICallback getCallback() {
         return callback;
@@ -64,7 +68,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
     @Override
     public int update(int frame) {
-
         for (Manager m : managers) {
             try {
                 m.update(frame);
@@ -81,6 +84,10 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             else
                 debugView.repaint();
 
+        }
+
+        if(frame % 100 == 0){
+            //bt.step();
         }
         return 0;
     }
