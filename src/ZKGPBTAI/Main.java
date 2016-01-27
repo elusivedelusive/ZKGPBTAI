@@ -10,6 +10,7 @@ import ZKGPBTAI.military.MilitaryManager;
 import bt.BehaviourTree;
 import bt.Task;
 import bt.utils.TreeInterpreter;
+import bt.utils.graphics.LiveBT;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
@@ -59,8 +60,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
                 HasEco.class, HasArmy.class
         };
         Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
-        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, "failer(offensive)");
+        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, "selector[hasArmy, hasEco, offensive]");
         bt = opt.get();
+        LiveBT.startTransmission(bt);
         return 0;
     }
 
@@ -90,6 +92,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (frame % 100 == 0) {
             bt.step();
+            LiveBT.draw();
         }
         return 0;
     }
