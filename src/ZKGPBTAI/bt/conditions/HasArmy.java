@@ -9,7 +9,7 @@ import bt.leaf.Condition;
 public class HasArmy extends Condition<Main>{
     @Override
     protected boolean condition() {
-        Main.INSTANCE.getCallback().getGame().sendTextMessage("HasArmy", 0);
+        //Main.INSTANCE.getCallback().getGame().sendTextMessage("HasArmy", 0);
         return (Main.INSTANCE.militaryManager.soldiers.size() > 20);
     }
 }

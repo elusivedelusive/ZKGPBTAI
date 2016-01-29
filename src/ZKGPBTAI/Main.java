@@ -7,13 +7,14 @@ import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.military.MilitaryManager;
-import bt.BehaviourTree;
-import bt.Task;
+import bt.*;
 import bt.utils.TreeInterpreter;
 import bt.utils.graphics.LiveBT;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -31,7 +32,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public MilitaryManager militaryManager;
     public InfluenceManager influenceManager;
     public RecruitmentManager recruitmentManager;
-    public static Main INSTANCE = new Main();
+    public static Main INSTANCE;
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
@@ -41,6 +42,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int init(int teamId, OOAICallback callback) {
         this.callback = callback;
         this.teamId = teamId;
+        INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
         economyManager = new EconomyManager(callback);
@@ -55,15 +57,29 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         startTime = System.nanoTime();
 
         @SuppressWarnings("unchecked")
-        Class<? extends Task>[] c = new Class[]{
-                Defensive.class, Offensive.class,
-                HasEco.class, HasArmy.class
-        };
         Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
-        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, "selector[hasArmy, hasEco, offensive]");
+        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
         bt = opt.get();
         LiveBT.startTransmission(bt);
+
         return 0;
+    }
+
+    public String readTree() {
+        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\tree.txt");
+        Scanner in;
+        try {
+            in = new Scanner(f);
+            String treeString = in.nextLine();
+            while (in.hasNext()) {
+                treeString = in.nextLine();
+            }
+            callback.getGame().sendTextMessage("TREE - " + treeString, 0);
+            return treeString;
+        } catch (IOException e) {
+            callback.getGame().sendTextMessage("Cant read tree", 0);
+            return null;
+        }
     }
 
     public OOAICallback getCallback() {
@@ -94,6 +110,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             bt.step();
             LiveBT.draw();
         }
+
+        if (frame == 500)
+            callback.getGame().sendTextMessage(bt.humanToString(), 0);
         return 0;
     }
 

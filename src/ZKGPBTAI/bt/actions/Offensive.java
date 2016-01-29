@@ -2,7 +2,6 @@ package ZKGPBTAI.bt.actions;
 
 import ZKGPBTAI.GameState;
 import ZKGPBTAI.Main;
-import bt.Task;
 import bt.leaf.Action;
 import bt.utils.BooleanData;
 import ec.EvolutionState;
@@ -19,7 +18,7 @@ public class Offensive extends Action<Main>{
     @Override
     public TaskState execute() {
         Main.state = GameState.OFFENSIVE;
-        Main.INSTANCE.getCallback().getGame().sendTextMessage("Offensive", 0);
+        //Main.INSTANCE.getCallback().getGame().sendTextMessage("Offensive", 0);
         return TaskState.SUCCEEDED;
     }
 

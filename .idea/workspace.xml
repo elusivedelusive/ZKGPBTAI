@@ -6,7 +6,23 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="89c1a1aa-38fd-4e3f-a13f-439e8ea427b7" name="Default" comment="" />
+    <list default="true" id="89c1a1aa-38fd-4e3f-a13f-439e8ea427b7" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/actions/Defensive.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/actions/Defensive.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/conditions/HasArmy.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/conditions/HasArmy.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/conditions/HasEco.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/conditions/HasEco.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/Main.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/Main.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/actions/Offensive.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/bt/actions/Offensive.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/artifacts/ZKGPBTAI_jar/ZKGPBTAI.jar" afterPath="$PROJECT_DIR$/out/artifacts/ZKGPBTAI_jar/ZKGPBTAI.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/Main.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/Main.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Offensive.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Offensive.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ZKGPBTAI.iml" afterPath="$PROJECT_DIR$/ZKGPBTAI.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/ZKGPBTAI_jar.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/ZKGPBTAI_jar.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="ZKGPBTAI.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/out/" />
@@ -26,31 +42,47 @@
     <favorites_list name="ZKGPBTAI" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.46280375">
+    <splitter split-orientation="horizontal" split-proportion="0.8115625">
       <split-first>
         <leaf>
-          <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
+          <file leaf-file-name="Main.java" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Main.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.52994466">
-                  <caret line="64" column="37" selection-start-line="64" selection-start-column="37" selection-end-line="64" selection-end-column="37" />
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="105" column="0" selection-start-line="105" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
                   <folding>
                     <element signature="imports" expanded="true" />
-                    <element signature="e#1823#1853#1" expanded="true" />
-                    <element signature="e#2384#2385#0" expanded="true" />
-                    <element signature="e#2415#2416#0" expanded="true" />
-                    <element signature="e#4033#4034#0" expanded="true" />
-                    <element signature="e#4089#4090#0" expanded="true" />
+                    <element signature="e#1856#1886#1" expanded="true" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="HasArmy.java" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java">
+          <file leaf-file-name="File.java" pinned="false" current-in-tab="false">
+            <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/io/File.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="11" column="70" selection-start-line="11" selection-start-column="70" selection-end-line="11" selection-end-column="70" />
+                  <caret line="274" column="11" selection-start-line="274" selection-start-column="11" selection-end-line="274" selection-end-column="11" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Scanner.java" pinned="false" current-in-tab="false">
+            <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/util/Scanner.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="609" column="11" selection-start-line="609" selection-start-column="11" selection-end-line="609" selection-end-column="11" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="HasArmy.java" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.32098764">
+                  <caret line="12" column="68" selection-start-line="12" selection-start-column="68" selection-end-line="12" selection-end-column="68" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -62,7 +94,7 @@
             <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="11" column="69" selection-start-line="11" selection-start-column="69" selection-end-line="11" selection-end-column="69" />
+                  <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -74,7 +106,7 @@
             <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="20" column="78" selection-start-line="20" selection-start-column="78" selection-end-line="20" selection-end-column="78" />
+                  <caret line="18" column="32" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -86,7 +118,7 @@
             <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Offensive.java">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="78" />
+                  <caret line="20" column="10" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -130,9 +162,14 @@
                 <state vertical-scroll-proportion="0.0">
                   <caret line="82" column="6" selection-start-line="82" selection-start-column="6" selection-end-line="82" selection-end-column="6" />
                   <folding>
-                    <element signature="imports" expanded="true" />
+                    <element signature="e#2516#2517#0" expanded="false" />
+                    <element signature="e#2555#2556#0" expanded="false" />
                     <element signature="method#assignCaretakers#0;class#EconomyManager#0" expanded="false" />
                     <element signature="method#getNearestFac#0;class#EconomyManager#0" expanded="false" />
+                    <element signature="e#6917#6918#0" expanded="false" />
+                    <element signature="e#6958#6959#0" expanded="false" />
+                    <element signature="e#7001#7002#0" expanded="false" />
+                    <element signature="e#7044#7045#0" expanded="false" />
                     <element signature="method#unitDestroyed#0;class#EconomyManager#0" expanded="false" />
                     <element signature="method#unitIdle#0;class#EconomyManager#0" expanded="false" />
                     <element signature="method#removeTaskFromAllLists#0;class#EconomyManager#0" expanded="false" />
@@ -159,8 +196,8 @@
           <file leaf-file-name="Manager.java" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Manager.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.60845494">
-                  <caret line="49" column="0" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.42798355">
+                  <caret line="24" column="40" selection-start-line="24" selection-start-column="40" selection-end-line="24" selection-end-column="40" />
                   <folding />
                 </state>
               </provider>
@@ -176,6 +213,9 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
@@ -208,10 +248,12 @@
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/Manager.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/economy/RecruitmentManager.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/economy/EconomyManager.java" />
-        <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Offensive.java" />
-        <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java" />
+        <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java" />
+        <option value="$PROJECT_DIR$/src/ZKGPBTAI/behaviour_tree/actions/Offensive.java" />
+        <option value="$PROJECT_DIR$/src/ZKGPBTAI/behaviour_tree/actions/Defensive.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java" />
+        <option value="$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/Main.java" />
       </list>
     </option>
@@ -220,12 +262,12 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1477" />
-    <option name="y" value="-2716" />
-    <option name="width" value="4832" />
-    <option name="height" value="2732" />
+    <option name="x" value="-16" />
+    <option name="y" value="-16" />
+    <option name="width" value="3232" />
+    <option name="height" value="1744" />
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
@@ -248,8 +290,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -488,28 +528,16 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ZKGPBTAI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ZKGPBTAI" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../BehaviourTreeECJ/out/artifacts/BT_jar/BT.jar!/" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="FullScreen" value="false" />
@@ -524,6 +552,7 @@
     <property name="GenerateAntBuildDialog.outputFileNameProperty" value="zkgpbtai" />
     <property name="OverrideImplement.combined" value="true" />
     <property name="OverrideImplement.overriding.sorted" value="false" />
+    <property name="recentsLimit" value="5" />
   </component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
@@ -702,22 +731,21 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1477" y="-2716" width="4832" height="2732" extended-state="6" />
+    <frame x="-16" y="-16" width="3232" height="1744" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18367347" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29318333" sideWeight="0.49875" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3257303" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.29384515" sideWeight="0.50125" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.109375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1640625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -728,6 +756,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -746,7 +775,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/ZKGPBTAI/Main.java</url>
-          <line>2</line>
+          <line>1</line>
           <properties />
           <option name="timeStamp" value="6" />
         </line-breakpoint>
@@ -760,38 +789,10 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Manager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="25" column="28" selection-start-line="25" selection-start-column="28" selection-end-line="25" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
-          <folding>
-            <element signature="e#5888#5889#0" expanded="true" />
-            <element signature="e#5918#5919#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/military/SquadHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="219" column="30" selection-start-line="219" selection-start-column="30" selection-end-line="219" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/military/Squad.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="58" column="33" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -816,11 +817,7 @@
           <caret line="131" column="37" selection-start-line="131" selection-start-column="37" selection-end-line="131" selection-end-column="37" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1823#1853#1" expanded="true" />
-            <element signature="e#2384#2385#0" expanded="true" />
-            <element signature="e#2415#2416#0" expanded="true" />
-            <element signature="e#4033#4034#0" expanded="true" />
-            <element signature="e#4089#4090#0" expanded="true" />
+            <element signature="e#1856#1886#1" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -854,9 +851,14 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="54" column="2" selection-start-line="54" selection-start-column="2" selection-end-line="54" selection-end-column="2" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#2516#2517#0" expanded="false" />
+            <element signature="e#2555#2556#0" expanded="false" />
             <element signature="method#assignCaretakers#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#getNearestFac#0;class#EconomyManager#0" expanded="false" />
+            <element signature="e#6917#6918#0" expanded="false" />
+            <element signature="e#6958#6959#0" expanded="false" />
+            <element signature="e#7001#7002#0" expanded="false" />
+            <element signature="e#7044#7045#0" expanded="false" />
             <element signature="method#unitDestroyed#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#unitIdle#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#removeTaskFromAllLists#0;class#EconomyManager#0" expanded="false" />
@@ -884,8 +886,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#5888#5889#0" expanded="true" />
-            <element signature="e#5918#5919#0" expanded="true" />
+            <element signature="e#5888#5889#0" expanded="false" />
+            <element signature="e#5918#5919#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -911,11 +913,7 @@
           <caret line="87" column="60" selection-start-line="87" selection-start-column="60" selection-end-line="87" selection-end-column="60" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1823#1853#1" expanded="true" />
-            <element signature="e#2384#2385#0" expanded="true" />
-            <element signature="e#2415#2416#0" expanded="true" />
-            <element signature="e#4033#4034#0" expanded="true" />
-            <element signature="e#4089#4090#0" expanded="true" />
+            <element signature="e#1856#1886#1" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -925,9 +923,14 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#2516#2517#0" expanded="false" />
+            <element signature="e#2555#2556#0" expanded="false" />
             <element signature="method#assignCaretakers#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#getNearestFac#0;class#EconomyManager#0" expanded="false" />
+            <element signature="e#6917#6918#0" expanded="false" />
+            <element signature="e#6958#6959#0" expanded="false" />
+            <element signature="e#7001#7002#0" expanded="false" />
+            <element signature="e#7044#7045#0" expanded="false" />
             <element signature="method#unitDestroyed#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#unitIdle#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#removeTaskFromAllLists#0;class#EconomyManager#0" expanded="false" />
@@ -962,9 +965,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
-          <folding>
-            <element signature="e#266#267#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -980,9 +980,14 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#2516#2517#0" expanded="false" />
+            <element signature="e#2555#2556#0" expanded="false" />
             <element signature="method#assignCaretakers#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#getNearestFac#0;class#EconomyManager#0" expanded="false" />
+            <element signature="e#6917#6918#0" expanded="false" />
+            <element signature="e#6958#6959#0" expanded="false" />
+            <element signature="e#7001#7002#0" expanded="false" />
+            <element signature="e#7044#7045#0" expanded="false" />
             <element signature="method#unitDestroyed#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#unitIdle#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#removeTaskFromAllLists#0;class#EconomyManager#0" expanded="false" />
@@ -1018,11 +1023,7 @@
           <caret line="32" column="29" selection-start-line="32" selection-start-column="29" selection-end-line="32" selection-end-column="29" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1823#1853#1" expanded="true" />
-            <element signature="e#2384#2385#0" expanded="true" />
-            <element signature="e#2415#2416#0" expanded="true" />
-            <element signature="e#4033#4034#0" expanded="true" />
-            <element signature="e#4089#4090#0" expanded="true" />
+            <element signature="e#1856#1886#1" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1040,8 +1041,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
           <folding>
-            <element signature="e#5888#5889#0" expanded="true" />
-            <element signature="e#5918#5919#0" expanded="true" />
+            <element signature="e#5888#5889#0" expanded="false" />
+            <element signature="e#5918#5919#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1123,9 +1124,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="12" column="36" selection-start-line="12" selection-start-column="36" selection-end-line="12" selection-end-column="36" />
-          <folding>
-            <element signature="e#266#267#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1184,7 +1182,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="10" column="19" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1193,8 +1190,8 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
           <folding>
-            <element signature="e#5888#5889#0" expanded="true" />
-            <element signature="e#5918#5919#0" expanded="true" />
+            <element signature="e#5888#5889#0" expanded="false" />
+            <element signature="e#5918#5919#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1244,9 +1241,14 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="82" column="6" selection-start-line="82" selection-start-column="6" selection-end-line="82" selection-end-column="6" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#2516#2517#0" expanded="false" />
+            <element signature="e#2555#2556#0" expanded="false" />
             <element signature="method#assignCaretakers#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#getNearestFac#0;class#EconomyManager#0" expanded="false" />
+            <element signature="e#6917#6918#0" expanded="false" />
+            <element signature="e#6958#6959#0" expanded="false" />
+            <element signature="e#7001#7002#0" expanded="false" />
+            <element signature="e#7044#7045#0" expanded="false" />
             <element signature="method#unitDestroyed#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#unitIdle#0;class#EconomyManager#0" expanded="false" />
             <element signature="method#removeTaskFromAllLists#0;class#EconomyManager#0" expanded="false" />
@@ -1273,14 +1275,44 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="58" column="33" selection-start-line="58" selection-start-column="33" selection-end-line="58" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../ecj/warlight2/src/com/theaigames/game/warlight2/Warlight2.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.174635">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Manager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42798355">
+          <caret line="24" column="40" selection-start-line="24" selection-start-column="40" selection-end-line="24" selection-end-column="40" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java">
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/util/Scanner.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="20" column="78" selection-start-line="20" selection-start-column="78" selection-end-line="20" selection-end-column="78" />
+          <caret line="609" column="11" selection-start-line="609" selection-start-column="11" selection-end-line="609" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/io/File.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="274" column="11" selection-start-line="274" selection-start-column="11" selection-end-line="274" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="11" column="10" selection-start-line="11" selection-start-column="10" selection-end-line="11" selection-end-column="10" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1290,52 +1322,40 @@
     <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Offensive.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="21" column="8" selection-start-line="21" selection-start-column="8" selection-end-line="21" selection-end-column="78" />
+          <caret line="20" column="10" selection-start-line="20" selection-start-column="10" selection-end-line="20" selection-end-column="10" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/actions/Defensive.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="32" selection-start-line="18" selection-start-column="32" selection-end-line="18" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="105" column="0" selection-start-line="105" selection-start-column="0" selection-end-line="105" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1856#1886#1" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasArmy.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="70" selection-start-line="11" selection-start-column="70" selection-end-line="11" selection-end-column="70" />
+        <state vertical-scroll-proportion="0.32098764">
+          <caret line="12" column="68" selection-start-line="12" selection-start-column="68" selection-end-line="12" selection-end-column="68" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/bt/conditions/HasEco.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="11" column="69" selection-start-line="11" selection-start-column="69" selection-end-line="11" selection-end-column="69" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Manager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.60845494">
-          <caret line="49" column="0" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.52994466">
-          <caret line="64" column="37" selection-start-line="64" selection-start-column="37" selection-end-line="64" selection-end-column="37" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1823#1853#1" expanded="true" />
-            <element signature="e#2384#2385#0" expanded="true" />
-            <element signature="e#2415#2416#0" expanded="true" />
-            <element signature="e#4033#4034#0" expanded="true" />
-            <element signature="e#4089#4090#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1399,6 +1419,7 @@
             <option name="proportions">
               <list>
                 <option value="0.2" />
+                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>

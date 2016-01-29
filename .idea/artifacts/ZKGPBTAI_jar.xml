@@ -4,8 +4,9 @@
     <root id="archive" name="ZKGPBTAI.jar">
       <element id="module-output" name="ZKGPBTAI" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/Spring/AIInterface.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/Spring/JavaOO-AIWrapper.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/Spring/vecmath.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/Spring/JavaOO-AIWrapper.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../BehaviourTreeECJ/out/artifacts/BT_jar/BT.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

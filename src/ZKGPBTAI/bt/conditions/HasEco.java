@@ -9,7 +9,7 @@ import bt.leaf.Condition;
 public class HasEco extends Condition<Main> {
     @Override
     protected boolean condition() {
-        Main.INSTANCE.getCallback().getGame().sendTextMessage("HasEco", 0);
+        //Main.INSTANCE.getCallback().getGame().sendTextMessage("HasEco", 0);
         return (Main.INSTANCE.economyManager.effectiveIncome > 20);
     }
 }
