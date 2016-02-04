@@ -38,6 +38,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    //determines if the bot will look for a bt tree or not
     public boolean runningBT = true;
     public BehaviourTree<Main> bt;
 
