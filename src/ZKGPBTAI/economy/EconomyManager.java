@@ -460,7 +460,6 @@ public class EconomyManager extends Manager {
         }
     }
 
-    //TODO maybe fix redundancy between this and needCaretaker()
     void createCaretakerTask(Worker worker) {
 
         UnitDef caretaker = callback.getUnitDefByName("armnanotc");

@@ -1,14 +1,21 @@
 package ZKGPBTAI;
 
+import ZKGPBTAI.bt.actions.*;
+import ZKGPBTAI.bt.conditions.*;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.los.LOSManager;
 import ZKGPBTAI.military.MilitaryManager;
+import bt.*;
+import bt.utils.TreeInterpreter;
+import bt.utils.graphics.LiveBT;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -31,10 +38,13 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    public BehaviourTree<Main> bt;
+
     @Override
     public int init(int teamId, OOAICallback callback) {
         this.callback = callback;
         this.teamId = teamId;
+        INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
         economyManager = new EconomyManager(callback);
@@ -48,19 +58,33 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         losManager = new LOSManager();
         managers.add(losManager);
 
-/*        economyManager.setInfluenceManager(influenceManager);
-        economyManager.setMilitaryManager(militaryManager);
-
-        militaryManager.setInfluenceManager(influenceManager);
-        militaryManager.setEcoManager(economyManager);
-
-        influenceManager.setEcoManager(economyManager);
-        influenceManager.setMilitaryManager(militaryManager);*/
-
         startTime = System.nanoTime();
+
+        @SuppressWarnings("unchecked")
+        Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
+        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
+        bt = opt.get();
+        LiveBT.startTransmission(bt);
+
         return 0;
     }
 
+    public String readTree() {
+        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\tree.txt");
+        Scanner in;
+        try {
+            in = new Scanner(f);
+            String treeString = in.nextLine();
+            while (in.hasNext()) {
+                treeString = in.nextLine();
+            }
+            callback.getGame().sendTextMessage("TREE - " + treeString, 0);
+            return treeString;
+        } catch (IOException e) {
+            callback.getGame().sendTextMessage("Cant read tree", 0);
+            return null;
+        }
+    }
 
     public OOAICallback getCallback() {
         return callback;
@@ -68,32 +92,39 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
     @Override
     public int update(int frame) {
-
         for (Manager m : managers) {
             try {
                 m.update(frame);
 
             } catch (Exception e) {
-                callback.getGame().sendTextMessage("AAAsAAAAAARGH "+e.getMessage(), 0);
+                callback.getGame().sendTextMessage("AAAsAAAAAARGH " + e.getMessage(), 0);
                 printException(e);
             }
         }
 
-       if (frame % 10 == 0) {
+        if (frame % 10 == 0) {
             if (!debugActivated)
                 activateDebug();
             else
                 debugView.repaint();
 
         }
+
+        if (frame % 100 == 0) {
+            bt.step();
+            LiveBT.draw();
+        }
+
+        if (frame == 500)
+            callback.getGame().sendTextMessage(bt.humanToString(), 0);
         return 0;
     }
 
     //when the ai is released AKA when game has ended
     @Override
-    public int release(int reason){
-        int time = (int)TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
-        callback.getGame().sendTextMessage("END " + "teamId: "+ this.teamId + " time: " +  time/1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
+    public int release(int reason) {
+        int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
+        callback.getGame().sendTextMessage("END " + "teamId: " + this.teamId + " time: " + time / 1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
         return 0;
     }
 
