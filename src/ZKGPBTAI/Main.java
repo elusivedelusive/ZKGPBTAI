@@ -38,6 +38,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    public boolean runningBT = true;
     public BehaviourTree<Main> bt;
 
     @Override
@@ -55,17 +56,18 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(militaryManager);
         recruitmentManager = new RecruitmentManager();
         managers.add(recruitmentManager);
-        losManager = new LOSManager();
-        managers.add(losManager);
+        //losManager = new LOSManager();
+        //managers.add(losManager);
 
         startTime = System.nanoTime();
 
-        @SuppressWarnings("unchecked")
-        Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
-        Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
-        bt = opt.get();
-        LiveBT.startTransmission(bt);
-
+        if (runningBT) {
+            @SuppressWarnings("unchecked")
+            Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
+            Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
+            bt = opt.get();
+            LiveBT.startTransmission(bt);
+        }
         return 0;
     }
 
@@ -110,13 +112,12 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         }
 
-        if (frame % 100 == 0) {
+
+        if (runningBT && frame % 100 == 0) {
             bt.step();
             LiveBT.draw();
         }
 
-        if (frame == 500)
-            callback.getGame().sendTextMessage(bt.humanToString(), 0);
         return 0;
     }
 
