@@ -1,2 +1,0 @@
-setupBotInSpring.bat unzips ZKGPTAI into C:\Users\%USERNAME%\Documents\My Games\Spring\engine\100.0\AI\Skirmish
-You still need to compile the bot jar file to C:\Users\Jonatan\Documents\My Games\Spring\engine\100.0\AI\Skirmish\ZKGPBTAI\0.1

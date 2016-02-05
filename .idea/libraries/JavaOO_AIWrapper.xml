@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="JavaOO-AIWrapper">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/Spring/JavaOO-AIWrapper.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
