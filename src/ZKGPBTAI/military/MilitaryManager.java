@@ -61,6 +61,10 @@ public class MilitaryManager extends Manager {
         } catch (Exception e) {
             write("Caretaker call " + e.getMessage());
         }
+
+        if(frame%1000 == 0){
+            write(getVisibleEnemies().size() + " Identified enemies");
+        }
         return 0;
     }
 
@@ -117,8 +121,8 @@ public class MilitaryManager extends Manager {
     public int enemyEnterLOS(Unit u) {
         try {
             if (enemies.containsKey(u.getUnitId())) {
+                enemies.get(u.getUnitId()).updateFromUnitDef(u.getDef());
                 enemies.get(u.getUnitId()).visible = true;
-
             } else {
                 Enemy e = new Enemy(u);
                 e.visible = true;
