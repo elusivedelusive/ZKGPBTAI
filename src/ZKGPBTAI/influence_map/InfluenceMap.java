@@ -140,15 +140,28 @@ public class InfluenceMap {
         String progress = "none";
         try {
             for (Unit u : influenceManager.callback.getFriendlyUnits()) {
+                if (u.getHealth() <= 0)
+                    continue;
+
                 progress = "friendly";
                 int x = ((int) Math.floor(u.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(u.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
                 progress += " math";
                 //TODO occasionly errors here
-                myInfluence[x][z] += u.getPower();
-                progress += " power";
-                propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getPower(), getFullInfluenceArea(u));
-                progress += " propagate";
+                //Consider monitoring units in IM
+                try {
+                    myInfluence[x][z] += u.getPower();
+                    progress += " power";
+                    propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getPower(), getFullInfluenceArea(u));
+                    progress += " propagate";
+                } catch (Exception e) {
+                    influenceManager.write("FM handled");
+                    myInfluence[x][z] += u.getHealth();
+                    progress += " power";
+                    propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getHealth(), getFullInfluenceArea(u));
+                    progress += " propagate";
+                }
+
             }
 
             for (Enemy e : influenceManager.militaryManager.getEnemies().values()) {

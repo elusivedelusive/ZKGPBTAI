@@ -57,4 +57,10 @@ public class Fighter {
         }
         return false;
     }
+
+    public boolean isDead(){
+        if(unit.getHealth() <= 0)
+            return true;
+        return false;
+    }
 }

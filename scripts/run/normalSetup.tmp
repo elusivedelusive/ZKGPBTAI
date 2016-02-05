@@ -27,7 +27,7 @@
      level=0;
      elo=1100;
      avatar=amgeo;
-     admin=0;
+     admin=1;
   }
   [AI0]
   {

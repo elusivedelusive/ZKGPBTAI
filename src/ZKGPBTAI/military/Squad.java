@@ -34,7 +34,7 @@ public class Squad {
     }
 
     public void addUnit(Fighter f, int frame) {
-        if (f.unit.getHealth() <= 0) {
+        if (f.isDead()) {
             sh.removeFighter(f);
             return;
         }
@@ -62,18 +62,23 @@ public class Squad {
     }
 
     public void commandUnits(Fighter f, AIFloat3 pos) {
+        //dead units somehow get into this method so the following code is required
         try {
-            f.fightTo(pos, mm);
-        } catch (Exception e) {
-            //Catch dead units that have managed to be reassigned
-            if (f.unit.getHealth() <= 0) {
+            if (f.isDead())
                 sh.removeFighter(f);
-            } else {
-                //this probably wont happen
-                mm.write((f.unit.getHealth() > 0 ? "HANDLED" : "FAIL IN CLASS SQUAD->commandUnits"));
-                reassignUnit(f);
+            else {
+                try {
+                    f.fightTo(pos, mm);
+                } catch (Exception e) {
+                    mm.write("commanding units failed");
+                    //Catch dead units that have managed to be reassigned
+                    //this probably wont happen
+                    mm.write((f.unit.getHealth() > 0 ? "HANDLED" : "FAIL IN CLASS SQUAD->commandUnits"));
+                    reassignUnit(f);
+                }
             }
-
+        } catch (Exception e) {
+            mm.write("commandUnits failed");
         }
     }
 
@@ -83,34 +88,63 @@ public class Squad {
         sh.addFighter(f);
     }
 
-    public AIFloat3 getPos() {
-        if (fighters.size() > 0) {
-            int count = fighters.size();
-            float x = 0;
-            float z = 0;
-            for (Fighter f : fighters) {
-                x += (f.getPos().x) / count;
-                z += (f.getPos().z) / count;
+    public void cleanFighters() {
+        ArrayList<Fighter> deadFighters = new ArrayList<>();
+        for (Fighter f : fighters) {
+            if (f.isDead()) {
+                deadFighters.add(f);
             }
-            AIFloat3 pos = new AIFloat3();
-            pos.x = x;
-            pos.z = z;
-            return pos;
+        }
+
+        for (Fighter f : deadFighters) {
+            sh.removeFighter(f);
+        }
+    }
+
+    public AIFloat3 getPos() {
+        try {
+            if (fighters.size() > 0) {
+                int count = fighters.size();
+                float x = 0;
+                float z = 0;
+                for (Fighter f : fighters) {
+                    x += (f.getPos().x) / count;
+                    z += (f.getPos().z) / count;
+                }
+                AIFloat3 pos = new AIFloat3();
+                pos.x = x;
+                pos.z = z;
+                return pos;
+            }
+        } catch (Exception e) {
+            mm.write("getpos Error");
         }
         return target;
     }
 
+    //In this method a dead fighter survives cleanfighters and enters commandunits where it is handled
     public boolean isRallied() {
-
-        AIFloat3 pos = getPos();
-        boolean rallied = true;
-        for (Fighter f : fighters) {
-            commandUnits(f, pos);
-            if (Utility.distance(pos, f.getPos()) > 350) {
-                rallied = false;
+        String errmsg = "";
+        try {
+            cleanFighters();
+            errmsg += "cleanFighters|";
+            AIFloat3 pos = getPos();
+            errmsg += "getPos|";
+            boolean rallied = true;
+            for (Fighter f : fighters) {
+                commandUnits(f, pos);
+                errmsg += "f|";
+                if (Utility.distance(pos, f.getPos()) > 350) {
+                    rallied = false;
+                }
+                errmsg += "P|";
             }
+            errmsg += "commandUnits|";
+            return rallied;
+        } catch (Exception e) {
+            mm.write("isRallied error " + errmsg);
+            return false;
         }
-        return rallied;
     }
 
     public boolean isDead() {

@@ -94,7 +94,6 @@ public class SquadHandler {
             callback.getGame().sendTextMessage("MM SH setRallyNewSquads" + e.getMessage(), 0);
         }
 
-        //TODO find and fix error in isRallied or setTarget
         try {
             for (int i = 0; i < squads.size(); i++) {
                 Squad s = squads.get(i);
@@ -216,7 +215,6 @@ public class SquadHandler {
     }
 
     public void removeFighter(Fighter f) {
-
         fighters.remove(f.id);
         for (Squad s : squads) {
             s.removeUnit(f);
@@ -225,14 +223,20 @@ public class SquadHandler {
     }
 
     private AIFloat3 getDefenceRally(int squadNumber) {
-        if (squadNumber >= 4)
+        if (squadNumber >= 3)
             squadNumber = 0;
-        return mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getTensionMap()).get(squadNumber);
+        return mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getTensionMap()).get(0);
     }
 
+    //returns the location of an enemy strongpoint using influenceManager. If none is found it returns getDefenceRally instead
     private AIFloat3 getAttackLocation(int squadNumber) {
-        if (squadNumber >= 4)
+        if (squadNumber >= 3)
             squadNumber = 0;
-        return (mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getOpponentInfluence())).get(squadNumber);
+        AIFloat3 pos = (mm.influenceManager.im.getNTopLocations(4, mm.influenceManager.im.getOpponentInfluence())).get(0);
+        if(pos == null) {
+            mm.write("No valid attackPos, using defence instead");
+            return getDefenceRally(squadNumber);
+        }
+        return pos;
     }
 }

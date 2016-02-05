@@ -39,7 +39,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     //determines if the bot will look for a bt tree or not
-    public boolean runningBT = true;
+    public boolean runningBT = false;
     public BehaviourTree<Main> bt;
 
     @Override
@@ -73,7 +73,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     }
 
     public String readTree() {
-        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\tree.txt");
+        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\dummyTree.txt");
         Scanner in;
         try {
             in = new Scanner(f);
