@@ -7,10 +7,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="53ef766a-36d7-4b1f-9f45-68a1211b0804" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/military/MilitaryManager.class" afterPath="$PROJECT_DIR$/out/production/ZKGPBTAI/ZKGPBTAI/military/MilitaryManager.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/artifacts/ZKGPBTAI_jar/ZKGPBTAI.jar" afterPath="$PROJECT_DIR$/out/artifacts/ZKGPBTAI_jar/ZKGPBTAI.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceManager.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceMap.java" afterPath="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceMap.java" />
     </list>
     <ignored path="ZKGPBTAI.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -78,7 +76,7 @@
         <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="152" column="65" selection-start-line="152" selection-start-column="65" selection-end-line="152" selection-end-column="65" />
+              <caret line="104" column="29" selection-start-line="104" selection-start-column="29" selection-end-line="104" selection-end-column="53" />
               <folding />
             </state>
           </provider>
@@ -87,9 +85,22 @@
       <file leaf-file-name="InfluenceMap.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceMap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5776302">
-              <caret line="167" column="35" selection-start-line="167" selection-start-column="35" selection-end-line="167" selection-end-column="35" />
+            <state vertical-scroll-proportion="0.119509704">
+              <caret line="138" column="86" selection-start-line="138" selection-start-column="86" selection-end-line="138" selection-end-column="86" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InfluenceManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="46" column="34" selection-start-line="46" selection-start-column="34" selection-end-line="46" selection-end-column="34" />
+              <folding>
+                <element signature="e#921#922#0" expanded="true" />
+                <element signature="e#963#964#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -123,6 +134,7 @@
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/military/SquadHandler.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/military/Squad.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java" />
+        <option value="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceManager.java" />
         <option value="$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceMap.java" />
       </list>
     </option>
@@ -540,15 +552,26 @@
     <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/military/MilitaryManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="152" column="65" selection-start-line="152" selection-start-column="65" selection-end-line="152" selection-end-column="65" />
+          <caret line="104" column="29" selection-start-line="104" selection-start-column="29" selection-end-line="104" selection-end-column="53" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="46" column="34" selection-start-line="46" selection-start-column="34" selection-end-line="46" selection-end-column="34" />
+          <folding>
+            <element signature="e#921#922#0" expanded="true" />
+            <element signature="e#963#964#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ZKGPBTAI/influence_map/InfluenceMap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5776302">
-          <caret line="167" column="35" selection-start-line="167" selection-start-column="35" selection-end-line="167" selection-end-column="35" />
+        <state vertical-scroll-proportion="0.119509704">
+          <caret line="138" column="86" selection-start-line="138" selection-start-column="86" selection-end-line="138" selection-end-column="86" />
           <folding />
         </state>
       </provider>

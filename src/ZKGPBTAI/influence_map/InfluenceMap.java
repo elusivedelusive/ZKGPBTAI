@@ -136,19 +136,16 @@ public class InfluenceMap {
 
     }
 
+    //Will occasionlly throw a friendly or enemy math exception at the end of the game
     public void updateInfluence() {
         String progress = "none";
         try {
-            for (Unit u : influenceManager.callback.getFriendlyUnits()) {
-                if (u.getHealth() <= 0)
-                    continue;
+            for (Unit u : influenceManager.friendlyUnits) {
 
                 progress = "friendly";
                 int x = ((int) Math.floor(u.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(u.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
                 progress += " math";
-                //TODO occasionly errors here
-                //Consider monitoring units in IM
                 try {
                     myInfluence[x][z] += u.getPower();
                     progress += " power";
