@@ -10,6 +10,8 @@ import ec.gp.ADFStack;
 import ec.gp.GPData;
 import ec.gp.GPIndividual;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Jonatan on 26-Jan-16.
  */
@@ -18,7 +20,11 @@ public class Offensive extends Action<Main>{
     @Override
     public TaskState execute() {
         Main.state = GameState.OFFENSIVE;
-        //Main.INSTANCE.getCallback().getGame().sendTextMessage("Offensive", 0);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return TaskState.SUCCEEDED;
     }
 
