@@ -10,8 +10,6 @@ import ec.gp.ADFStack;
 import ec.gp.GPData;
 import ec.gp.GPIndividual;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Created by Jonatan on 26-Jan-16.
  */
@@ -20,11 +18,7 @@ public class Defensive extends Action<Main> {
     @Override
     public TaskState execute() {
         Main.state = GameState.DEFENSIVE;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        //Main.INSTANCE.getCallback().getGame().sendTextMessage("Defensive", 0);
         return TaskState.SUCCEEDED;
     }
 

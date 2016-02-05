@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,11 +39,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     //determines if the bot will look for a bt tree or not
-    public boolean runningBT = true;
+    public boolean runningBT = false;
     public BehaviourTree<Main> bt;
-
-    ScheduledExecutorService executor;
-    Runnable btTask;
 
     @Override
     public int init(int teamId, OOAICallback callback) {
@@ -68,29 +63,16 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         startTime = System.nanoTime();
 
         if (runningBT) {
-
-            executor = Executors.newScheduledThreadPool(1);
-
             @SuppressWarnings("unchecked")
             Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
             Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
             bt = opt.get();
-
-            btTask = () -> {
-                bt.step();
-                LiveBT.draw();
-            };
-
-            debug(readTree());
-            debug(bt.humanToString());
             LiveBT.startTransmission(bt);
         }
         return 0;
     }
 
     public String readTree() {
-        return "sequence[untilSucceed(selector[inverter(defensive), hasEco, failer(hasEco)]), hasArmy, offensive]";
-        /*
         File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\dummyTree.txt");
         Scanner in;
         try {
@@ -105,7 +87,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             callback.getGame().sendTextMessage("Cant read tree", 0);
             return null;
         }
-        */
     }
 
     public OOAICallback getCallback() {
@@ -133,8 +114,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         }
 
 
-        if (runningBT && frame % 50 == 0) {
-            executor.submit(btTask);
+        if (runningBT && frame % 100 == 0) {
+            bt.step();
+            LiveBT.draw();
         }
 
         return 0;
