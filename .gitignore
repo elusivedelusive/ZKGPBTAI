@@ -8,8 +8,7 @@
 *.iml
 
 ## Directory-based project format:
-*/workspace.xml
-*/tasks.xml
+.idea/
 
 # IntelliJ
 /out/
