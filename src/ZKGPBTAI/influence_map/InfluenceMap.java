@@ -151,12 +151,15 @@ public class InfluenceMap {
                     progress += " power";
                     propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getPower(), getFullInfluenceArea(u));
                     progress += " propagate";
-                } catch (Exception e) {
+                } catch (NullPointerException noPower) {
                     influenceManager.write("FM handled");
                     myInfluence[x][z] += u.getHealth();
                     progress += " power";
                     propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getHealth(), getFullInfluenceArea(u));
                     progress += " propagate";
+                } catch (Exception deadUnit){
+                    influenceManager.write("friendly math continued: " + deadUnit.getLocalizedMessage());
+                    continue;
                 }
 
             }
@@ -166,17 +169,23 @@ public class InfluenceMap {
                 int x = ((int) Math.floor(e.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
                 int z = ((int) Math.floor(e.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
                 progress += " math";
-                if (e.isIdentified()) {
-                    opponentInfluence[x][z] += e.unit.getPower();
-                    progress += " power1";
-                    propagate(opponentInfluence, x, z, getMovementDissipationArea(e.unit), e.unit.getPower(), getFullInfluenceArea(e.unit));
-                    progress += " propagate1";
-                } else {
-                    opponentInfluence[x][z] += e.getPower() / 15;
-                    progress += " power2";
-                    propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower() / 15, e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
-                    progress += " propagate2";
+                try {
+                    if (e.isIdentified()) {
+                        opponentInfluence[x][z] += e.unit.getPower();
+                        progress += " power1";
+                        propagate(opponentInfluence, x, z, getMovementDissipationArea(e.unit), e.unit.getPower(), getFullInfluenceArea(e.unit));
+                        progress += " propagate1";
+                    } else {
+                        opponentInfluence[x][z] += e.getPower() / 15;
+                        progress += " power2";
+                        propagate(opponentInfluence, x, z, (e.getSpeed() == 0) ? 5 : e.getSpeed() * 5, e.getPower() / 15, e.getThreatRadius() / CONVERT_TO_MAP_POS_VALUE);
+                        progress += " propagate2";
+                    }
+                } catch (Exception enemyMath) {
+                    influenceManager.write("enemy math continued: " + enemyMath.getLocalizedMessage());
+                    continue;
                 }
+
             }
 
 

@@ -198,7 +198,20 @@ public class MilitaryManager extends Manager {
         return 0;
     }
 
+    public void removeDeadIdentifiedEnemies(){
+        ArrayList<Integer> deadEnemies = new ArrayList<Integer>();
+        for (Enemy e : enemies.values()) {
+            if (e.isIdentified() && e.unit.getHealth() <= 0) {
+                deadEnemies.add(e.unitId);
+            }
+        }
+        for (Integer key : deadEnemies) {
+            enemies.remove(key);
+        }
+    }
+
     public HashMap<Integer, Enemy> getEnemies() {
+        removeDeadIdentifiedEnemies();
         return enemies;
     }
 
