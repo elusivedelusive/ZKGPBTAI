@@ -10,6 +10,7 @@ import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
 
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -19,9 +20,10 @@ import java.util.List;
  * Created by Jonatan on 30-Nov-15.
  */
 public class EconomyManager extends Manager {
-    public static final int MAX_BUILD_DIST = 1000;
+    public static final int MAX_BUILD_DIST = 5000;
     public static final int BUILDING_DIST = 7;
-
+    public static float map_width;
+    public static float map_height;
     boolean metalmap = false;
     public List<AIFloat3> availablemetalspots;
     float effectiveIncomeMetal = 0;
@@ -41,6 +43,7 @@ public class EconomyManager extends Manager {
     public ArrayList<Worker> workers, factories, commanders;
     public ArrayList<Unit> metalExtractors, solarPlants, radars, defences, aas, storages, caretakers;
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
+    ArrayList<Worker> idlersGivenWork;
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb) {
@@ -51,6 +54,8 @@ public class EconomyManager extends Manager {
         this.m = callback.getResourceByName("Metal");
         this.e = callback.getResourceByName("Energy");
 
+        map_height = callback.getMap().getHeight() * 8f;
+        map_width = callback.getMap().getWidth() * 8f;
         availablemetalspots = new ArrayList<>();
         metalExtractors = new ArrayList<>();
         solarPlants = new ArrayList<>();
@@ -71,6 +76,7 @@ public class EconomyManager extends Manager {
         storages = new ArrayList<>();
         caretakerTasks = new ArrayList<>();
         caretakers = new ArrayList<>();
+        idlersGivenWork = new ArrayList<>();
 
         setEcoManager(this);
     }
@@ -102,13 +108,48 @@ public class EconomyManager extends Manager {
             }
 
             if (frame % 60 == 0) {
+                write("===================================================================");
+                write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
                 try {
                     cleanWorkers();
                 } catch (Exception e) {
                     write("ERROR cleanWorkers EM");
                 }
+
+                cleanTasks();
+
+                //==============DEBUGGING=================
+
+                for (Worker w : workers) {
+                    if (w.getTask() != null) {
+                        try {
+                            ConstructionTask ct = (ConstructionTask) w.getTask();
+                            w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                        } catch (Exception e) {
+                            w.getTask().stopWorkers(frame);
+                            idlers.add(w);
+                        }
+                    }
+                }
+
+                for (Worker w : workers) {
+                    String target = "";
+                    String task = "";
+                    String order = "";
+                    if (w.getTask() != null) {
+                        task = ((ConstructionTask) w.getTask()).buildType.getHumanName();
+                        target = (((ConstructionTask) w.getTask()).target != null) ? ((ConstructionTask) w.getTask()).target.getDef().getHumanName() : "";
+                    }
+                    if (w.getUnit().getCurrentCommands().size() > 0)
+                        order = w.getUnit().getCurrentCommands().get(0).toString();
+
+                    write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order);
+                }
+                //==============DEBUGGING=================
+
+//TODO workers helping each other build the same building may be causing the problems
                 for (Worker w : idlers) {
-                    if ((w.getTask() == null || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
+                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0 || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
                         try {
                             createWorkerTask(w);
                         } catch (Exception e) {
@@ -117,15 +158,24 @@ public class EconomyManager extends Manager {
                         ConstructionTask ct = (ConstructionTask) w.getTask();
                         try {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                            //==============DEBUGGING=================
+                            write(w.id + " " + w.getUnit().getDef().getHumanName() + " - new " + ct.buildType.getHumanName());
+                            //==============DEBUGGING=================
+                            idlersGivenWork.add(w);
+                            ct.addWorker(w);
                         } catch (Exception e) {
                             write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
-                            idlers.addAll(ct.stopWorkers(frame));
+                            ct.stopWorkers(frame);
                             removeTaskFromAllLists(ct);
                             w.setTask(null, frame);
                         }
                     }
                 }
+                idlers.removeAll(idlersGivenWork);
+                idlersGivenWork.clear();
+                write("===================================================================");
             }
+
         } catch (Exception e) {
             write(getModuleName() + " " + e.getMessage());
         }
@@ -138,13 +188,21 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitFinished(Unit unit) {
-        checkIfWorker(unit);
 
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
-                    idlers.addAll(ct.stopWorkers(frame));
+                    ct.stopWorkers(frame);
+                    finished = ct;
+                }
+            }
+        }
+
+        if (finished == null) {
+            for (ConstructionTask ct : constructionTasks) {
+                if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
+                    ct.stopWorkers(frame);
                     finished = ct;
                 }
             }
@@ -218,7 +276,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
-                        idlers.addAll(ct.stopWorkers(frame));
+                        ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
                     }
@@ -234,6 +292,15 @@ public class EconomyManager extends Manager {
         defences.remove(unit);
         aas.remove(unit);
 
+
+        for (Worker w : workers) {
+            if (w.id == unit.getUnitId()) {
+                write(unit.getUnitId() + " " + unit.getDef().getHumanName() + " IS DEAD");
+                if (w.getTask() != null) {
+                    removeTaskFromAllLists(w.getTask());
+                }
+            }
+        }
         //workers
         factories.remove(unit);
         workers.remove(unit);
@@ -246,7 +313,8 @@ public class EconomyManager extends Manager {
     public int unitIdle(Unit u) {
         for (Worker worker : workers) {
             if (worker.id == u.getUnitId()) {
-                idlers.add(worker);
+                if (!idlers.contains(worker))
+                    idlers.add(worker);
             }
         }
         return 0;
@@ -254,7 +322,11 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitCreated(Unit unit, Unit builder) {
-        if (builder != null && unit.isBeingBuilt()) {
+        checkIfWorker(unit);
+        if (builder == null)
+            return 0;
+
+        if (unit.isBeingBuilt()) {
             //if constructing building
             if (unit.getMaxSpeed() == 0) {
                 //find the unit constructing the building
@@ -265,9 +337,11 @@ public class EconomyManager extends Manager {
                             //set the target of the constructiontask to be the input unit
                             ConstructionTask ct = (ConstructionTask) w.getTask();
                             //target is used to continue building the same building if interrupted
+                            write("target found");
                             ct.target = unit;
                         } else {
                             for (ConstructionTask ct : constructionTasks) {
+                                write("using Dist to find target");
                                 //find the constructiontask closest to the input unit and set it to be the target of the ct
                                 float dist = Utility.distance(ct.getPos(), unit.getPos());
                                 if (dist < 25 && ct.buildType.getName().equals(unit.getDef().getName())) {
@@ -279,7 +353,7 @@ public class EconomyManager extends Manager {
                 }
             }
             //Needed to remove commanders build task for the first instant factory
-        } else if (builder != null && !unit.isBeingBuilt()) {
+        } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
                     constructionTasks.remove(w.getTask());
@@ -302,14 +376,27 @@ public class EconomyManager extends Manager {
         caretakerTasks.remove(wt);
     }
 
+    void cleanTasks() {
+        ArrayList<ConstructionTask> uselessTasks = new ArrayList<>();
+        for (ConstructionTask ct : constructionTasks) {
+            if (ct.assignedWorkers.size() == 0)
+                uselessTasks.add(ct);
+
+            if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), 0)) {
+                write("is not possible to build at");
+                uselessTasks.add(ct);
+            }
+        }
+        for (ConstructionTask ct : uselessTasks) {
+            ct.stopWorkers(frame);
+            removeTaskFromAllLists(ct);
+        }
+    }
+
     //This is needed because update is called before unitDestroyed
     void cleanWorkers() {
         List<Worker> invalidWorkers = new ArrayList<>();
         for (Worker w : workers) {
-            if (w.getUnit().getHealth() <= 0)
-                invalidWorkers.add(w);
-        }
-        for (Worker w : idlers) {
             if (w.getUnit().getHealth() <= 0)
                 invalidWorkers.add(w);
         }
@@ -323,33 +410,40 @@ public class EconomyManager extends Manager {
         workers.removeAll(invalidWorkers);
         idlers.removeAll(invalidWorkers);
 
+        for (Worker w : workers) {
+            if (w.getTask() != null)
+                idlers.remove(w);
+        }
 
         for (Worker w : workers) {
-
             //if worker has lost his orders give him the build command again
             if (w.getUnit().getCurrentCommands().size() == 0) {
                 if (w.getTask() != null) {
                     if (constructionTasks.contains(w.getTask())) {
                         ConstructionTask ct = (ConstructionTask) w.getTask();
                         try {
-                            w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
-                            idlers.remove(w);
+                            if (ct.target == null && frame - w.lastTaskFrame > 500) {
+                                ct.stopWorkers(frame);
+                                removeTaskFromAllLists(ct);
+                            } else {
+                                w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                                idlers.remove(w);
+                            }
                         } catch (Exception e) {
                             write("Cant build there " + e.getMessage());
                             removeTaskFromAllLists(ct);
+                            w.clearTask(frame);
                         }
                     }
                     //handle lazy workers
                 } else {
-                    idlers.add(w);
+                    w.clearTask(frame);
                 }
             }
-            if (w.unstick(frame)) {
-                idlers.add(w);
-                removeTaskFromAllLists(w.getTask());
-                w.clearTask(frame);
-            }
+
             // detect and unstick workers that get stuck on pathing obstacles.
+/*            if (w.unstick(frame))
+                write("unsticked");*/
         }
     }
 
@@ -363,6 +457,7 @@ public class EconomyManager extends Manager {
                 //assign task
             } else if (u.getMaxSpeed() > 0) {
                 Worker w = new Worker(u);
+                write(w.id + " " + w.getUnit().getDef().getHumanName() + " CREATED");
                 workers.add(w);
                 idlers.add(w);
                 if (def.getBuildSpeed() > 8) {
@@ -488,56 +583,100 @@ public class EconomyManager extends Manager {
         }
     }
 
+    public ConstructionTask getBuildSite(Worker w, UnitDef def, ArrayList<ConstructionTask> taskList) {
+        boolean taskCreated = false;
+        ConstructionTask ct = null;
+        AIFloat3 position = w.getPos();
+        while (taskCreated != true) {
+            position = w.getRadialPoint(position, 200f);
+            //This is called twice to save computation.
+            // //First check that this position is not outside the map
+            if (isValidBuildSite(position)) {
+
+                position = callback.getMap().findClosestBuildSite(def, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
+                //then check if the closest build site is valid
+                if (isValidBuildSite(position)) {
+                    ct = new ConstructionTask(def, position, 0);
+
+                    //if there are no other construction tasks they will not overlap so no need to iterate through the list
+                    if (constructionTasks.size() == 0) {
+                        taskList.add(ct);
+                        w.setTask(ct, frame);
+                        taskCreated = true;
+                    }
+
+                    for (ConstructionTask c : constructionTasks) {
+                        if (Utility.distance(position, c.getPos()) > 7) {
+                            if (!taskList.contains(ct)) {
+                                taskList.add(ct);
+                                w.setTask(ct, frame);
+                                taskCreated = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return ct;
+    }
+
+    public boolean isValidBuildSite(AIFloat3 pos) {
+        float dist = 75f;
+        if ((pos.x - dist) < 0f || (pos.x + dist) > map_width) {
+            write("posX: " + pos.x + " " + (pos.x - dist) + "  width " + map_width);
+            return false;
+        }
+
+        if ((pos.z - dist) < 0f || (pos.z + dist) > map_height) {
+            write("posZ: " + pos.z + " " + (pos.z - dist) + " height " + map_height);
+            return false;
+        }
+
+        checkForMetal();
+        for (AIFloat3 metalspot : availablemetalspots) {
+            if (Utility.distance(metalspot, pos) < 100f) {
+                write("DONT BUILD ON ZE METAL");
+                return false;
+            }
+        }
+        return true;
+    }
+
     void createLotusTask(Worker worker) {
         UnitDef lotus = callback.getUnitDefByName("corllt");
-        AIFloat3 position = worker.getUnit().getPos();
-
-        position = callback.getMap().findClosestBuildSite(lotus, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-        ConstructionTask ct = new ConstructionTask(lotus, position, 0);
-        if (!defenceTasks.contains(ct)) {
-            constructionTasks.add(ct);
-            defenceTasks.add(ct);
-        }
-        worker.setTask(ct, frame);
+        ConstructionTask ct = getBuildSite(worker, lotus, defenceTasks);
+        constructionTasks.add(ct);
     }
 
     void createGaussTask(Worker worker) {
         UnitDef gauss = callback.getUnitDefByName("armpb");
-        AIFloat3 position = worker.getUnit().getPos();
-
-        position = callback.getMap().findClosestBuildSite(gauss, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-        ConstructionTask ct = new ConstructionTask(gauss, position, 0);
-        if (!defenceTasks.contains(ct)) {
-            constructionTasks.add(ct);
-            defenceTasks.add(ct);
-        }
-        worker.setTask(ct, frame);
+        ConstructionTask ct = getBuildSite(worker, gauss, defenceTasks);
+        constructionTasks.add(ct);
     }
 
     void createStorageTask(Worker worker) {
         UnitDef storage = callback.getUnitDefByName("armmstor");
-        AIFloat3 position = worker.getUnit().getPos();
-
-        position = callback.getMap().findClosestBuildSite(storage, position, MAX_BUILD_DIST, BUILDING_DIST, Integer.MAX_VALUE);
-        ConstructionTask ct = new ConstructionTask(storage, position, 0);
-        if (!storageTasks.contains(ct)) {
-            constructionTasks.add(ct);
-            storageTasks.add(ct);
-        }
-        worker.setTask(ct, frame);
+        ConstructionTask ct = getBuildSite(worker, storage, storageTasks);
+        constructionTasks.add(ct);
     }
 
     void createRadarTask(Worker worker) {
         UnitDef radar = callback.getUnitDefByName("corrad");
-        AIFloat3 position = worker.getUnit().getPos();
+        ConstructionTask ct = getBuildSite(worker, radar, radarTasks);
+        constructionTasks.add(ct);
+    }
 
-        position = callback.getMap().findClosestBuildSite(radar, position, MAX_BUILD_DIST, BUILDING_DIST, Integer.MAX_VALUE);
-        ConstructionTask ct = new ConstructionTask(radar, position, 0);
-        if (!radarTasks.contains(ct)) {
-            constructionTasks.add(ct);
-            radarTasks.add(ct);
-        }
-        worker.setTask(ct, frame);
+    void createEnergyTask(Worker worker) {
+        UnitDef solar = callback.getUnitDefByName("armsolar");
+        ConstructionTask ct = getBuildSite(worker, solar, solarTasks);
+        constructionTasks.add(ct);
+    }
+
+    //TODO make it not build on metalspots or too close to edge of map
+    void createFactoryTask(Worker worker) {
+        UnitDef factory = recruitmentManager.chooseNewFactory();
+        ConstructionTask ct = getBuildSite(worker, factory, factoryTasks);
+        constructionTasks.add(ct);
     }
 
     void createMetalExtractorTask(Worker worker) {
@@ -569,31 +708,14 @@ public class EconomyManager extends Manager {
         }
     }
 
-    void createEnergyTask(Worker worker) {
-        UnitDef solar = callback.getUnitDefByName("armsolar");
-        ConstructionTask ct = new ConstructionTask(solar, callback.getMap().findClosestBuildSite(solar, worker.getPos(), MAX_BUILD_DIST, (short) BUILDING_DIST, Integer.MAX_VALUE), 0);
-        solarTasks.add(ct);
-        constructionTasks.add(ct);
-        worker.setTask(ct, frame);
-    }
-
-    void createFactoryTask(Worker worker) {
-        UnitDef factory = recruitmentManager.chooseNewFactory();
-        AIFloat3 position = worker.getUnit().getPos();
-        ConstructionTask ct = new ConstructionTask(factory, callback.getMap().findClosestBuildSite(factory, position, 600f, 5, 0), 0);
-        if (!factoryTasks.contains(ct)) {
-            constructionTasks.add(ct);
-            factoryTasks.add(ct);
-        }
-        worker.setTask(ct, frame);
-    }
-
     public AIFloat3 closestMetalSpot(AIFloat3 unitposition) {
         AIFloat3 closestspot = null;
         for (AIFloat3 metalspot : availablemetalspots) {
             if (closestspot == null) {
                 closestspot = metalspot;
-            } else if (Utility.distance(metalspot, unitposition) < Utility.distance(closestspot, unitposition) && metalspot.hashCode() != unitposition.hashCode() && callback.getMap().isPossibleToBuildAt(callback.getUnitDefByName("cormex"), metalspot, 0)) {
+            } else if (Utility.distance(metalspot, unitposition) < Utility.distance(closestspot, unitposition)
+                    && metalspot.hashCode() != unitposition.hashCode()
+                    && callback.getMap().isPossibleToBuildAt(callback.getUnitDefByName("cormex"), metalspot, 0)) {
                 closestspot = metalspot;
             }
         }
@@ -610,16 +732,16 @@ public class EconomyManager extends Manager {
             metalmap = true;
             for (Unit u : metalExtractors) {
                 for (int m = 0; m < availablemetalspots.size(); m++) {
-                    if (Utility.distance(u.getPos(), availablemetalspots.get(m)) < 5)
+                    if (Utility.distance(u.getPos(), availablemetalspots.get(m)) < 7)
                         availablemetalspots.remove(m);
                 }
             }
 
             //check for enemy metalExtractors
             for (Enemy e : militaryManager.getVisibleEnemies().values()) {
-                if (e.def.getName().equals("cormex")) {
+                if (e.unit.getMaxSpeed() == 0) {
                     for (int m = 0; m < availablemetalspots.size(); m++) {
-                        if (Utility.distance(e.getPos(), availablemetalspots.get(m)) < 5) {
+                        if (Utility.distance(e.getPos(), availablemetalspots.get(m)) < 7) {
                             availablemetalspots.remove(m);
                         }
                     }
