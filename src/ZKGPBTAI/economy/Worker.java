@@ -1,5 +1,6 @@
 package ZKGPBTAI.economy;
 
+import ZKGPBTAI.economy.tasks.ConstructionTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.Unit;
@@ -42,9 +43,11 @@ public class Worker {
 
     public void clearTask(int frame) {
         this.task = null;
+        lastTaskFrame = frame;
         if (unit.getHealth() > 0) {
             unit.stop((short) 0, frame + 300);
         }
+        lastPos = getPos();
     }
 
 
@@ -79,13 +82,13 @@ public class Worker {
 
     protected AIFloat3 getRadialPoint(AIFloat3 position, Float radius) {
         // returns a random point lying on a circle around the given position.
-        AIFloat3 pos = new AIFloat3();
+        AIFloat3 p = new AIFloat3();
         double angle = Math.random() * 2 * Math.PI;
         double vx = Math.cos(angle);
         double vz = Math.sin(angle);
-        pos.x = (float) (position.x + radius * vx);
-        pos.z = (float) (position.z + radius * vz);
-        return pos;
+        p.x = (float) (position.x + radius * vx);
+        p.z = (float) (position.z + radius * vz);
+        return p;
     }
 
     @Override

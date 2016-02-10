@@ -17,6 +17,7 @@ public class ConstructionTask extends WorkerTask {
         this.position = pos;
         this.buildType = def;
         this.facing = h;
+        this.target = null;
     }
 
     @Override

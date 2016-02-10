@@ -87,11 +87,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     }
 
     public String readTree() {
-
-        return "sequence[untilSucceed(selector[inverter(defensive), hasEco, failer(hasEco)]), hasArmy, offensive]";
-
-        /*
-        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\dummyTree.txt");
+        File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\tree.txt");
         Scanner in;
         try {
             in = new Scanner(f);
@@ -105,7 +101,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             callback.getGame().sendTextMessage("Cant read tree", 0);
             return null;
         }
-       */
+
     }
 
     public OOAICallback getCallback() {
