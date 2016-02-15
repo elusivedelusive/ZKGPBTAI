@@ -1,6 +1,7 @@
 package ZKGPBTAI.bt.actions.worker;
 
 import ZKGPBTAI.Main;
+import ZKGPBTAI.economy.tasks.WorkerTask;
 import bt.Task;
 import bt.leaf.Action;
 import ec.EvolutionState;
@@ -12,14 +13,10 @@ import ec.gp.GPIndividual;
 /**
  * Created by Jonatan on 15-Feb-16.
  */
-public class BuildFactory extends Action<Main> {
+public class BuildFactory extends WorkerAction {
     @Override
-    public TaskState execute() {
-        return null;
-    }
-
-    @Override
-    public void eval(EvolutionState evolutionState, int i, GPData gpData, ADFStack adfStack, GPIndividual gpIndividual, Problem problem) {
-
+    protected WorkerTask getWorkerTask() {
+        Main bb = getBlackboard();
+        return bb.economyManager.createStorageTask(bb.getWorker(tree));
     }
 }

@@ -205,6 +205,7 @@ public class EconomyManager extends Manager {
         for (ConstructionTask ct : constructionTasks) {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
+                    ct.setResult(true);
                     ct.stopWorkers(frame);
                     finished = ct;
                 }
@@ -214,6 +215,7 @@ public class EconomyManager extends Manager {
         if (finished == null) {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
+                    ct.setResult(true);
                     ct.stopWorkers(frame);
                     finished = ct;
                 }
@@ -595,10 +597,11 @@ public class EconomyManager extends Manager {
         }
     }
 
-    void createAssistTask(Worker w, int frame, Unit target) {
+    public AssistTask createAssistTask(Worker w, int frame, Unit target) {
         Unit fac = getNearestFac(w.getPos()).getUnit();
         AssistTask at = new AssistTask(w, frame, target);
         assistTasks.add(at);
+        return at;
     }
 
     public ConstructionTask getBuildSite(Worker w, UnitDef def, ArrayList<ConstructionTask> taskList, boolean isFactory) {
@@ -664,43 +667,49 @@ public class EconomyManager extends Manager {
         return true;
     }
 
-    void createLotusTask(Worker worker) {
+    public ConstructionTask createLotusTask(Worker worker) {
         UnitDef lotus = callback.getUnitDefByName("corllt");
         ConstructionTask ct = getBuildSite(worker, lotus, defenceTasks, false);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createGaussTask(Worker worker) {
+    public ConstructionTask createGaussTask(Worker worker) {
         UnitDef gauss = callback.getUnitDefByName("armpb");
         ConstructionTask ct = getBuildSite(worker, gauss, defenceTasks, false);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createStorageTask(Worker worker) {
+    public ConstructionTask createStorageTask(Worker worker) {
         UnitDef storage = callback.getUnitDefByName("armmstor");
         ConstructionTask ct = getBuildSite(worker, storage, storageTasks, false);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createRadarTask(Worker worker) {
+    public ConstructionTask createRadarTask(Worker worker) {
         UnitDef radar = callback.getUnitDefByName("corrad");
         ConstructionTask ct = getBuildSite(worker, radar, radarTasks, false);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createEnergyTask(Worker worker) {
+    public ConstructionTask createEnergyTask(Worker worker) {
         UnitDef solar = callback.getUnitDefByName("armsolar");
         ConstructionTask ct = getBuildSite(worker, solar, solarTasks, false);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createFactoryTask(Worker worker) {
+    public ConstructionTask createFactoryTask(Worker worker) {
         UnitDef factory = recruitmentManager.chooseNewFactory();
         ConstructionTask ct = getBuildSite(worker, factory, factoryTasks, true);
         constructionTasks.add(ct);
+        return ct;
     }
 
-    void createMetalExtractorTask(Worker worker) {
+    public ConstructionTask createMetalExtractorTask(Worker worker) {
         checkForMetal();
         UnitDef metalExt = callback.getUnitDefByName("cormex");
 
@@ -727,6 +736,7 @@ public class EconomyManager extends Manager {
                 worker.setTask(ct, frame);
             }
         }
+        return ct;
     }
 
     public AIFloat3 closestMetalSpot(AIFloat3 unitposition) {

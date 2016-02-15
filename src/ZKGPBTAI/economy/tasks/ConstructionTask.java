@@ -1,5 +1,6 @@
 package ZKGPBTAI.economy.tasks;
 
+import bt.Task;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.Unit;
 import com.springrts.ai.oo.clb.UnitDef;

@@ -4,6 +4,7 @@ import ZKGPBTAI.bt.actions.*;
 import ZKGPBTAI.bt.conditions.*;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
+import ZKGPBTAI.economy.Worker;
 import ZKGPBTAI.gui.DebugView;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.los.LOSManager;
@@ -43,6 +44,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     //determines if the bot will look for a bt tree or not
     public boolean runningBT = false;
     public BehaviourTree<Main> bt;
+
+    private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
 
     ScheduledExecutorService executorService;
     Runnable btTask;
@@ -316,6 +319,10 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         ex.printStackTrace(pw);
+    }
+
+    public Worker getWorker(BehaviourTree bt) {
+        return trees.get(bt);
     }
 
 }
