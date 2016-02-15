@@ -24,6 +24,11 @@ public class MilitaryManager extends Manager {
 
     public SquadHandler squadHandler;
 
+    public int riotCount = 0;
+    public int assaultCount = 0;
+    public int skirmisherCount = 0;
+    public int raiderCount = 0;
+
     public MilitaryManager() {
         soldiers = new ArrayList<>();
         enemies = new HashMap<>();
@@ -62,14 +67,48 @@ public class MilitaryManager extends Manager {
             write("Caretaker call " + e.getMessage());
         }
 
-        if(frame%1000 == 0){
+/*        if(frame%1000 == 0){
             write(getVisibleEnemies().size() + " Identified enemies");
-        }
+        }*/
         return 0;
+    }
+
+    public void classify(Unit u, boolean isDead) {
+        String unitClass = UnitClassifier.classify(u);
+
+        switch (unitClass) {
+            case "raider":
+                if (isDead)
+                    raiderCount--;
+                else
+                    raiderCount++;
+                break;
+            case "riot":
+                if (isDead)
+                    riotCount--;
+                else
+                    riotCount++;
+                break;
+            case "assault":
+                if (isDead)
+                    assaultCount--;
+                else
+                    assaultCount++;
+                break;
+            case "skirmisher":
+                if (isDead)
+                    skirmisherCount--;
+                else
+                    skirmisherCount++;
+                break;
+        }
+
+
     }
 
     @Override
     public int unitFinished(Unit u) {
+        classify(u, false);
         try {
             String name = u.getDef().getHumanName();
             if (name.equals("Glaive")
@@ -108,6 +147,7 @@ public class MilitaryManager extends Manager {
                 if (u.getUnitId() == unit.getUnitId()) {
                     soldiers.remove(unit);
                     squadHandler.removeFighter(fighters.get(unit.getUnitId()));
+                    classify(unit, true);
                     break;
                 }
             }
@@ -198,7 +238,7 @@ public class MilitaryManager extends Manager {
         return 0;
     }
 
-    public void removeDeadIdentifiedEnemies(){
+    public void removeDeadIdentifiedEnemies() {
         ArrayList<Integer> deadEnemies = new ArrayList<Integer>();
         for (Enemy e : enemies.values()) {
             if (e.isIdentified() && e.unit.getHealth() <= 0) {
