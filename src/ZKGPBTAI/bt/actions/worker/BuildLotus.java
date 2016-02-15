@@ -1,6 +1,7 @@
 package ZKGPBTAI.bt.actions.worker;
 
 import ZKGPBTAI.Main;
+import ZKGPBTAI.economy.tasks.WorkerTask;
 import bt.leaf.Action;
 import ec.EvolutionState;
 import ec.Problem;
@@ -11,14 +12,11 @@ import ec.gp.GPIndividual;
 /**
  * Created by Jonatan on 15-Feb-16.
  */
-public class BuildLotus extends Action<Main> {
-    @Override
-    public TaskState execute() {
-        return null;
-    }
+public class BuildLotus extends WorkerAction{
 
     @Override
-    public void eval(EvolutionState evolutionState, int i, GPData gpData, ADFStack adfStack, GPIndividual gpIndividual, Problem problem) {
-
+    protected WorkerTask getConstructionTask() {
+        Main bb = getBlackboard();
+        return bb.economyManager.createLotusTask(bb.getWorker(tree));
     }
 }
