@@ -27,15 +27,20 @@ public class EconomyManager extends Manager {
     public static float map_height;
     boolean metalmap = false;
     public List<AIFloat3> availablemetalspots;
-    float effectiveIncomeMetal = 0;
-    float effectiveIncomeEnergy = 0;
+    public float effectiveIncomeMetal = 0;
+    public float effectiveIncomeEnergy = 0;
 
     public float effectiveIncome = 0;
-    float effectiveExpenditure = 0;
+    public float effectiveExpenditure = 0;
 
-    float metal = 0;
-    float energy = 0;
+    public float metal = 0;
+    public float energy = 0;
 
+    public float metalStorage= 0;
+    public float energyStorage = 0;
+
+    public float expendMetal = 0;
+    public float expendEnergy = 0;
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
@@ -96,14 +101,19 @@ public class EconomyManager extends Manager {
 
         if (frame % 5 == 0) {
             //update economy
+            energyStorage = economy.getStorage(e);
+            metalStorage = economy.getStorage(m);
+
             effectiveIncomeMetal = economy.getIncome(m);
             effectiveIncomeEnergy = economy.getIncome(e);
             metal = economy.getCurrent(m);
             energy = economy.getCurrent(e);
-            float expendMetal = economy.getUsage(m);
-            float expendEnergy = economy.getUsage(e);
+            expendMetal = economy.getUsage(m);
+            expendEnergy = economy.getUsage(e);
             effectiveIncome = Math.min(effectiveIncomeMetal, effectiveIncomeEnergy);
             effectiveExpenditure = Math.min(expendMetal, expendEnergy);
+
+            //stats
             entries++;
             totalEco += effectiveIncome;
         }
