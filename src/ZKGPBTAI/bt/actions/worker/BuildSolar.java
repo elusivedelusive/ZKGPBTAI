@@ -15,7 +15,7 @@ import ec.gp.GPIndividual;
 public class BuildSolar extends WorkerAction {
 
     @Override
-    protected WorkerTask getConstructionTask() {
+    protected WorkerTask getWorkerTask() {
         Main bb = getBlackboard();
         return bb.economyManager.createEnergyTask(bb.getWorker(tree));
     }

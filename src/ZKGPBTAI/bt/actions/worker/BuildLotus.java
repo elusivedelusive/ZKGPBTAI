@@ -15,7 +15,7 @@ import ec.gp.GPIndividual;
 public class BuildLotus extends WorkerAction{
 
     @Override
-    protected WorkerTask getConstructionTask() {
+    protected WorkerTask getWorkerTask() {
         Main bb = getBlackboard();
         return bb.economyManager.createLotusTask(bb.getWorker(tree));
     }

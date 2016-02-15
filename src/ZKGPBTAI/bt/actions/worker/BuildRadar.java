@@ -15,7 +15,7 @@ import ec.gp.GPIndividual;
 public class BuildRadar  extends WorkerAction {
 
     @Override
-    protected WorkerTask getConstructionTask() {
+    protected WorkerTask getWorkerTask() {
         Main bb = getBlackboard();
         return bb.economyManager.createRadarTask(bb.getWorker(tree));
     }

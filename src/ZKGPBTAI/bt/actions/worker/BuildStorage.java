@@ -15,7 +15,7 @@ import ec.gp.GPIndividual;
 public class BuildStorage  extends WorkerAction {
 
     @Override
-    protected WorkerTask getConstructionTask() {
+    protected WorkerTask getWorkerTask() {
         Main bb = getBlackboard();
         return bb.economyManager.createStorageTask(bb.getWorker(tree));
     }

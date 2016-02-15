@@ -20,11 +20,11 @@ public abstract class WorkerAction extends Action<Main> {
     // Three states: null(Running), true(Succeed) and false(failed)
     private Boolean result = (null);
 
-    protected abstract WorkerTask getConstructionTask();
+    protected abstract WorkerTask getWorkerTask();
 
     @Override
     public void start() {
-        WorkerTask task = getConstructionTask();
+        WorkerTask task = getWorkerTask();
         task.addObserver((Observable obs, Object val) -> {
             if(obs == task)
                 result = task.getResult();

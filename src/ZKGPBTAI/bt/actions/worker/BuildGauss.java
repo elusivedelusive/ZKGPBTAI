@@ -14,7 +14,7 @@ import ec.gp.GPIndividual;
  */
 public class BuildGauss extends WorkerAction {
     @Override
-    protected WorkerTask getConstructionTask() {
+    protected WorkerTask getWorkerTask() {
         Main bb = getBlackboard();
         return bb.economyManager.createGaussTask(bb.getWorker(tree));
     }

@@ -587,10 +587,11 @@ public class EconomyManager extends Manager {
         }
     }
 
-    void createAssistTask(Worker w, int frame, Unit target) {
+    public AssistTask createAssistTask(Worker w, int frame, Unit target) {
         Unit fac = getNearestFac(w.getPos()).getUnit();
         AssistTask at = new AssistTask(w, frame, target);
         assistTasks.add(at);
+        return at;
     }
 
     public ConstructionTask getBuildSite(Worker w, UnitDef def, ArrayList<ConstructionTask> taskList, boolean isFactory) {
