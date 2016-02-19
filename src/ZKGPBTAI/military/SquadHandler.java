@@ -114,7 +114,10 @@ public class SquadHandler {
                 try {
                     //get new attack location
                     if (s.isRallied()) {
-                        s.setTarget(getAttackLocation(i), mm);
+                        if(Main.state == GameState.OFFENSIVE)
+                            s.setTarget(getAttackLocation(i), mm);
+                        else
+                            s.setTarget(getDefenceRally(i), mm);
                     }
                 } catch (Exception e) {
                     callback.getGame().sendTextMessage("MM SH getNewAttackLocation" + e.getMessage(), 0);

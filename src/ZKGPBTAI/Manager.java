@@ -25,6 +25,7 @@ public abstract class Manager extends AbstractOOAI {
     protected static Game game;
     protected static Economy economy;
     public static OOAICallback callback;
+    public static boolean runningBt = false;
     protected int frame = 0;
 
     public abstract String getModuleName();

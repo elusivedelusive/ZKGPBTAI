@@ -1,7 +1,11 @@
 package ZKGPBTAI;
 
 import ZKGPBTAI.bt.actions.*;
+import ZKGPBTAI.bt.actions.worker.*;
 import ZKGPBTAI.bt.conditions.*;
+import ZKGPBTAI.bt.conditions.economy.HighEnergy;
+import ZKGPBTAI.bt.conditions.economy.HighMetal;
+import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.economy.Worker;
@@ -42,10 +46,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     //determines if the bot will look for a bt tree or not
-    public boolean runningBT = false;
-    public BehaviourTree<Main> bt;
-
-    private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
+    public boolean runningBT = true;
+    public BehaviourTree<EconomyManager> bt;
 
     ScheduledExecutorService executorService;
     Runnable btTask;
@@ -57,7 +59,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback);
+        economyManager = new EconomyManager(callback, runningBT, readTree());
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
@@ -70,13 +72,15 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         startTime = System.nanoTime();
 
-        if (runningBT) {
+/*        if (runningBT) {
 
             executorService = Executors.newScheduledThreadPool(1);
 
             @SuppressWarnings("unchecked")
-            Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class};
-            Optional<BehaviourTree<Main>> opt = new TreeInterpreter<Main>(this).create(classes, readTree());
+            Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class,
+                    BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
+                    BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, HighEnergy.class};
+            Optional<BehaviourTree<EconomyManager>> opt = new TreeInterpreter<EconomyManager>(this).create(classes, readTree());
             bt = opt.get();
 
             btTask = () -> {
@@ -85,7 +89,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             };
 
             LiveBT.startTransmission(bt);
-        }
+        }*/
         return 0;
     }
 
@@ -118,7 +122,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
                 m.update(frame);
 
             } catch (Exception e) {
-                callback.getGame().sendTextMessage("AAAsAAAAAARGH " + e.getMessage(), 0);
+                callback.getGame().sendTextMessage(m.getModuleName() + " " + e.getMessage(), 0);
                 printException(e);
             }
         }
@@ -132,9 +136,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         }
 
 
-        if (runningBT && frame % 100 == 0) {
+/*        if (runningBT && frame % 100 == 0) {
             executorService.submit(btTask);
-        }
+        }*/
 
         return 0;
     }
@@ -321,8 +325,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         ex.printStackTrace(pw);
     }
 
-    public Worker getWorker(BehaviourTree bt) {
-        return trees.get(bt);
-    }
+
 
 }

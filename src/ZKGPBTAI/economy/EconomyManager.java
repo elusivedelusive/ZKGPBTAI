@@ -2,20 +2,33 @@ package ZKGPBTAI.economy;
 
 import ZKGPBTAI.Main;
 import ZKGPBTAI.Manager;
+import ZKGPBTAI.bt.actions.Defensive;
+import ZKGPBTAI.bt.actions.Offensive;
+import ZKGPBTAI.bt.actions.worker.*;
+import ZKGPBTAI.bt.conditions.HasArmy;
+import ZKGPBTAI.bt.conditions.HasEco;
+import ZKGPBTAI.bt.conditions.economy.HighEnergy;
+import ZKGPBTAI.bt.conditions.economy.HighMetal;
+import ZKGPBTAI.bt.conditions.economy.LowEnergy;
+import ZKGPBTAI.bt.conditions.economy.LowMetal;
 import ZKGPBTAI.economy.tasks.AssistTask;
 import ZKGPBTAI.economy.tasks.ConstructionTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import ZKGPBTAI.military.Enemy;
 import ZKGPBTAI.utils.Utility;
+import bt.BehaviourTree;
+import bt.Task;
+import bt.utils.TreeInterpreter;
+import bt.utils.graphics.LiveBT;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
 
 import java.lang.reflect.Array;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by Jonatan on 30-Nov-15.
@@ -36,11 +49,12 @@ public class EconomyManager extends Manager {
     public float metal = 0;
     public float energy = 0;
 
-    public float metalStorage= 0;
+    public float metalStorage = 0;
     public float energyStorage = 0;
 
     public float expendMetal = 0;
     public float expendEnergy = 0;
+
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
@@ -52,14 +66,23 @@ public class EconomyManager extends Manager {
     ArrayList<AssistTask> assistTasks;
     ArrayList<Worker> idlersGivenWork;
 
+    //BT
+    private final HashMap<BehaviourTree<EconomyManager>, Worker> trees = new HashMap<>();
+    ScheduledExecutorService executorService;
+    Runnable btTask;
+    Optional<BehaviourTree<EconomyManager>> opt;
+    String inputTree = "";
+
     //must be called before other managers
-    public EconomyManager(OOAICallback cb) {
+    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
         //set variables in Manager
         this.callback = cb;
         this.economy = cb.getEconomy();
         this.game = cb.getGame();
         this.m = callback.getResourceByName("Metal");
         this.e = callback.getResourceByName("Energy");
+        this.runningBt = runningBT;
+        this.inputTree = inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -87,6 +110,17 @@ public class EconomyManager extends Manager {
         assistTasks = new ArrayList<>();
 
         setEcoManager(this);
+
+        if (runningBT) {
+
+            executorService = Executors.newScheduledThreadPool(1);
+
+            @SuppressWarnings("unchecked")
+            Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
+                    BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, HighEnergy.class, LowMetal.class,};
+            write("inputtree = " + inputTree);
+            opt = new TreeInterpreter<>(this).create(classes, inputTree);
+        }
     }
 
     @Override
@@ -119,21 +153,33 @@ public class EconomyManager extends Manager {
         }
 
         if (frame % 60 == 0) {
-            // write("===================================================================");
-            //write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
+
+            if (runningBt)
+                executorService.submit(btTask);
+            write("===================================================================");
+
+            write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
+            for (ConstructionTask task : constructionTasks) {
+                write("Tasks " + task.buildType.getHumanName() + " pos " + task.getPos());
+            }
             try {
                 cleanWorkers();
             } catch (Exception e) {
                 write("ERROR cleanWorkers EM");
             }
 
-            //check is assistask is done
-            for(AssistTask at: assistTasks){
-                if(at.isDone(frame))
-                    ((WorkerTask)at).stopWorkers(frame);
+/*            //check is assistask is done
+            for (AssistTask at : assistTasks) {
+                if (at.isDone(frame))
+                    ((WorkerTask) at).stopWorkers(frame);
+            }*/
+
+            try{
+                cleanTasks();
+            } catch(Exception e){
+                write("cleanTasks has crashed");
             }
 
-            cleanTasks();
 
 
             for (Worker w : workers) {
@@ -142,6 +188,7 @@ public class EconomyManager extends Manager {
                         ConstructionTask ct = (ConstructionTask) w.getTask();
                         w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     } catch (Exception e) {
+                        write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
                         idlers.add(w);
                     }
@@ -149,65 +196,64 @@ public class EconomyManager extends Manager {
             }
 
             //==============DEBUGGING=================
-/*                for (Worker w : workers) {
-                    String target = "";
-                    String task = "";
-                    String order = "";
-                    if (w.getTask() != null) {
-                        task = ((ConstructionTask) w.getTask()).buildType.getHumanName();
-                        target = (((ConstructionTask) w.getTask()).target != null) ? ((ConstructionTask) w.getTask()).target.getDef().getHumanName() : "";
-                    }
-                    if (w.getUnit().getCurrentCommands().size() > 0)
-                        order = w.getUnit().getCurrentCommands().get(0).toString();
+            for (Worker w : workers) {
+                String target = "";
+                String task = "";
+                String order = "";
+                if (w.getTask() != null) {
+                    task = ((ConstructionTask) w.getTask()).buildType.getHumanName();
+                    target = (((ConstructionTask) w.getTask()).target != null) ? ((ConstructionTask) w.getTask()).target.getDef().getHumanName() : "";
+                }
+                if (w.getUnit().getCurrentCommands().size() > 0)
+                    order = w.getUnit().getCurrentCommands().get(0).toString();
 
-                    write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order);
-                }*/
+                write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order);
+            }
             //==============DEBUGGING=================
 
-            for (Worker w : idlers) {
-                if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0 || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
-                    try {
-                        createWorkerTask(w);
-                    } catch (Exception e) {
-                        write("createWorkerTask " + e.getMessage() + " HEALTH " + w.getUnit().getHealth());
-                    }
-                    ConstructionTask ct = (ConstructionTask) w.getTask();
-                    try {
-                        w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
-                        //==============DEBUGGING=================
-                        //write(w.id + " " + w.getUnit().getDef().getHumanName() + " - new " + ct.buildType.getHumanName());
-                        //==============DEBUGGING=================
-                        idlersGivenWork.add(w);
-                        ct.addWorker(w);
-                    } catch (Exception e) {
-                        write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
-                        ct.stopWorkers(frame);
-                        removeTaskFromAllLists(ct);
-                        w.setTask(null, frame);
+            if (!runningBt) {
+                for (Worker w : idlers) {
+                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0 || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
+                        try {
+                            createWorkerTask(w);
+                        } catch (Exception e) {
+                            write("createWorkerTask " + e.getMessage() + " HEALTH " + w.getUnit().getHealth());
+                        }
+                        ConstructionTask ct = (ConstructionTask) w.getTask();
+                        try {
+                            w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                            //==============DEBUGGING=================
+                            //write(w.id + " " + w.getUnit().getDef().getHumanName() + " - new " + ct.buildType.getHumanName());
+                            //==============DEBUGGING=================
+                            idlersGivenWork.add(w);
+                        } catch (Exception e) {
+                            write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
+                            ct.stopWorkers(frame);
+                            removeTaskFromAllLists(ct);
+                            w.setTask(null, frame);
+                        }
                     }
                 }
+                idlers.removeAll(idlersGivenWork);
+                idlersGivenWork.clear();
+                write("===================================================================");
             }
-            idlers.removeAll(idlersGivenWork);
-            idlersGivenWork.clear();
-            //write("===================================================================");
         }
-
-        if (frame % 300 == 0)
-            assignCaretakers();
-
         return 0;
     }
 
     @Override
     public int unitFinished(Unit unit) {
-
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
+                    //================= BT ================
                     ct.setResult(true);
+                    //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
+                    write("Task finished: " + ct.target.getDef().getHumanName());
                 }
             }
         }
@@ -215,9 +261,12 @@ public class EconomyManager extends Manager {
         if (finished == null) {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
+                    //================= BT ================
                     ct.setResult(true);
+                    //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
+                    write("Task finished2: " + ct.target.getDef().getHumanName());
                 }
             }
         }
@@ -313,6 +362,22 @@ public class EconomyManager extends Manager {
                 if (w.getTask() != null) {
                     removeTaskFromAllLists(w.getTask());
                 }
+
+                //================= BT ================
+                if (runningBt) {
+                    if (trees.containsValue(w)) {
+                        BehaviourTree<EconomyManager> btToRemove = null;
+                        for (HashMap.Entry<BehaviourTree<EconomyManager>, Worker> entry : trees.entrySet()) {
+                            if (entry.getValue() == w) {
+                                btToRemove = entry.getKey();
+                                break;
+                            }
+                        }
+                        if (btToRemove != null)
+                            trees.remove(btToRemove);
+                    }
+                }
+                //================= BT ================
             }
         }
         //workers
@@ -392,16 +457,35 @@ public class EconomyManager extends Manager {
 
     void cleanTasks() {
         ArrayList<ConstructionTask> uselessTasks = new ArrayList<>();
+        //if the task has no assigned workers
         for (ConstructionTask ct : constructionTasks) {
-            if (ct.assignedWorkers.size() == 0)
+            if (ct.assignedWorkers.size() == 0) {
+                uselessTasks.add(ct);
+                write("Task was removed because it had no workers");
+            }
+
+            //if no worker has that task
+            boolean workerHasTask = false;
+            for (Worker w : workers) {
+                if (w.getTask().equals(ct)) {
+                    workerHasTask = true;
+                    break;
+                }
+            }
+            if (!workerHasTask)
                 uselessTasks.add(ct);
 
+            //if it is not possible to build at the location
             if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), 0)) {
                 write("is not possible to build at");
                 uselessTasks.add(ct);
             }
         }
         for (ConstructionTask ct : uselessTasks) {
+
+/*            if(runningBt)
+                ct.setResult(false);*/
+
             ct.stopWorkers(frame);
             removeTaskFromAllLists(ct);
         }
@@ -477,6 +561,17 @@ public class EconomyManager extends Manager {
                 if (def.getBuildSpeed() > 8) {
                     commanders.add(w);
                 }
+                //=================BT====================
+                final BehaviourTree<EconomyManager> bt = opt.get();
+
+                btTask = () -> {
+                    bt.step();
+                    LiveBT.draw();
+                };
+                LiveBT.startTransmission(bt);
+
+                trees.put(bt, w);
+                //=================BT====================
             }
         }
     }
@@ -608,30 +703,34 @@ public class EconomyManager extends Manager {
         boolean taskCreated = false;
         ConstructionTask ct = null;
         AIFloat3 position = w.getPos();
-        while (taskCreated != true) {
-            position = w.getRadialPoint(position, 200f);
+        if (w.getTask() == null) {
+            while (taskCreated != true) {
+                position = w.getRadialPoint(position, 200f);
 
-            position = callback.getMap().findClosestBuildSite(def, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-            //then check if the closest build site is valid
+                position = callback.getMap().findClosestBuildSite(def, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
+                //then check if the closest build site is valid
 
-            if (isFactory && !isOffsetEdgeOfMap(position))
-                continue;
-            if (doesNotCoverMetalSPot(position)) {
-                ct = new ConstructionTask(def, position, 0);
+                if (isFactory && !isOffsetEdgeOfMap(position))
+                    continue;
+                if (doesNotCoverMetalSPot(position)) {
+                    ct = new ConstructionTask(def, position, 0);
 
-                //if there are no other construction tasks they will not overlap so no need to iterate through the list
-                if (constructionTasks.size() == 0) {
-                    taskList.add(ct);
-                    w.setTask(ct, frame);
-                    taskCreated = true;
-                }
+                    //if there are no other construction tasks they will not overlap so no need to iterate through the list
+                    if (constructionTasks.size() == 0) {
+                        taskList.add(ct);
+                        w.setTask(ct, frame);
+                        ct.addWorker(w);
+                        taskCreated = true;
+                    }
 
-                for (ConstructionTask c : constructionTasks) {
-                    if (Utility.distance(position, c.getPos()) > 7) {
-                        if (!taskList.contains(ct)) {
-                            taskList.add(ct);
-                            w.setTask(ct, frame);
-                            taskCreated = true;
+                    for (ConstructionTask c : constructionTasks) {
+                        if (Utility.distance(position, c.getPos()) > 7) {
+                            if (!taskList.contains(ct)) {
+                                taskList.add(ct);
+                                w.setTask(ct, frame);
+                                ct.addWorker(w);
+                                taskCreated = true;
+                            }
                         }
                     }
                 }
@@ -712,29 +811,36 @@ public class EconomyManager extends Manager {
     public ConstructionTask createMetalExtractorTask(Worker worker) {
         checkForMetal();
         UnitDef metalExt = callback.getUnitDefByName("cormex");
-
         ConstructionTask ct = null;
         boolean found = false;
         while (!found) {
             AIFloat3 metalPos = closestMetalSpot(worker.getPos());
             if (callback.getMap().isPossibleToBuildAt(metalExt, metalPos, Integer.MAX_VALUE)) {
                 ct = new ConstructionTask(metalExt, metalPos, 0);
-                if (!constructionTasks.contains(ct))
+                if (!constructionTasks.contains(ct)) {
                     found = true;
+                    break;
+                }
             } else {
                 AIFloat3 closePos = callback.getMap().findClosestBuildSite(metalExt, metalPos, MAX_BUILD_DIST, 5, Integer.MAX_VALUE);
                 ct = new ConstructionTask(metalExt, closePos, 0);
-                if (!constructionTasks.contains(ct))
+                if (!constructionTasks.contains(ct)) {
                     found = true;
+                    break;
+                }
             }
 
-            if (!found) {
-                availablemetalspots.remove(metalPos);
-            } else {
-                constructionTasks.add(ct);
-                metExtractTasks.add(ct);
-                worker.setTask(ct, frame);
-            }
+
+            availablemetalspots.remove(metalPos);
+        }
+
+        if (found) {
+            write("Creating metTask at " + ct.getPos());
+            constructionTasks.add(ct);
+            metExtractTasks.add(ct);
+            worker.setTask(ct, frame);
+            ct.addWorker(worker);
+            return ct;
         }
         return ct;
     }
@@ -783,5 +889,9 @@ public class EconomyManager extends Manager {
         if (availablemetalspots.isEmpty()) {
             write("Out of metal spots");
         }
+    }
+
+    public Worker getWorker(BehaviourTree bt) {
+        return trees.get(bt);
     }
 }

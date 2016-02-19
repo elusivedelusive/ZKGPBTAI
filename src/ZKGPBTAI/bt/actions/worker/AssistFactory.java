@@ -1,6 +1,7 @@
 package ZKGPBTAI.bt.actions.worker;
 
 import ZKGPBTAI.Main;
+import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import bt.Task;
 import bt.leaf.Action;
@@ -16,7 +17,7 @@ import ec.gp.GPIndividual;
 public class AssistFactory extends WorkerAction {
     @Override
     protected WorkerTask getWorkerTask() {
-        Main bb = getBlackboard();
+        EconomyManager bb = getBlackboard();
         return bb.economyManager.createAssistTask(bb.getWorker(tree), -1, null);
     }
 }

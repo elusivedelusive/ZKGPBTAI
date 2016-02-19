@@ -39,8 +39,6 @@ public class WorkerTask extends Observable {
         for (Worker w: assignedWorkers){
             w.clearTask(frame);
         }
-        if(null == result)
-            setResult(false);
         return assignedWorkers;
     }
 
