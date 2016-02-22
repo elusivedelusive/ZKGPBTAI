@@ -379,8 +379,10 @@ public class EconomyManager extends Manager {
                                 break;
                             }
                         }
-                        if (btToRemove != null)
+                        if (btToRemove != null) {
                             trees.remove(btToRemove);
+                            LiveBT.terminateTransmission(btToRemove);
+                        }
                     }
                 }
                 //================= BT ================
