@@ -1,12 +1,7 @@
 package ZKGPBTAI.economy;
 
-import ZKGPBTAI.Main;
 import ZKGPBTAI.Manager;
-import ZKGPBTAI.bt.actions.Defensive;
-import ZKGPBTAI.bt.actions.Offensive;
 import ZKGPBTAI.bt.actions.worker.*;
-import ZKGPBTAI.bt.conditions.HasArmy;
-import ZKGPBTAI.bt.conditions.HasEco;
 import ZKGPBTAI.bt.conditions.economy.HighEnergy;
 import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
@@ -24,11 +19,9 @@ import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
 
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by Jonatan on 30-Nov-15.
@@ -68,10 +61,15 @@ public class EconomyManager extends Manager {
 
     //BT
     private final HashMap<BehaviourTree<EconomyManager>, Worker> trees = new HashMap<>();
-    ScheduledExecutorService executorService;
-    Runnable btTask;
+    ExecutorService executorService;
+    Runnable btRunner;
     Optional<BehaviourTree<EconomyManager>> opt;
     String inputTree = "";
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
+            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class,};
+
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -82,7 +80,17 @@ public class EconomyManager extends Manager {
         this.m = callback.getResourceByName("Metal");
         this.e = callback.getResourceByName("Energy");
         this.runningBt = runningBT;
-        this.inputTree = inputTree;
+
+        this.inputTree = /*"untilFail(" +
+                "selector[" +
+                "sequence[lowMetal, buildMex, buildSolar, " +
+                "selector[inverter(" +
+                "sequence[highEnergy, highMetal, buildGauss]" +
+                "), buildLotus, buildRadar" +
+                "]" +
+                "], failer(untilFail(sequence[lowEnergy, buildSolar])), sequence[highEnergy, highMetal, buildStorage], buildGauss" +
+                "]" +
+                ")";*/inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -112,14 +120,15 @@ public class EconomyManager extends Manager {
         setEcoManager(this);
 
         if (runningBT) {
+            executorService = Executors.newWorkStealingPool();
 
-            executorService = Executors.newScheduledThreadPool(1);
+            btRunner = () -> {
+                trees.keySet().forEach(BehaviourTree::step);
+                LiveBT.draw();
+            };
 
-            @SuppressWarnings("unchecked")
-            Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
-                    BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, HighEnergy.class, LowMetal.class,};
-            write("inputtree = " + inputTree);
-            opt = new TreeInterpreter<>(this).create(classes, inputTree);
+            write("inputtree = " + this.inputTree);
+//            opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
         }
     }
 
@@ -155,7 +164,7 @@ public class EconomyManager extends Manager {
         if (frame % 60 == 0) {
 
             if (runningBt)
-                executorService.submit(btTask);
+                executorService.submit(btRunner);
             write("===================================================================");
 
             write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
@@ -435,9 +444,11 @@ public class EconomyManager extends Manager {
         } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
+                    w.getTask().setResult(true);
                     constructionTasks.remove(w.getTask());
                     factoryTasks.remove(w.getTask());
                     w.clearTask(frame);
+
                 }
             }
         }
@@ -562,12 +573,15 @@ public class EconomyManager extends Manager {
                     commanders.add(w);
                 }
                 //=================BT====================
-                final BehaviourTree<EconomyManager> bt = opt.get();
+                String tmp = inputTree;
+                if(commanders.get(0).getUnit().equals(u)) {
+                    write("YEEEEEEEEEEEEEEEY");
+                    tmp = "sequence[buildFactory, untilFail(succeeder(" + inputTree + "))]";
+                }
+                write("Inputtree: "+inputTree);
+                opt = new TreeInterpreter<>(this).create(classes, tmp);
+                final BehaviourTree<EconomyManager> bt = opt.get().nickname("Worker: "+w.getUnit().getDef().getHumanName());
 
-                btTask = () -> {
-                    bt.step();
-                    LiveBT.draw();
-                };
                 LiveBT.startTransmission(bt);
 
                 trees.put(bt, w);
