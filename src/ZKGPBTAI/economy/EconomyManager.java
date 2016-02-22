@@ -154,19 +154,26 @@ public class EconomyManager extends Manager {
 
         if (frame % 60 == 0) {
 
-            if (runningBt)
-                executorService.submit(btTask);
+            try {
+                if (runningBt)
+                    executorService.submit(btTask);
+            } catch (Exception e) {
+                write("bt problem");
+            }
+
             write("===================================================================");
 
             write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
             for (ConstructionTask task : constructionTasks) {
                 write("Tasks " + task.buildType.getHumanName() + " pos " + task.getPos());
             }
+
             try {
                 cleanWorkers();
             } catch (Exception e) {
                 write("ERROR cleanWorkers EM");
             }
+
 
 /*            //check is assistask is done
             for (AssistTask at : assistTasks) {
@@ -174,12 +181,11 @@ public class EconomyManager extends Manager {
                     ((WorkerTask) at).stopWorkers(frame);
             }*/
 
-            try{
+            try {
                 cleanTasks();
-            } catch(Exception e){
+            } catch (Exception e) {
                 write("cleanTasks has crashed");
             }
-
 
 
             for (Worker w : workers) {
@@ -438,6 +444,9 @@ public class EconomyManager extends Manager {
                     constructionTasks.remove(w.getTask());
                     factoryTasks.remove(w.getTask());
                     w.clearTask(frame);
+
+                    if (runningBt)
+                        createBTForWorker(w);
                 }
             }
         }
@@ -458,23 +467,28 @@ public class EconomyManager extends Manager {
     void cleanTasks() {
         ArrayList<ConstructionTask> uselessTasks = new ArrayList<>();
         //if the task has no assigned workers
+
         for (ConstructionTask ct : constructionTasks) {
+            write("cleanTasks1");
             if (ct.assignedWorkers.size() == 0) {
                 uselessTasks.add(ct);
                 write("Task was removed because it had no workers");
             }
 
             //if no worker has that task
+/*            write("cleanTasks2");
             boolean workerHasTask = false;
             for (Worker w : workers) {
-                if (w.getTask().equals(ct)) {
-                    workerHasTask = true;
-                    break;
+                if (w.getTask() != null) {
+                    write(((ConstructionTask) w.getTask()).buildType.getHumanName());
+                    if (w.getTask().equals(ct))
+                        workerHasTask = true;
                 }
             }
             if (!workerHasTask)
-                uselessTasks.add(ct);
+                uselessTasks.add(ct);*/
 
+            write("cleanTasks3");
             //if it is not possible to build at the location
             if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), 0)) {
                 write("is not possible to build at");
@@ -482,10 +496,6 @@ public class EconomyManager extends Manager {
             }
         }
         for (ConstructionTask ct : uselessTasks) {
-
-/*            if(runningBt)
-                ct.setResult(false);*/
-
             ct.stopWorkers(frame);
             removeTaskFromAllLists(ct);
         }
@@ -513,7 +523,8 @@ public class EconomyManager extends Manager {
                 idlers.remove(w);
         }
 
-        for (Worker w : workers) {
+        //do not remove
+/*        for (Worker w : workers) {
             //if worker has lost his orders give him the build command again
             if (w.getUnit().getCurrentCommands().size() == 0) {
                 if (w.getTask() != null) {
@@ -540,9 +551,9 @@ public class EconomyManager extends Manager {
             }
 
             // detect and unstick workers that get stuck on pathing obstacles.
-/*            if (w.unstick(frame))
-                write("unsticked");*/
-        }
+*//*            if (w.unstick(frame))
+                write("unsticked");*//*
+        }*/
     }
 
     void checkIfWorker(Unit u) {
@@ -557,23 +568,28 @@ public class EconomyManager extends Manager {
                 Worker w = new Worker(u);
                 write(w.id + " " + w.getUnit().getDef().getHumanName() + " CREATED");
                 workers.add(w);
-                idlers.add(w);
                 if (def.getBuildSpeed() > 8) {
                     commanders.add(w);
+                    createFactoryTask(w);
+                } else {
+                    idlers.add(w);
+                    if (runningBt)
+                        createBTForWorker(w);
                 }
-                //=================BT====================
-                final BehaviourTree<EconomyManager> bt = opt.get();
-
-                btTask = () -> {
-                    bt.step();
-                    LiveBT.draw();
-                };
-                LiveBT.startTransmission(bt);
-
-                trees.put(bt, w);
-                //=================BT====================
             }
         }
+    }
+
+    private void createBTForWorker(Worker w) {
+        final BehaviourTree<EconomyManager> bt = opt.get();
+
+        btTask = () -> {
+            bt.step();
+            LiveBT.draw();
+        };
+        LiveBT.startTransmission(bt);
+
+        trees.put(bt, w);
     }
 
     private boolean needRadar(AIFloat3 pos) {
@@ -720,7 +736,7 @@ public class EconomyManager extends Manager {
                         taskList.add(ct);
                         w.setTask(ct, frame);
                         ct.addWorker(w);
-                        taskCreated = true;
+                        return ct;
                     }
 
                     for (ConstructionTask c : constructionTasks) {
@@ -729,7 +745,7 @@ public class EconomyManager extends Manager {
                                 taskList.add(ct);
                                 w.setTask(ct, frame);
                                 ct.addWorker(w);
-                                taskCreated = true;
+                                return ct;
                             }
                         }
                     }
