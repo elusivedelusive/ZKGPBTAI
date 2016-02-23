@@ -17,4 +17,4 @@ public class LowHealth extends Condition<EconomyManager> {
         
         return unit.getMaxHealth() * (THRESHOLD/100) >= unit.getHealth();
     }
-}d
+}
