@@ -13,6 +13,6 @@ public class LowMetal extends Condition<EconomyManager> {
 
         EconomyManager m = getBlackboard();
 
-        return ((m.economyManager.metal/m.economyManager.metalStorage) > 0.1 && (m.economyManager.effectiveIncomeMetal - m.economyManager.expendMetal) > -10);
+        return ((m.economyManager.metal/m.economyManager.metalStorage) < 0.1 && (m.economyManager.effectiveIncomeMetal - m.economyManager.expendMetal) < 0);
     }
 }
