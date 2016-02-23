@@ -161,12 +161,12 @@ public class EconomyManager extends Manager {
                 write("bt problem");
             }
 
-            write("===================================================================");
+            //write("===================================================================");
 
-            write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
+/*            write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
             for (ConstructionTask task : constructionTasks) {
                 write("Tasks " + task.buildType.getHumanName() + " pos " + task.getPos());
-            }
+            }*/
 
             try {
                 cleanWorkers();
@@ -202,7 +202,7 @@ public class EconomyManager extends Manager {
             }
 
             //==============DEBUGGING=================
-            for (Worker w : workers) {
+/*            for (Worker w : workers) {
                 String target = "";
                 String task = "";
                 String order = "";
@@ -214,7 +214,7 @@ public class EconomyManager extends Manager {
                     order = w.getUnit().getCurrentCommands().get(0).toString();
 
                 write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order);
-            }
+            }*/
             //==============DEBUGGING=================
 
             if (!runningBt) {
@@ -242,7 +242,7 @@ public class EconomyManager extends Manager {
                 }
                 idlers.removeAll(idlersGivenWork);
                 idlersGivenWork.clear();
-                write("===================================================================");
+                //write("===================================================================");
             }
         }
         return 0;
@@ -472,7 +472,6 @@ public class EconomyManager extends Manager {
         //if the task has no assigned workers
 
         for (ConstructionTask ct : constructionTasks) {
-            write("cleanTasks1");
             if (ct.assignedWorkers.size() == 0) {
                 uselessTasks.add(ct);
                 write("Task was removed because it had no workers");
@@ -491,7 +490,6 @@ public class EconomyManager extends Manager {
             if (!workerHasTask)
                 uselessTasks.add(ct);*/
 
-            write("cleanTasks3");
             //if it is not possible to build at the location
             if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), 0)) {
                 write("is not possible to build at");
@@ -613,15 +611,6 @@ public class EconomyManager extends Manager {
         return false;
     }
 
-    boolean needDefender(AIFloat3 pos) {
-        for (Unit turret : defences) {
-            if (Utility.distance(turret.getPos(), pos) < 200)
-                return false;
-        }
-
-        return true;
-    }
-
     boolean needCaretaker() {
         for (Worker f : factories) {
             //find amount of caretakers close to a factory
@@ -657,7 +646,7 @@ public class EconomyManager extends Manager {
         } else if (needRadar(position) && effectiveIncome > 10) {
             //write("creating radar task", 0);
             createRadarTask(worker);
-        } else if (needDefender(position) && effectiveIncome > 10 && metal > 50) {
+        } else if (effectiveIncome > 10 && metal > 50) {
             if (effectiveIncome > 30 && metal > 100) {
                 //write("creating gauss task", 0);
                 createGaussTask(worker);
@@ -719,6 +708,8 @@ public class EconomyManager extends Manager {
         boolean taskCreated = false;
         ConstructionTask ct = null;
         AIFloat3 position = w.getPos();
+        if (def.getName().equals("corllt") || def.getName().equals("armpb"))
+            position = influenceManager.im.getArrayDirection(position, 10, false, influenceManager.im.getInfluenceMap());
         if (w.getTask() == null) {
             while (taskCreated != true) {
                 position = w.getRadialPoint(position, 200f);
@@ -758,7 +749,7 @@ public class EconomyManager extends Manager {
     //Checks if pos is too close to edge of map
     //used to ensure units in factories can move out
     public boolean isOffsetEdgeOfMap(AIFloat3 pos) {
-        float dist = 75f;
+        float dist = 80f;
         if ((pos.x - dist) < 0f || (pos.x + dist) > map_width) {
             write("posX: " + pos.x + " " + (pos.x - dist) + "  width " + map_width);
             return false;
@@ -793,6 +784,7 @@ public class EconomyManager extends Manager {
         UnitDef gauss = callback.getUnitDefByName("armpb");
         ConstructionTask ct = getBuildSite(worker, gauss, defenceTasks, false);
         constructionTasks.add(ct);
+        //write("TOWER SUGGESTION: " + influenceManager.im.getArrayDirection(worker.getPos(), 4, false, influenceManager.im.getInfluenceMap()));
         return ct;
     }
 

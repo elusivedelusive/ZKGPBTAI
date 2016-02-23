@@ -143,8 +143,8 @@ public class InfluenceMap {
             for (Unit u : influenceManager.friendlyUnits) {
 
                 progress = "friendly";
-                int x = ((int) Math.floor(u.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
-                int z = ((int) Math.floor(u.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
+                int x = convertToIMCoordinate(u.getPos().x);
+                int z = convertToIMCoordinate(u.getPos().z);
                 progress += " math";
                 try {
                     myInfluence[x][z] += u.getPower();
@@ -157,7 +157,7 @@ public class InfluenceMap {
                     progress += " power";
                     propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getHealth(), getFullInfluenceArea(u));
                     progress += " propagate";
-                } catch (Exception deadUnit){
+                } catch (Exception deadUnit) {
                     influenceManager.write("friendly math continued: " + deadUnit.getLocalizedMessage());
                     continue;
                 }
@@ -166,8 +166,8 @@ public class InfluenceMap {
 
             for (Enemy e : influenceManager.militaryManager.getEnemies().values()) {
                 progress = "enemy";
-                int x = ((int) Math.floor(e.getPos().x / POS_CONVERSION_RATIO)) / GRANULARITY;
-                int z = ((int) Math.floor(e.getPos().z / POS_CONVERSION_RATIO)) / GRANULARITY;
+                int x = convertToIMCoordinate(e.getPos().x);
+                int z = convertToIMCoordinate(e.getPos().z);
                 progress += " math";
                 try {
                     if (e.isIdentified()) {
@@ -236,6 +236,13 @@ public class InfluenceMap {
         return sum / scores.size();
     }
 
+    //used to convert from unit coordinates to the coordinates used in the influence map
+    //needs to be done for pos x and pos z of an AIFloat3
+    private int convertToIMCoordinate(float pos) {
+        return ((int) Math.floor(pos / POS_CONVERSION_RATIO)) / GRANULARITY;
+    }
+
+    //returns a list of the n highest locations in a given 2d array
     public ArrayList<AIFloat3> getNTopLocations(int n, float[][] grid) {
         ArrayList<AIFloat3> locations = new ArrayList<>(n);
         float[][] gridCopy = grid.clone();
@@ -247,6 +254,7 @@ public class InfluenceMap {
         return locations;
     }
 
+    //used by getNTopLocations
     int[] getTopLocation(float[][] grid) {
         float max = Float.MIN_VALUE;
         int iIndex = 0;
@@ -265,6 +273,7 @@ public class InfluenceMap {
         return answer;
     }
 
+    //returns a list of the n lowest locations in a given 2d array
     public ArrayList<AIFloat3> getNBottomLocations(int n, float[][] grid) {
         ArrayList<AIFloat3> locations = new ArrayList<>(n);
         float[][] gridCopy = grid.clone();
@@ -276,6 +285,7 @@ public class InfluenceMap {
         return locations;
     }
 
+    //used by getNBottompLocations
     int[] getBottomLocation(float[][] grid) {
         float max = Float.MAX_VALUE;
         int iIndex = 0;
@@ -292,5 +302,70 @@ public class InfluenceMap {
         }
         int[] answer = new int[]{iIndex, jIndex};
         return answer;
+    }
+
+    //Get position on friendly or enemy side of tension
+    public AIFloat3 getBorderLinePos(boolean friendlySide){
+        if(friendlySide)
+            return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, true, influenceMap);
+        else
+            return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, false, influenceMap);
+    }
+
+    //
+    public AIFloat3 getArrayDirection(AIFloat3 pos, int radius, boolean ascending, float[][] grid) {
+        //all 8 directions in a 2d array
+        int[] xd = {-1, -1, 0, +1, +1, +1, 0, -1};
+        int[] yd = {0, -1, -1, -1, 0, +1, +1, +1};
+
+        //best so far
+        float bestDiff;
+        if (ascending)
+            bestDiff = Float.MIN_VALUE;
+        else
+            bestDiff = Float.MAX_VALUE;
+        AIFloat3 bestDir = null;
+
+        //x and y converted
+        int originX = convertToIMCoordinate(pos.x);
+        int originY = convertToIMCoordinate(pos.z);
+
+        //for all directions
+        for (int d = 0; d < 8; d++) {
+            //check that we are within bounds
+
+            //check that we are within bounds
+            if (((originX + (xd[d] * radius)) > width) || ((originX + (xd[d] * radius)) < 0)
+                    || ((originY + (yd[d] * radius)) > height) || ((originY + (yd[d] * radius)) < 0)) {
+                continue;
+            }
+
+            //avg difference in one direction
+            float diff = 0;
+            float lastDir = grid[originX][originY];
+            //check in a direction for the length of the radius
+            for (int r = 1; r <= radius; r++) {
+
+                float dir = grid[originX + (xd[d] * r)][originY + (yd[d] * r)];
+                diff += lastDir - dir;
+                lastDir = dir;
+            }
+
+
+            if (ascending) {
+                if (diff > bestDiff) {
+
+                    bestDiff = diff;
+                    bestDir = new AIFloat3((originX + (xd[d] * radius)) * CONVERT_TO_MAP_POS_VALUE, 0, (originY + (yd[d] * radius)) * CONVERT_TO_MAP_POS_VALUE);
+                }
+            } else {
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    bestDir = new AIFloat3((originX + (xd[d] * radius)) * CONVERT_TO_MAP_POS_VALUE, 0, (originY + (yd[d] * radius)) * CONVERT_TO_MAP_POS_VALUE);
+                }
+            }
+        }
+        influenceManager.write("BESTDIR - " + bestDir);
+        return bestDir;
     }
 }

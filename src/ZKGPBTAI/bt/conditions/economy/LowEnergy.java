@@ -11,6 +11,6 @@ public class LowEnergy extends Condition<EconomyManager> {
     @Override
     protected boolean condition() {
         EconomyManager m = getBlackboard();
-        return ((m.economyManager.energy/m.economyManager.energyStorage) > 0.1 && (m.economyManager.effectiveIncomeEnergy - m.economyManager.expendEnergy) > -10);
+        return ((m.economyManager.energy/m.economyManager.energyStorage) < 0.1 && (m.economyManager.effectiveIncomeEnergy - m.economyManager.expendEnergy) < 0);
     }
 }
