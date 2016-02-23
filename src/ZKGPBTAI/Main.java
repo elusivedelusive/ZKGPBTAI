@@ -45,6 +45,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[buildRadar, buildGauss]]";
     //determines if the bot will look for a bt tree or not
     public boolean runningBT = true;
     public BehaviourTree<EconomyManager> bt;
@@ -59,7 +60,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback, runningBT, readTree());
+        economyManager = new EconomyManager(callback, runningBT, jonatanTree);
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
@@ -95,6 +96,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
     public String readTree() {
         File f = new File("C:\\Users\\Jonatan\\workspace\\EvolutionRunner\\out\\tree.txt");
+
         Scanner in;
         try {
             in = new Scanner(f);
@@ -127,7 +129,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             }
         }
 
-        if (frame % 10 == 0) {
+        if (frame % 30 == 0) {
             if (!debugActivated)
                 activateDebug();
             else
