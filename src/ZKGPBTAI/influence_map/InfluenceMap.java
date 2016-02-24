@@ -1,6 +1,7 @@
 package ZKGPBTAI.influence_map;
 
 import ZKGPBTAI.military.Enemy;
+import ZKGPBTAI.utils.Utility;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.OOAICallback;
 import com.springrts.ai.oo.clb.Unit;
@@ -310,6 +311,20 @@ public class InfluenceMap {
             return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, true, influenceMap);
         else
             return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, false, influenceMap);
+    }
+
+    //getNearestSafeHaven
+    public AIFloat3 getNearestSafeHaven(AIFloat3 pos){
+        float smallestDist = Float.MAX_VALUE;
+        AIFloat3 nearest = new AIFloat3();
+        for(AIFloat3 p2:getNTopLocations(3,influenceMap)){
+            float dist = Utility.distance(pos, p2);
+            if(dist < smallestDist) {
+                smallestDist = dist;
+                nearest = p2;
+            }
+        }
+        return nearest;
     }
 
     //
