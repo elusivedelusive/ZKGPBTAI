@@ -9,12 +9,12 @@ import com.springrts.ai.oo.clb.Unit;
  */
 public class LowHealth extends Condition<EconomyManager> {
     
-    final float THRESHOLD = (1/5);
+    final float THRESHOLD = 50;//Percent
     
     @Override
     protected boolean condition() {
         Unit unit = getBlackboard().getWorker(tree).getUnit();
         
-        return unit.getMaxHealth() * THRESHOLD >= unit.getHealth();
+        return unit.getMaxHealth() * (THRESHOLD/100) >= unit.getHealth();
     }
-}d
+}
