@@ -16,16 +16,16 @@ import com.springrts.ai.oo.clb.Resource;
  * Created by Jonatan on 30-Nov-15.
  */
 public abstract class Manager extends AbstractOOAI {
-    public EconomyManager economyManager;
-    public MilitaryManager militaryManager;
-    public InfluenceManager influenceManager;
-    public RecruitmentManager recruitmentManager;
-    public LOSManager losManager;
-    public Resource m, e;
-    protected Game game;
-    protected Economy economy;
-    public OOAICallback callback;
-    public boolean runningBt = false;
+    public static EconomyManager economyManager;
+    public static MilitaryManager militaryManager;
+    public static InfluenceManager influenceManager;
+    public static RecruitmentManager recruitmentManager;
+    public static LOSManager losManager;
+    public static Resource m, e;
+    protected static Game game;
+    protected static Economy economy;
+    public static OOAICallback callback;
+    public static boolean runningBt = false;
     protected int frame = 0;
 
     public abstract String getModuleName();
