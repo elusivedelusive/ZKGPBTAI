@@ -12,12 +12,12 @@ public class Enemy {
     public UnitDef def;
     int unitId;
     AIFloat3 pos;
-    boolean visible = false;
-    boolean isStatic = false;
-    boolean isRadarOnly = true;
-    boolean isRadarVisible = false;
-    boolean identified = false;
-    boolean isDefensive = false;
+    public boolean visible = false;
+    public boolean isStatic = false;
+    public boolean isRadarOnly = true;
+    public boolean isRadarVisible = false;
+    public boolean identified = false;
+    public boolean isDefensive = false;
     float power;
     float speed;
     float threatRadius;
