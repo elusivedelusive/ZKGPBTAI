@@ -329,7 +329,7 @@ public class InfluenceMap {
     }
 
     //returns true if tension is higher than 50%
-    public boolean HighTension(AIFloat3 pos){
+    public boolean isHighTension(AIFloat3 pos){
         if(tensionMap[convertToIMCoordinate(pos.x)][convertToIMCoordinate(pos.z)] > (MAX_INFLUENCE/2))
             return true;
         return false;
