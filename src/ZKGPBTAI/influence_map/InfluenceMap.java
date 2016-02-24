@@ -23,6 +23,7 @@ public class InfluenceMap {
     public static final int GRANULARITY = 10;
     public static final int POS_CONVERSION_RATIO = 8;
     public static final int CONVERT_TO_MAP_POS_VALUE = GRANULARITY * POS_CONVERSION_RATIO;
+    public static final int MAX_INFLUENCE = 10000;
     InfluenceManager influenceManager;
 
     public InfluenceMap(InfluenceManager im) {
@@ -130,8 +131,8 @@ public class InfluenceMap {
                 } else
                     continue;
 
-                if (grid[x][z] > 10000)
-                    grid[x][z] = 10000;
+                if (grid[x][z] > MAX_INFLUENCE)
+                    grid[x][z] = MAX_INFLUENCE;
             }
         }
 
@@ -325,6 +326,13 @@ public class InfluenceMap {
             }
         }
         return nearest;
+    }
+
+    //returns true if tension is higher than 50%
+    public boolean HighTension(AIFloat3 pos){
+        if(tensionMap[convertToIMCoordinate(pos.x)][convertToIMCoordinate(pos.z)] > (MAX_INFLUENCE/2))
+            return true;
+        return false;
     }
 
     //
