@@ -18,7 +18,7 @@ public class MapHandler {
      *  RADAR           : 8
      *  LOS             : 16
      *
-     * @param map
+//     * @param map
      * @param m1
      * @param scale
      * @return
@@ -26,6 +26,8 @@ public class MapHandler {
     public static List<Integer> scale(Map map, List<Integer> m1 , int scale) {
         int width = map.getWidth();
         int height = map.getHeight();
+
+        int fullScale = width*height;
 
         double actualWidth = Math.sqrt((m1.size()/(height/width)));
         assert (actualWidth % 1.0d == 0);
@@ -40,8 +42,8 @@ public class MapHandler {
             return m1;
 
         if(scale < currentScale)
-            return increase(m1, (int)currentScale-(scale==1 ? 0:scale), (int)actualWidth, (int)actualHeight);
-        return decrease(m1, (int)(scale-currentScale), (int)actualWidth, (int)actualHeight);
+            return increase(m1, (int)(currentScale/scale), (int)actualWidth, (int)actualHeight);
+        return decrease(m1, (int)(scale-(currentScale==1 ? 0:currentScale)), (int)actualWidth, (int)actualHeight);
     }
 
     private static List<Integer> increase(List<Integer> list, int pow, int w, int h) {
@@ -60,11 +62,11 @@ public class MapHandler {
         return Arrays.asList(scaled);
     }
 
-
     private static List<Integer> decrease(List<Integer> list, int pow, int w, int h) {
         List<Integer> scaled = new ArrayList<>();
+
         for(int i=0; i<list.size(); i++) {
-            int gap = (int)Math.floor(i/(pow*h));
+            int gap = (int)Math.floor(i/(h));
             if(gap%pow != 0)
                 continue;
             if(i%pow != 0)
