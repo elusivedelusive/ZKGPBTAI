@@ -12,6 +12,7 @@ import ZKGPBTAI.economy.tasks.ConstructionTask;
 import ZKGPBTAI.economy.tasks.MoveTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import ZKGPBTAI.military.Enemy;
+import ZKGPBTAI.utils.MapHandler;
 import ZKGPBTAI.utils.Utility;
 import bt.BehaviourTree;
 import bt.Task;
@@ -77,7 +78,6 @@ public class EconomyManager extends Manager {
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class};
 
-
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
         //set variables in Manager
@@ -140,6 +140,8 @@ public class EconomyManager extends Manager {
     @Override
     public int update(int frame) {
         this.frame = frame;
+
+
 
         if (frame % 5 == 0) {
             //update economy

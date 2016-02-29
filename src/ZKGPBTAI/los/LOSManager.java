@@ -18,9 +18,11 @@ public class LOSManager extends Manager {
     List<Integer> recentRadarMap;
     private int mapWidth;
     private int mapHeight;
-    private int losResolution;
-    private int gridWidth;
+
+
     private int gridHeight;
+    private int gridWidth;
+    private int losResolution;
     private int losGridSize;
     private Map map;
 
@@ -37,9 +39,11 @@ public class LOSManager extends Manager {
         recentRadarMap = radarMap;
         this.mapHeight = map.getHeight();
         this.mapWidth = map.getWidth();
+
+
+        this.losMap = map.getLosMap();
         this.losResolution = callback.getMod().getLosMipLevel();
         this.losGridSize = (int) Math.pow((double) 2, (double) losResolution);
-        this.losMap = map.getLosMap();
         this.gridWidth = mapWidth / losGridSize;
         this.gridHeight = mapHeight / losGridSize;
         setLosManager(this);
@@ -50,15 +54,15 @@ public class LOSManager extends Manager {
         this.frame = frame;
 
         if (frame % 10 == 0) {
-            this.losMap = callback.getMap().getLosMap();
-            this.radarMap = callback.getMap().getRadarMap();
-            updateRecent();
+            //this.losMap = callback.getMap().getLosMap();
+            //this.radarMap = callback.getMap().getRadarMap();
+            //updateRecent();
         }
 
-        if (frame % 10000 == 0) {
+/*        if (frame % 10000 == 0) {
             recentLosMap = losMap;
             recentRadarMap = radarMap;
-        }
+        }*/
 
         return 0;
     }
@@ -72,26 +76,30 @@ public class LOSManager extends Manager {
         }
     }
 
+    //unreliable. Consider updating with Hallvards map scale converter
     public boolean isInRadar(AIFloat3 pos, boolean recent) {
         //the value for the full resolution position (x, z) is at index ((z * width + x) / res) -
         //the last value, bottom right, is at index (width/res * height/res - 1)
 
         // convert from world coordinates to heightmap coordinates
+        write("X = " + pos.x + "  Z = " + pos.z);
         double x = (int) Math.floor(pos.x / 8);
         double z = (int) Math.floor(pos.z / 8);
 
         int gridX = (int) Math.floor((x / mapWidth) * gridWidth);
         int gridZ = (int) Math.floor((z / mapHeight) * gridHeight);
+        write("gridX = " + gridX + "  gridZ = " + gridZ);
+        write("GridWidth " + gridWidth);
+        int index = Math.min(gridX + (gridZ * gridWidth), radarMap.size() - 1);
 
-        int index = Math.min(gridX + gridZ * gridWidth, radarMap.size() - 1);
-
+        write("index " + index);
         if (index >= losMap.size()) {
             return false;
         }
         if (recent)
             return (recentRadarMap.get(index) > 0);
         else
-            return (radarMap.get(index) > 0);
+            return (callback.getMap().getRadarMap().get(index) > 0);
     }
 
     public boolean isInLOS(AIFloat3 pos, boolean recent) {
