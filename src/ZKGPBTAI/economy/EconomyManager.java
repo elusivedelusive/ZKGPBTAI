@@ -248,18 +248,6 @@ public class EconomyManager extends Manager {
         return 0;
     }
 
-
-    public boolean inRadarRange(Unit u) {
-        List<Integer> radar = MapHandler.scale(callback.getMap(), callback.getMap().getRadarMap(), 1);
-        int pos = (int) (u.getPos().z * (callback.getMap().getWidth()/8) + u.getPos().x);
-        write("commander pos = " + u.getPos());
-        write("pos = " + pos);
-        if (radar.get(pos) > 0)
-            return true;
-        else
-            return false;
-    }
-
     @Override
     public int unitFinished(Unit unit) {
         ConstructionTask finished = null;

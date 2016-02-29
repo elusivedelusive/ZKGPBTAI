@@ -314,20 +314,6 @@ public class InfluenceMap {
             return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, false, influenceMap);
     }
 
-    //getNearestSafeHaven
-    public AIFloat3 getNearestSafeHaven(AIFloat3 pos) {
-        float smallestDist = Float.MAX_VALUE;
-        AIFloat3 nearest = new AIFloat3();
-        for (AIFloat3 p2 : getNTopLocations(3, influenceMap)) {
-            float dist = Utility.distance(pos, p2);
-            if (dist < smallestDist) {
-                smallestDist = dist;
-                nearest = p2;
-            }
-        }
-        return nearest;
-    }
-
     //returns true if myinfluence and opponent influence is higher than 30% of max
     public boolean isHighTension(AIFloat3 pos) {
         int x = convertToIMCoordinate(pos.x);

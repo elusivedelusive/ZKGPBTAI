@@ -10,7 +10,6 @@ public class HighTension extends Condition<EconomyManager>{
     EconomyManager em = getBlackboard();
     @Override
     protected boolean condition() {
-
         return em.influenceManager.im.isHighTension(em.getWorker(tree).getUnit().getPos());
     }
 }
