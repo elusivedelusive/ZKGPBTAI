@@ -3,17 +3,28 @@ package ZKGPBTAI.economy.tasks;
 import ZKGPBTAI.economy.Worker;
 import bt.Task;
 import com.springrts.ai.oo.AIFloat3;
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.stream.Collectors;
 
 /**
  * Created by Jonatan on 30-Nov-15.
  */
-public class WorkerTask extends Observable {
+public abstract class WorkerTask extends Observable {
     public List<Worker> assignedWorkers;
     public AIFloat3 position;
+
+    /**
+     * Start the task
+     * @param worker    worker to start the task
+     * @return          Task successfully started.
+     */
+    public abstract boolean start(@NotNull Worker worker);
+
 
     // Three states: null(Running), true(Succeed) and false(failed)
     private Boolean result = (null);
@@ -50,5 +61,14 @@ public class WorkerTask extends Observable {
 
     public Boolean getResult() {
         return result;
+    }
+
+    /**
+     * Starts the task for all assigned workers
+     * @return  false if a single worker failed
+     */
+    public boolean startAll() {
+        List<Worker> starts = assignedWorkers.stream().filter(w -> !start(w)).collect(Collectors.toList());
+        return starts.isEmpty();
     }
 }

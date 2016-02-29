@@ -6,22 +6,28 @@ import ZKGPBTAI.bt.conditions.economy.HighEnergy;
 import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.bt.conditions.economy.LowMetal;
+import ZKGPBTAI.bt.conditions.other.MajorityOfMapVisible;
 import ZKGPBTAI.economy.tasks.AssistTask;
 import ZKGPBTAI.economy.tasks.ConstructionTask;
+import ZKGPBTAI.economy.tasks.MoveTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import ZKGPBTAI.military.Enemy;
 import ZKGPBTAI.utils.Utility;
 import bt.BehaviourTree;
 import bt.Task;
+import bt.composite.Sequence;
 import bt.utils.TreeInterpreter;
 import bt.utils.graphics.LiveBT;
+import com.springrts.ai.Enumerations;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
 
 
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 /**
  * Created by Jonatan on 30-Nov-15.
@@ -57,6 +63,7 @@ public class EconomyManager extends Manager {
     public ArrayList<Unit> metalExtractors, solarPlants, radars, defences, aas, storages, caretakers;
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
     ArrayList<AssistTask> assistTasks;
+    ArrayList<WorkerTask> moveTasks;
     ArrayList<Worker> idlersGivenWork;
 
     //BT
@@ -68,7 +75,7 @@ public class EconomyManager extends Manager {
 
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
-            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class,};
+            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class};
 
 
     //must be called before other managers
@@ -81,7 +88,7 @@ public class EconomyManager extends Manager {
         this.e = callback.getResourceByName("Energy");
         this.runningBt = runningBT;
 
-        this.inputTree = inputTree;
+        this.inputTree = "selector[majorityOfMapVisible, buildMex, buildSolar]";//inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -107,6 +114,7 @@ public class EconomyManager extends Manager {
         caretakers = new ArrayList<>();
         idlersGivenWork = new ArrayList<>();
         assistTasks = new ArrayList<>();
+        moveTasks = new ArrayList<>();
 
         setEcoManager(this);
 
@@ -191,8 +199,9 @@ public class EconomyManager extends Manager {
             for (Worker w : workers) {
                 if (w.getTask() != null) {
                     try {
-                        ConstructionTask ct = (ConstructionTask) w.getTask();
-                        w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                        w.getTask().start(w);
+//                        ConstructionTask ct = (ConstructionTask) w.getTask();
+  //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     } catch (Exception e) {
                         write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
@@ -456,6 +465,38 @@ public class EconomyManager extends Manager {
         return 0;
     }
 
+    @Override
+    public int unitMoveFailed(Unit unit) {
+        endTaskWithResult(unit, false);
+        return 0; // OK
+    }
+
+    @Override
+    public int commandFinished(Unit unit, int commandId, int commandTopicId) {
+        if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
+            endTaskWithResult(unit, true);
+        }
+        return 0; // OK
+    }
+
+    /**
+     *  Goes through all workers and sets the result of its task
+     *  Made completely nullsafe
+     * @param unit      worker
+     * @param result    task succeed or fail
+     */
+    private void endTaskWithResult(Unit unit, boolean result) {
+        Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
+        Predicate<Worker> equals = w -> w.getUnit().equals(unit);
+
+        Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
+        if(worker.isPresent()){
+            WorkerTask wt = worker.get().getTask();
+            wt.setResult(result);
+            moveTasks.remove(wt);
+        }
+    }
+
     void removeTaskFromAllLists(WorkerTask wt) {
         constructionTasks.remove(wt);
         metExtractTasks.remove(wt);
@@ -695,6 +736,14 @@ public class EconomyManager extends Manager {
                 }
             }
         }
+    }
+
+    public MoveTask createMoveTask(Worker w, AIFloat3 pos) {
+        MoveTask task = new MoveTask(pos);
+        task.addWorker(w);
+        w.setTask(task, frame);
+        moveTasks.add(task);
+        return task;
     }
 
     public AssistTask createAssistTask(Worker w, int frame, Unit target) {

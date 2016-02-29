@@ -1,7 +1,9 @@
 package ZKGPBTAI.economy.tasks;
 
+import ZKGPBTAI.economy.Worker;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.Unit;
+import com.sun.istack.internal.NotNull;
 
 /**
  * Created by Jonatan on 13-Jan-16.
@@ -11,6 +13,11 @@ public class RepairTask extends WorkerTask {
 
     public RepairTask(Unit target){
         this.target = target;
+    }
+
+    @Override
+    public boolean start(@NotNull Worker worker) {
+        return false;
     }
 
     @Override

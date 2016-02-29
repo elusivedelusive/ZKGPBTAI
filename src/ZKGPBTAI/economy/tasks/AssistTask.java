@@ -3,6 +3,7 @@ package ZKGPBTAI.economy.tasks;
 import ZKGPBTAI.economy.Worker;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.Unit;
+import com.sun.istack.internal.NotNull;
 
 import java.util.ArrayList;
 
@@ -27,4 +28,8 @@ public class AssistTask extends WorkerTask{
         return false;
     }
 
+    @Override
+    public boolean start(@NotNull Worker worker) {
+        return false;
+    }
 }
