@@ -10,6 +10,7 @@ import ZKGPBTAI.economy.tasks.AssistTask;
 import ZKGPBTAI.economy.tasks.ConstructionTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 import ZKGPBTAI.military.Enemy;
+import ZKGPBTAI.utils.MapHandler;
 import ZKGPBTAI.utils.Utility;
 import bt.BehaviourTree;
 import bt.Task;
@@ -69,7 +70,6 @@ public class EconomyManager extends Manager {
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class,};
-
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -246,6 +246,18 @@ public class EconomyManager extends Manager {
             }
         }
         return 0;
+    }
+
+
+    public boolean inRadarRange(Unit u) {
+        List<Integer> radar = MapHandler.scale(callback.getMap(), callback.getMap().getRadarMap(), 1);
+        int pos = (int) (u.getPos().z * (callback.getMap().getWidth()/8) + u.getPos().x);
+        write("commander pos = " + u.getPos());
+        write("pos = " + pos);
+        if (radar.get(pos) > 0)
+            return true;
+        else
+            return false;
     }
 
     @Override

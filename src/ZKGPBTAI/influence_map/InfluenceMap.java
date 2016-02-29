@@ -307,20 +307,20 @@ public class InfluenceMap {
     }
 
     //Get position on friendly or enemy side of tension
-    public AIFloat3 getBorderLinePos(boolean friendlySide){
-        if(friendlySide)
+    public AIFloat3 getBorderLinePos(boolean friendlySide) {
+        if (friendlySide)
             return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, true, influenceMap);
         else
             return getArrayDirection(getNTopLocations(1, tensionMap).get(0), 10, false, influenceMap);
     }
 
     //getNearestSafeHaven
-    public AIFloat3 getNearestSafeHaven(AIFloat3 pos){
+    public AIFloat3 getNearestSafeHaven(AIFloat3 pos) {
         float smallestDist = Float.MAX_VALUE;
         AIFloat3 nearest = new AIFloat3();
-        for(AIFloat3 p2:getNTopLocations(3,influenceMap)){
+        for (AIFloat3 p2 : getNTopLocations(3, influenceMap)) {
             float dist = Utility.distance(pos, p2);
-            if(dist < smallestDist) {
+            if (dist < smallestDist) {
                 smallestDist = dist;
                 nearest = p2;
             }
@@ -328,9 +328,11 @@ public class InfluenceMap {
         return nearest;
     }
 
-    //returns true if tension is higher than 50%
-    public boolean isHighTension(AIFloat3 pos){
-        if(tensionMap[convertToIMCoordinate(pos.x)][convertToIMCoordinate(pos.z)] > (MAX_INFLUENCE/2))
+    //returns true if myinfluence and opponent influence is higher than 30% of max
+    public boolean isHighTension(AIFloat3 pos) {
+        int x = convertToIMCoordinate(pos.x);
+        int y = convertToIMCoordinate(pos.z);
+        if (myInfluence[x][y] > (MAX_INFLUENCE / 2) && opponentInfluence[x][y] > (MAX_INFLUENCE / 2))
             return true;
         return false;
     }
