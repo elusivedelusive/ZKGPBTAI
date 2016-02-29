@@ -376,7 +376,6 @@ public class InfluenceMap {
                 }
             }
         }
-        influenceManager.write("BESTDIR - " + bestDir);
         return bestDir;
     }
 }

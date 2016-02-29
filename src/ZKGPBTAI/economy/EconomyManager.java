@@ -133,6 +133,8 @@ public class EconomyManager extends Manager {
     public int update(int frame) {
         this.frame = frame;
 
+
+
         if (frame % 5 == 0) {
             //update economy
             energyStorage = economy.getStorage(e);
