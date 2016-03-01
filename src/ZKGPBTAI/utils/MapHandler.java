@@ -1,5 +1,6 @@
 package ZKGPBTAI.utils;
 
+import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.Map;
 
 import java.util.ArrayList;
@@ -10,6 +11,36 @@ import java.util.List;
  * Created by Hallvard on 24.02.2016.
  */
 public class MapHandler {
+
+    /**
+     * Returns the angle between the two coordinates in degrees
+     * @param from  From position
+     * @param to    To position
+     * @return      angle in degrees.
+     */
+    public static double angleDegrees(AIFloat3 from, AIFloat3 to) {
+        double deltaX = to.x - from.x;
+        double deltaZ = to.z - from.z;
+
+        return Math.atan2(deltaZ, deltaX)*180/Math.PI;
+    }
+
+    /**
+     * Get a new point in a certain distance and angle from the current point.
+     * @param start     starting position
+     * @param degrees   angle of movement
+     * @param distance  distance of movement
+     * @return          New AIFloat3 coordinate mathing the description (Y will be 0)
+     */
+    public static AIFloat3 getPoint(AIFloat3 start, double degrees, double distance) {
+        final double radians = Math.toRadians(degrees);
+        final double co = Math.cos(radians)*distance;
+        final double si = Math.sin(radians)*distance;
+
+        // By adding the cosine to X and sine to Z (Y) of the current coordinates
+        // you'll get the new position.
+        return new AIFloat3((float)(start.x+co), 0.0f, (float)(start.z+si));
+    }
 
     /**
      *  WIDTH/HEIGHT    : 1
@@ -27,7 +58,6 @@ public class MapHandler {
         int width = map.getWidth();
         int height = map.getHeight();
 
-        int fullScale = width*height;
 
         double actualWidth = Math.sqrt((m1.size()/(height/width)));
         assert (actualWidth % 1.0d == 0);
@@ -35,15 +65,15 @@ public class MapHandler {
         double actualHeight = m1.size()/actualWidth;
         assert (actualHeight % 1.0d == 0);
 
-        double currentScale = width/actualWidth;
-        assert currentScale == (height/actualHeight);
+        int currentScale = (int)(width/actualWidth);
+        assert currentScale == (int)(height/actualHeight);
 
         if(scale == currentScale)
             return m1;
 
         if(scale < currentScale)
-            return increase(m1, (int)(currentScale/scale), (int)actualWidth, (int)actualHeight);
-        return decrease(m1, (int)(scale-(currentScale==1 ? 0:currentScale)), (int)actualWidth, (int)actualHeight);
+            return increase(m1, (currentScale/scale), (int)actualWidth, (int)actualHeight);
+        return decrease(m1, (scale/currentScale), (int)actualWidth, (int)actualHeight);
     }
 
     private static List<Integer> increase(List<Integer> list, int pow, int w, int h) {
