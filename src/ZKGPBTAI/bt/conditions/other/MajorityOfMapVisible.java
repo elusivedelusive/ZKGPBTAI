@@ -6,6 +6,7 @@ import bt.leaf.Condition;
 import com.springrts.ai.oo.clb.Map;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Hallvard on 24.02.2016.
@@ -19,16 +20,16 @@ public class MajorityOfMapVisible extends Condition<EconomyManager> {
         List<Integer> radar = MapHandler.scale(map, map.getRadarMap(), 8);
 
         assert(los.size() == radar.size());
+        getBlackboard().write("MajorityOfMapVisible: "+los.size() +"_"+radar.size());
 
         int observable = 0;
         int fogOfWar = 0;
 
         for(int i=0; i<los.size(); i++) {
-            if(los.get(i) != 0 ||  radar.get(i) != 0) {
+            if(los.get(i)==0 && radar.get(i)==0) {
+                fogOfWar++;
+            } else
                 observable++;
-                break;
-            }
-            fogOfWar++;
         }
         getBlackboard().write("MajorityOfMapVisible result: "+observable+"_vs_"+fogOfWar);
         return observable > fogOfWar;
