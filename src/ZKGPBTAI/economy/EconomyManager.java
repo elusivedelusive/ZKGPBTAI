@@ -481,11 +481,14 @@ public class EconomyManager extends Manager {
 
     @Override
     public int commandFinished(Unit unit, int commandId, int commandTopicId) {
-        if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
-            //hax,just to avoid too many calls to endTaskWithResults
+
+        if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
+            // Hax, just to avoid too many calls to endTaskWithResults
             if(unit.getDef().isBuilder()) {
                 endTaskWithResult(unit, true);
             }
+        } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_AREA.getValue()) {
+            endTaskWithResult(unit, true);
         }
         return 0; // OK
     }
