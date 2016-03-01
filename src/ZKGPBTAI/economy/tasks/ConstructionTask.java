@@ -25,7 +25,7 @@ public class ConstructionTask extends WorkerTask {
 
     @Override
     public boolean start(Worker w) {
-        w.getUnit().build(buildType, getPos(), facing, (short) 0, Integer.MAX_VALUE);
+        w.getUnit().build(buildType, position, facing, (short) 0, Integer.MAX_VALUE);
         return true; //TODO
     }
 
