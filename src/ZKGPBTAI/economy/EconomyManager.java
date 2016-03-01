@@ -1,12 +1,16 @@
 package ZKGPBTAI.economy;
 
 import ZKGPBTAI.Manager;
+import ZKGPBTAI.bt.actions.movement.MoveToMapCentre;
+import ZKGPBTAI.bt.actions.movement.MoveToRandom;
+import ZKGPBTAI.bt.actions.movement.MoveToSafe;
+import ZKGPBTAI.bt.actions.movement.MoveToTension;
 import ZKGPBTAI.bt.actions.worker.*;
 import ZKGPBTAI.bt.conditions.economy.HighEnergy;
 import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.bt.conditions.economy.LowMetal;
-import ZKGPBTAI.bt.conditions.other.MajorityOfMapVisible;
+import ZKGPBTAI.bt.conditions.other.*;
 import ZKGPBTAI.economy.tasks.AssistTask;
 import ZKGPBTAI.economy.tasks.ConstructionTask;
 import ZKGPBTAI.economy.tasks.MoveTask;
@@ -76,7 +80,8 @@ public class EconomyManager extends Manager {
 
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
-            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class};
+            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class};
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -356,6 +361,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
+                        ct.setResult(false);
                         ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
