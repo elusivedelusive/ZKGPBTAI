@@ -53,7 +53,19 @@ public abstract class WorkerTask extends Observable {
         return assignedWorkers;
     }
 
-    public void setResult(boolean result) {
+    public void complete(){ setResult(Boolean.TRUE);}
+    public void fail() { setResult(Boolean.FALSE);}
+
+    /**
+     * Use complete and fail instead!
+     * @param result    result to be set
+     */
+    @Deprecated
+    public void setResult(boolean result){
+        setResult(new Boolean(result));
+    }
+
+    private void setResult(Boolean result) {
         this.result = result;
         setChanged();
         notifyObservers();

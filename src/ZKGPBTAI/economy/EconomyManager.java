@@ -503,7 +503,7 @@ public class EconomyManager extends Manager {
         Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
         if(worker.isPresent()){
             WorkerTask wt = worker.get().getTask();
-            wt.setResult(result);
+            if(result) wt.complete(); else wt.fail();
             moveTasks.remove(wt);
             worker.get().clearTask(frame);
         }
