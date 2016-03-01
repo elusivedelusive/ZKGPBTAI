@@ -81,7 +81,7 @@ public class EconomyManager extends Manager {
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
-            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class};
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class};
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -722,34 +722,6 @@ public class EconomyManager extends Manager {
         }
     }
 
-    void createCaretakerTask(Worker worker) {
-
-        UnitDef caretaker = callback.getUnitDefByName("armnanotc");
-        for (Worker f : factories) {
-            //find amount of caretakers close to a factory
-            for (Unit c : caretakers) {
-                //if there is  a caretake close to the factory
-                if (Utility.distance(f.getPos(), c.getPos()) < 350) {
-                    //if there is a caretaketask close to the factory
-                    for (WorkerTask wt : caretakerTasks) {
-                        if (Utility.distance(f.getPos(), wt.getPos()) < 350) continue;
-                        else if (caretakers.size() < factories.size()) {
-                            AIFloat3 position = f.getPos();
-                            position = callback.getMap().findClosestBuildSite(caretaker, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-                            ConstructionTask ct = new ConstructionTask(caretaker, position, 0);
-                            if (!caretakerTasks.contains(ct)) {
-                                constructionTasks.add(ct);
-                                caretakerTasks.add(ct);
-                            }
-                            worker.setTask(ct, frame);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public MoveTask createMoveTask(Worker w, AIFloat3 pos) {
         MoveTask task = new MoveTask(pos);
         task.addWorker(w);
@@ -832,6 +804,47 @@ public class EconomyManager extends Manager {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns how many caretakers are within the range of a worker (factory)
+     * @param worker    Current worker
+     * @return          How many caretakers have the unit within its build-range
+     */
+    public int careTakersInRange(Worker worker) {
+        final Predicate<Unit> inRange = c -> Utility.distance(worker.getPos(), c.getPos()) < c.getDef().getBuildDistance();
+        return (int)caretakers.stream().filter(inRange).count();
+    }
+
+    public ConstructionTask createCaretakerTask(Worker worker) {
+        final String UNIT_DEF = "armnanotc";
+
+        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
+        final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
+        final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
+        if(ordered.isPresent()) {
+            UnitDef careDef = callback.getUnitDefByName(UNIT_DEF);
+            //TODO not build on Metal Spot
+            AIFloat3 pos = callback.getMap().findClosestBuildSite(careDef, ordered.get().getPos(), careDef.getBuildDistance(), BUILDING_DIST, 0);
+            ConstructionTask ct = new ConstructionTask(careDef, pos, 0);
+            constructionTasks.add(ct);
+            caretakerTasks.add(ct);
+            worker.setTask(ct, frame);
+            return ct;
+        }
+
+        //FALLBACK: Build caretaker at first available spot near worker
+        return createConstructionTask(worker, UNIT_DEF, caretakerTasks);
+    }
+
+    /**
+     * TODO Remove redundancy with this method.
+     */
+    public ConstructionTask createConstructionTask(Worker worker, final String defName, ArrayList<ConstructionTask> list) {
+        UnitDef building = callback.getUnitDefByName(defName);
+        ConstructionTask ct = getBuildSite(worker, building, list, false);
+        constructionTasks.add(ct);
+        return ct;
     }
 
     public ConstructionTask createLotusTask(Worker worker) {
