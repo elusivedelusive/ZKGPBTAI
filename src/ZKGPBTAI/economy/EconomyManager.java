@@ -482,7 +482,10 @@ public class EconomyManager extends Manager {
     @Override
     public int commandFinished(Unit unit, int commandId, int commandTopicId) {
         if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
-            endTaskWithResult(unit, true);
+            //hax,just to avoid too many calls to endTaskWithResults
+            if(unit.getDef().isBuilder()) {
+                endTaskWithResult(unit, true);
+            }
         }
         return 0; // OK
     }
@@ -492,16 +495,17 @@ public class EconomyManager extends Manager {
      *  Made completely nullsafe
      * @param unit      worker
      * @param result    task succeed or fail
-     */
-    private void endTaskWithResult(Unit unit, boolean result) {
-        Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
-        Predicate<Worker> equals = w -> w.getUnit().equals(unit);
+     **/
+    private void endTaskWithResult(final Unit unit, boolean result) {
+        final Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
+        final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
         Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
         if(worker.isPresent()){
             WorkerTask wt = worker.get().getTask();
             wt.setResult(result);
             moveTasks.remove(wt);
+            worker.get().clearTask(frame);
         }
     }
 
