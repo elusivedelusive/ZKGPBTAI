@@ -61,7 +61,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback, runningBT, jonatanTree);
+        economyManager = new EconomyManager(callback, runningBT, readTree());
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
