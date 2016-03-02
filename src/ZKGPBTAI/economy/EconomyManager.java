@@ -62,6 +62,8 @@ public class EconomyManager extends Manager {
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
+    int mexCount = 0;
+    int highestIncome = 0;
 
     Deque<Worker> idlers;
     public ArrayList<Worker> workers, factories, commanders;
@@ -147,7 +149,6 @@ public class EconomyManager extends Manager {
         this.frame = frame;
 
 
-
         if (frame % 5 == 0) {
             //update economy
             energyStorage = economy.getStorage(e);
@@ -165,6 +166,10 @@ public class EconomyManager extends Manager {
             //stats
             entries++;
             totalEco += effectiveIncome;
+            mexCount += metalExtractors.size();
+            int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
+            if (income > highestIncome)
+                highestIncome = income;
         }
 
         if (frame % 60 == 0) {
@@ -208,7 +213,7 @@ public class EconomyManager extends Manager {
                     try {
                         w.getTask().start(w);
 //                        ConstructionTask ct = (ConstructionTask) w.getTask();
-  //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                        //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     } catch (Exception e) {
                         write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
@@ -350,6 +355,11 @@ public class EconomyManager extends Manager {
         return totalEco / entries;
     }
 
+    public double getAvgMexVSSpots() {
+        availablemetalspots = callback.getMap().getResourceMapSpotsPositions(m);
+        return (mexCount / entries) / availablemetalspots.size();
+    }
+
     public boolean isStationary(Unit u) {
         return u.getMaxSpeed() == 0;
     }
@@ -481,9 +491,9 @@ public class EconomyManager extends Manager {
 
     @Override
     public int commandFinished(Unit unit, int commandId, int commandTopicId) {
-        if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
+        if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
             //hax,just to avoid too many calls to endTaskWithResults
-            if(unit.getDef().isBuilder()) {
+            if (unit.getDef().isBuilder()) {
                 endTaskWithResult(unit, true);
             }
         }
@@ -491,17 +501,18 @@ public class EconomyManager extends Manager {
     }
 
     /**
-     *  Goes through all workers and sets the result of its task
-     *  Made completely nullsafe
-     * @param unit      worker
-     * @param result    task succeed or fail
+     * Goes through all workers and sets the result of its task
+     * Made completely nullsafe
+     *
+     * @param unit   worker
+     * @param result task succeed or fail
      **/
     private void endTaskWithResult(final Unit unit, boolean result) {
         final Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
         final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
         Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
-        if(worker.isPresent()){
+        if (worker.isPresent()) {
             WorkerTask wt = worker.get().getTask();
             wt.setResult(result);
             moveTasks.remove(wt);
@@ -770,7 +781,7 @@ public class EconomyManager extends Manager {
         ConstructionTask ct = null;
         AIFloat3 position = w.getPos();
         if (def.getName().equals("corllt") || def.getName().equals("armpb"))
-            position = influenceManager.im.getArrayDirection(position, 10, false, influenceManager.im.getInfluenceMap());
+            position = influenceManager.im.getArrayDirection(position, 5, false, influenceManager.im.getOpponentInfluence());
         if (w.getTask() == null) {
             while (taskCreated != true) {
                 position = w.getRadialPoint(position, 200f);
