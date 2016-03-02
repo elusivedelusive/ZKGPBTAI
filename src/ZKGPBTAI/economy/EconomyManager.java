@@ -59,6 +59,9 @@ public class EconomyManager extends Manager {
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
+    double mexCount = 0;
+    int highestIncome = 0;
+    int totalExpenditure = 0;
 
     Deque<Worker> idlers;
     public ArrayList<Worker> workers, factories, commanders;
@@ -91,7 +94,7 @@ public class EconomyManager extends Manager {
         this.e = callback.getResourceByName("Energy");
         this.runningBt = runningBT;
 
-        this.inputTree = "selector[majorityOfMapVisible, buildMex, buildSolar]";//inputTree;
+        this.inputTree = inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -145,7 +148,6 @@ public class EconomyManager extends Manager {
         this.frame = frame;
 
 
-
         if (frame % 5 == 0) {
             //update economy
             energyStorage = economy.getStorage(e);
@@ -163,6 +165,10 @@ public class EconomyManager extends Manager {
             //stats
             entries++;
             totalEco += effectiveIncome;
+            mexCount += metalExtractors.size();
+            int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
+            if (income > highestIncome)
+                highestIncome = income;
         }
 
         if (frame % 60 == 0) {
@@ -206,7 +212,7 @@ public class EconomyManager extends Manager {
                     try {
                         w.getTask().start(w);
 //                        ConstructionTask ct = (ConstructionTask) w.getTask();
-  //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
+                        //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     } catch (Exception e) {
                         write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
@@ -264,6 +270,8 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitFinished(Unit unit) {
+
+        totalExpenditure += unit.getDef().getCost(m);
 
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
@@ -345,8 +353,21 @@ public class EconomyManager extends Manager {
         return nearest;
     }
 
-    public int getAvgEco() {
+    public double getAvgEco() {
         return totalEco / entries;
+    }
+
+    public double getAvgMexVSSpots() {
+        availablemetalspots = callback.getMap().getResourceMapSpotsPositions(m);
+        return (mexCount / (double)entries) / (double)(availablemetalspots.size());
+    }
+
+    public double getHighestIncome() {
+        return highestIncome;
+    }
+
+    public int getTotalExpenditure() {
+        return totalExpenditure;
     }
 
     public boolean isStationary(Unit u) {
@@ -752,7 +773,7 @@ public class EconomyManager extends Manager {
         ConstructionTask ct = null;
         AIFloat3 position = w.getPos();
         if (def.getName().equals("corllt") || def.getName().equals("armpb"))
-            position = influenceManager.im.getArrayDirection(position, 10, false, influenceManager.im.getInfluenceMap());
+            position = influenceManager.im.getArrayDirection(position, 5, false, influenceManager.im.getOpponentInfluence());
         if (w.getTask() == null) {
             while (taskCreated != true) {
                 position = w.getRadialPoint(position, 200f);

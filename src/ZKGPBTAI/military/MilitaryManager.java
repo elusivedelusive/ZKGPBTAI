@@ -29,6 +29,11 @@ public class MilitaryManager extends Manager {
     public int skirmisherCount = 0;
     public int raiderCount = 0;
 
+    public int enemiesKilled = 0;
+    public int enemiesKilledMetalValue = 0;
+    public int casualties = 0;
+    public int casualtiesMetalValue = 0;
+
     public MilitaryManager() {
         soldiers = new ArrayList<>();
         enemies = new HashMap<>();
@@ -71,6 +76,18 @@ public class MilitaryManager extends Manager {
             write(getVisibleEnemies().size() + " Identified enemies");
         }*/
         return 0;
+    }
+
+    public int getKillDeathRatioInMetalValue(){
+        return enemiesKilledMetalValue/casualtiesMetalValue;
+    }
+
+    public int getKillDeathRatio(){
+        return enemiesKilled/casualties;
+    }
+
+    public int getEnemiesKilledMetalValue(){
+        return enemiesKilledMetalValue;
     }
 
     public void classify(Unit u, boolean isDead) {
@@ -142,6 +159,8 @@ public class MilitaryManager extends Manager {
 
     @Override
     public int unitDestroyed(Unit unit, Unit attacker) {
+        casualties++;
+        casualtiesMetalValue += unit.getDef().getCost(m);
         try {
             for (Unit u : soldiers) {
                 if (u.getUnitId() == unit.getUnitId()) {
@@ -228,6 +247,8 @@ public class MilitaryManager extends Manager {
 
     @Override
     public int enemyDestroyed(Unit u, Unit attacker) {
+        enemiesKilled ++;
+        enemiesKilledMetalValue += u.getDef().getCost(m);
         try {
             if (enemies.containsKey(u.getUnitId())) {
                 enemies.remove(u.getUnitId());

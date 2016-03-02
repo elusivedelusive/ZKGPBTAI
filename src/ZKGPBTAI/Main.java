@@ -46,6 +46,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[buildRadar, buildGauss]]";
+    String bestInd =  "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     //determines if the bot will look for a bt tree or not
     public boolean runningBT = true;
     public BehaviourTree<EconomyManager> bt;
@@ -60,7 +61,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback, runningBT, jonatanTree);
+        economyManager = new EconomyManager(callback, runningBT, readTree());
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
@@ -149,7 +150,21 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     @Override
     public int release(int reason) {
         int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
-        callback.getGame().sendTextMessage("END " + "teamId: " + this.teamId + " time: " + time / 1000 + " Soldiers: " + militaryManager.soldiers.size() + " avgEco: " + economyManager.getAvgEco(), 0);
+        double avgMex = economyManager.getAvgMexVSSpots();
+        double highestIncome = economyManager.getHighestIncome()/50d;
+        double killVsExpenditureMetal= militaryManager.enemiesKilledMetalValue/economyManager.getTotalExpenditure();
+        killVsExpenditureMetal /= 2;
+        if(killVsExpenditureMetal > 1d)
+            killVsExpenditureMetal = 1d;
+        else if(killVsExpenditureMetal <0d)
+            killVsExpenditureMetal=0d;
+
+        callback.getGame().sendTextMessage("END " + "teamId: " + this.teamId + " time: " + time / 1000
+                + " Soldiers: " + militaryManager.soldiers.size()
+                + " avgEco: " + economyManager.getAvgEco()
+                + " avgMex: " + avgMex
+                + " peakIncome: " + highestIncome
+                + " killVsExpenditureMetal: " + killVsExpenditureMetal, 0);
         return 0;
     }
 
