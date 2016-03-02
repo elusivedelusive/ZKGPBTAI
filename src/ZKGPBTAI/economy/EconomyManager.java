@@ -11,10 +11,7 @@ import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.bt.conditions.economy.LowMetal;
 import ZKGPBTAI.bt.conditions.other.*;
-import ZKGPBTAI.economy.tasks.AssistTask;
-import ZKGPBTAI.economy.tasks.ConstructionTask;
-import ZKGPBTAI.economy.tasks.MoveTask;
-import ZKGPBTAI.economy.tasks.WorkerTask;
+import ZKGPBTAI.economy.tasks.*;
 import ZKGPBTAI.military.Enemy;
 import ZKGPBTAI.utils.MapHandler;
 import ZKGPBTAI.utils.Utility;
@@ -475,7 +472,7 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitMoveFailed(Unit unit) {
-        endTaskWithResult(unit, false);
+        endTaskWithResult(unit, false, true);
         return 0; // OK
     }
 
@@ -485,10 +482,10 @@ public class EconomyManager extends Manager {
         if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
             // Hax, just to avoid too many calls to endTaskWithResults
             if(unit.getDef().isBuilder()) {
-                endTaskWithResult(unit, true);
+                endTaskWithResult(unit, true, true);
             }
         } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_AREA.getValue()) {
-            endTaskWithResult(unit, true);
+            endTaskWithResult(unit, true, false);
         }
         return 0; // OK
     }
@@ -498,18 +495,24 @@ public class EconomyManager extends Manager {
      *  Made completely nullsafe
      * @param unit      worker
      * @param result    task succeed or fail
+     * @param moveEvent this flag has to be set if the Task is a movetask.
+     *                  Otherwise uncomplete tasks might be cancelled. !important
      **/
-    private void endTaskWithResult(final Unit unit, boolean result) {
+    private void endTaskWithResult(final Unit unit, boolean result, boolean moveEvent) {
+        // If this event is a moveEvent, we have to check if the task is a movetask, otherwise: ignore
+        final Predicate<Worker> moveSafe = w -> !moveEvent || w.getTask() instanceof MoveTask;
         final Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
         final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
-        Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
-        if(worker.isPresent()){
-            WorkerTask wt = worker.get().getTask();
-            if(result) wt.complete(); else wt.fail();
-            moveTasks.remove(wt);
-            worker.get().clearTask(frame);
-        }
+        final Predicate<Worker> requirements = moveSafe.and(unitNotNull).and(equals);
+
+        Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
+        worker.ifPresent(w -> {
+            WorkerTask task = w.getTask();
+            if(result) task.complete(); else task.fail();
+            removeTaskFromAllLists(task);
+            w.clearTask(frame);
+        });
     }
 
     void removeTaskFromAllLists(WorkerTask wt) {
@@ -832,6 +835,7 @@ public class EconomyManager extends Manager {
             ConstructionTask ct = new ConstructionTask(careDef, pos, 0);
             constructionTasks.add(ct);
             caretakerTasks.add(ct);
+            ct.addWorker(worker);
             worker.setTask(ct, frame);
             return ct;
         }
