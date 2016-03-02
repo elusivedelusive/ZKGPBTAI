@@ -263,12 +263,13 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitFinished(Unit unit) {
+
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
                     //================= BT ================
-                    ct.setResult(true);
+                    ct.complete();
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -281,7 +282,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
                     //================= BT ================
-                    ct.setResult(true);
+                    ct.complete();
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -358,7 +359,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
-                        ct.setResult(false);
+                        ct.fail();
                         ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
@@ -457,7 +458,7 @@ public class EconomyManager extends Manager {
         } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
-                    w.getTask().setResult(true);
+                    w.getTask().complete();
                     constructionTasks.remove(w.getTask());
                     factoryTasks.remove(w.getTask());
                     w.clearTask(frame);

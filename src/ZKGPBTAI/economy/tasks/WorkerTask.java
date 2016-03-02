@@ -60,10 +60,10 @@ public abstract class WorkerTask extends Observable {
      * Use complete and fail instead!
      * @param result    result to be set
      */
-    @Deprecated
-    public void setResult(boolean result){
-        setResult(new Boolean(result));
-    }
+//    @Deprecated
+//    public void setResult(boolean result){
+//        setResult(new Boolean(result));
+//    }
 
     private void setResult(Boolean result) {
         this.result = result;
