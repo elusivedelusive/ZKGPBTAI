@@ -66,6 +66,7 @@ public class EconomyManager extends Manager {
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
     ArrayList<AssistTask> assistTasks;
     ArrayList<WorkerTask> moveTasks;
+    ArrayList<WorkerTask> reclaimTasks;
     ArrayList<Worker> idlersGivenWork;
 
     //BT
@@ -78,7 +79,7 @@ public class EconomyManager extends Manager {
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
-            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class};
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class};
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -525,6 +526,8 @@ public class EconomyManager extends Manager {
         radarTasks.remove(wt);
         factoryTasks.remove(wt);
         caretakerTasks.remove(wt);
+        moveTasks.remove(wt);
+        reclaimTasks.remove(wt);
     }
 
     void cleanTasks() {
@@ -821,6 +824,19 @@ public class EconomyManager extends Manager {
     public int careTakersInRange(Worker worker) {
         final Predicate<Unit> inRange = c -> Utility.distance(worker.getPos(), c.getPos()) < c.getDef().getBuildDistance();
         return (int)caretakers.stream().filter(inRange).count();
+    }
+
+    /**
+     * Create a reclaimTask
+     * @param worker
+     * @return
+     */
+    public ReclaimTask createReclaimTask(Worker worker) {
+        ReclaimTask rt = new ReclaimTask();
+        rt.addWorker(worker);
+        worker.setTask(rt, frame);
+        reclaimTasks.add(rt);
+        return rt;
     }
 
     public ConstructionTask createCaretakerTask(Worker worker) {

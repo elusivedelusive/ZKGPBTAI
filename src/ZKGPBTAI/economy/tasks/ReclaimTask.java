@@ -11,6 +11,10 @@ public class ReclaimTask extends WorkerTask {
 
     public final float RECLAIM_RADIUS = 400.0f;
 
+    public ReclaimTask() {
+        super();
+    }
+
     @Override
     public boolean start(@NotNull Worker worker) {
         worker.getUnit().reclaimInArea(worker.getPos(), RECLAIM_RADIUS,
