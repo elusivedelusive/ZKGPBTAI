@@ -62,8 +62,9 @@ public class EconomyManager extends Manager {
     //used to calculate average economy
     int entries = 0;
     int totalEco = 0;
-    int mexCount = 0;
+    double mexCount = 0;
     int highestIncome = 0;
+    int totalExpenditure = 0;
 
     Deque<Worker> idlers;
     public ArrayList<Worker> workers, factories, commanders;
@@ -95,7 +96,7 @@ public class EconomyManager extends Manager {
         this.e = callback.getResourceByName("Energy");
         this.runningBt = runningBT;
 
-        this.inputTree = "selector[majorityOfMapVisible, buildMex, buildSolar]";//inputTree;
+        this.inputTree = inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -271,6 +272,8 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitFinished(Unit unit) {
+        totalExpenditure += unit.getDef().getCost(m);
+
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
             if (ct.target != null) {
@@ -351,13 +354,21 @@ public class EconomyManager extends Manager {
         return nearest;
     }
 
-    public int getAvgEco() {
+    public double getAvgEco() {
         return totalEco / entries;
     }
 
     public double getAvgMexVSSpots() {
         availablemetalspots = callback.getMap().getResourceMapSpotsPositions(m);
-        return (mexCount / entries) / availablemetalspots.size();
+        return (mexCount / (double)entries) / (double)(availablemetalspots.size());
+    }
+
+    public double getHighestIncome() {
+        return highestIncome;
+    }
+
+    public int getTotalExpenditure() {
+        return totalExpenditure;
     }
 
     public boolean isStationary(Unit u) {
