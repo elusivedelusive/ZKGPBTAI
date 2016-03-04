@@ -20,7 +20,7 @@ public class MoveToRandom extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         Worker w = bb.getWorker(tree);
         Map map = bb.callback.getMap();
 

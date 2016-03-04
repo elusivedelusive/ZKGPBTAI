@@ -18,7 +18,7 @@ public class MoveToTension extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         Worker w = bb.getWorker(tree);
 
         final AIFloat3 pos = bb.influenceManager.im.getNTopLocations(1, bb.influenceManager.im.getTensionMap()).get(0);

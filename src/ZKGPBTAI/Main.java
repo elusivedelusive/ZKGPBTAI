@@ -1,11 +1,17 @@
 package ZKGPBTAI;
 
 import ZKGPBTAI.bt.actions.*;
+import ZKGPBTAI.bt.actions.movement.MoveToMapCentre;
+import ZKGPBTAI.bt.actions.movement.MoveToRandom;
+import ZKGPBTAI.bt.actions.movement.MoveToSafe;
+import ZKGPBTAI.bt.actions.movement.MoveToTension;
 import ZKGPBTAI.bt.actions.worker.*;
 import ZKGPBTAI.bt.conditions.*;
 import ZKGPBTAI.bt.conditions.economy.HighEnergy;
 import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
+import ZKGPBTAI.bt.conditions.economy.LowMetal;
+import ZKGPBTAI.bt.conditions.other.*;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
 import ZKGPBTAI.economy.Worker;
@@ -24,6 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -46,22 +53,45 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int teamId;
     Long startTime;
     String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[buildRadar, buildGauss]]";
-    String bestInd =  "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
+    String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
+    String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
     //determines if the bot will look for a bt tree or not
-    public boolean runningBT = true;
-    public BehaviourTree<EconomyManager> bt;
 
-    ScheduledExecutorService executorService;
-    Runnable btTask;
+    //BT
+    public boolean runningBT = true;
+    private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
+    ExecutorService executorService;
+    Runnable btRunner;
+    Optional<BehaviourTree<Main>> opt;
+    String inputTree = "";
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
+            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class};
 
     @Override
     public int init(int teamId, OOAICallback callback) {
         this.callback = callback;
         this.teamId = teamId;
         INSTANCE = this;
+
+        if (runningBT) {
+            inputTree = bestInd;
+            opt = new TreeInterpreter<>(this).create(classes, inputTree);
+            executorService = Executors.newWorkStealingPool();
+
+            btRunner = () -> {
+                trees.keySet().forEach(BehaviourTree::step);
+                LiveBT.draw();
+            };
+
+            callback.getGame().sendTextMessage("inputtree = " + this.inputTree, 0);
+        }
+
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback, runningBT, readTree());
+        economyManager = new EconomyManager(callback, runningBT, inputTree, opt);
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
@@ -72,26 +102,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         //losManager = new LOSManager();
         //managers.add(losManager);
 
+
+
         startTime = System.nanoTime();
-
-/*        if (runningBT) {
-
-            executorService = Executors.newScheduledThreadPool(1);
-
-            @SuppressWarnings("unchecked")
-            Class<? extends Task>[] classes = new Class[]{Defensive.class, Offensive.class, HasEco.class, HasArmy.class,
-                    BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
-                    BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, HighEnergy.class};
-            Optional<BehaviourTree<EconomyManager>> opt = new TreeInterpreter<EconomyManager>(this).create(classes, readTree());
-            bt = opt.get();
-
-            btTask = () -> {
-                bt.step();
-                LiveBT.draw();
-            };
-
-            LiveBT.startTransmission(bt);
-        }*/
         return 0;
     }
 
@@ -138,6 +151,15 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         }
 
+        if (frame % 60 == 0) {
+            try {
+                if (runningBT)
+                    executorService.submit(btRunner);
+            } catch (Exception e) {
+                callback.getGame().sendTextMessage("bt problem", 0);
+            }
+        }
+
 
 /*        if (runningBT && frame % 100 == 0) {
             executorService.submit(btTask);
@@ -151,13 +173,13 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int release(int reason) {
         int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         double avgMex = economyManager.getAvgMexVSSpots();
-        double highestIncome = economyManager.getHighestIncome()/50d;
-        double killVsExpenditureMetal= militaryManager.enemiesKilledMetalValue/economyManager.getTotalExpenditure();
+        double highestIncome = economyManager.getHighestIncome() / 50d;
+        double killVsExpenditureMetal = militaryManager.enemiesKilledMetalValue / economyManager.getTotalExpenditure();
         killVsExpenditureMetal /= 2;
-        if(killVsExpenditureMetal > 1d)
+        if (killVsExpenditureMetal > 1d)
             killVsExpenditureMetal = 1d;
-        else if(killVsExpenditureMetal <0d)
-            killVsExpenditureMetal=0d;
+        else if (killVsExpenditureMetal < 0d)
+            killVsExpenditureMetal = 0d;
 
         callback.getGame().sendTextMessage("END " + "teamId: " + this.teamId + " time: " + time / 1000
                 + " Soldiers: " + militaryManager.soldiers.size()
@@ -341,7 +363,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         PrintWriter pw = new PrintWriter(sw);
         ex.printStackTrace(pw);
     }
-
 
 
 }

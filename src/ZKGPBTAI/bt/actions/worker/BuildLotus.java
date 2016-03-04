@@ -17,7 +17,7 @@ public class BuildLotus extends WorkerAction{
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         return bb.economyManager.createLotusTask(bb.getWorker(tree));
     }
 }
