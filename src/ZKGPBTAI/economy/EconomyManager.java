@@ -11,10 +11,7 @@ import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.bt.conditions.economy.LowMetal;
 import ZKGPBTAI.bt.conditions.other.*;
-import ZKGPBTAI.economy.tasks.AssistTask;
-import ZKGPBTAI.economy.tasks.ConstructionTask;
-import ZKGPBTAI.economy.tasks.MoveTask;
-import ZKGPBTAI.economy.tasks.WorkerTask;
+import ZKGPBTAI.economy.tasks.*;
 import ZKGPBTAI.military.Enemy;
 import ZKGPBTAI.utils.MapHandler;
 import ZKGPBTAI.utils.Utility;
@@ -72,6 +69,7 @@ public class EconomyManager extends Manager {
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
     ArrayList<AssistTask> assistTasks;
     ArrayList<WorkerTask> moveTasks;
+    ArrayList<WorkerTask> reclaimTasks;
     ArrayList<Worker> idlersGivenWork;
 
     //BT
@@ -84,7 +82,7 @@ public class EconomyManager extends Manager {
     @SuppressWarnings("unchecked")
     public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
-            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class};
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class};
 
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
@@ -272,6 +270,7 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitFinished(Unit unit) {
+
         totalExpenditure += unit.getDef().getCost(m);
 
         ConstructionTask finished = null;
@@ -279,7 +278,7 @@ public class EconomyManager extends Manager {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
                     //================= BT ================
-                    ct.setResult(true);
+                    ct.complete();
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -292,7 +291,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
                     //================= BT ================
-                    ct.setResult(true);
+                    ct.complete();
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -382,7 +381,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
-                        ct.setResult(false);
+                        ct.fail();
                         ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
@@ -481,7 +480,7 @@ public class EconomyManager extends Manager {
         } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
-                    w.getTask().setResult(true);
+                    w.getTask().complete();
                     constructionTasks.remove(w.getTask());
                     factoryTasks.remove(w.getTask());
                     w.clearTask(frame);
@@ -496,39 +495,47 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitMoveFailed(Unit unit) {
-        endTaskWithResult(unit, false);
+        endTaskWithResult(unit, false, true);
         return 0; // OK
     }
 
     @Override
     public int commandFinished(Unit unit, int commandId, int commandTopicId) {
+
         if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
-            //hax,just to avoid too many calls to endTaskWithResults
-            if (unit.getDef().isBuilder()) {
-                endTaskWithResult(unit, true);
+            // Hax, just to avoid too many calls to endTaskWithResults
+            if(unit.getDef().isBuilder()) {
+                endTaskWithResult(unit, true, true);
             }
+        } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_AREA.getValue()) {
+            endTaskWithResult(unit, true, false);
         }
         return 0; // OK
     }
 
     /**
-     * Goes through all workers and sets the result of its task
-     * Made completely nullsafe
-     *
-     * @param unit   worker
-     * @param result task succeed or fail
+     *  Goes through all workers and sets the result of its task
+     *  Made completely nullsafe
+     * @param unit      worker
+     * @param result    task succeed or fail
+     * @param moveEvent this flag has to be set if the Task is a movetask.
+     *                  Otherwise uncomplete tasks might be cancelled. !important
      **/
-    private void endTaskWithResult(final Unit unit, boolean result) {
+    private void endTaskWithResult(final Unit unit, boolean result, boolean moveEvent) {
+        // If this event is a moveEvent, we have to check if the task is a movetask, otherwise: ignore
+        final Predicate<Worker> moveSafe = w -> !moveEvent || w.getTask() instanceof MoveTask;
         final Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
         final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
-        Optional<Worker> worker = workers.stream().filter(unitNotNull.and(equals)).findFirst();
-        if (worker.isPresent()) {
-            WorkerTask wt = worker.get().getTask();
-            wt.setResult(result);
-            moveTasks.remove(wt);
-            worker.get().clearTask(frame);
-        }
+        final Predicate<Worker> requirements = moveSafe.and(unitNotNull).and(equals);
+
+        Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
+        worker.ifPresent(w -> {
+            WorkerTask task = w.getTask();
+            if(result) task.complete(); else task.fail();
+            removeTaskFromAllLists(task);
+            w.clearTask(frame);
+        });
     }
 
     void removeTaskFromAllLists(WorkerTask wt) {
@@ -540,6 +547,8 @@ public class EconomyManager extends Manager {
         radarTasks.remove(wt);
         factoryTasks.remove(wt);
         caretakerTasks.remove(wt);
+        moveTasks.remove(wt);
+        reclaimTasks.remove(wt);
     }
 
     void cleanTasks() {
@@ -744,34 +753,6 @@ public class EconomyManager extends Manager {
         }
     }
 
-    void createCaretakerTask(Worker worker) {
-
-        UnitDef caretaker = callback.getUnitDefByName("armnanotc");
-        for (Worker f : factories) {
-            //find amount of caretakers close to a factory
-            for (Unit c : caretakers) {
-                //if there is  a caretake close to the factory
-                if (Utility.distance(f.getPos(), c.getPos()) < 350) {
-                    //if there is a caretaketask close to the factory
-                    for (WorkerTask wt : caretakerTasks) {
-                        if (Utility.distance(f.getPos(), wt.getPos()) < 350) continue;
-                        else if (caretakers.size() < factories.size()) {
-                            AIFloat3 position = f.getPos();
-                            position = callback.getMap().findClosestBuildSite(caretaker, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-                            ConstructionTask ct = new ConstructionTask(caretaker, position, 0);
-                            if (!caretakerTasks.contains(ct)) {
-                                constructionTasks.add(ct);
-                                caretakerTasks.add(ct);
-                            }
-                            worker.setTask(ct, frame);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public MoveTask createMoveTask(Worker w, AIFloat3 pos) {
         MoveTask task = new MoveTask(pos);
         task.addWorker(w);
@@ -854,6 +835,61 @@ public class EconomyManager extends Manager {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns how many caretakers are within the range of a worker (factory)
+     * @param worker    Current worker
+     * @return          How many caretakers have the unit within its build-range
+     */
+    public int careTakersInRange(Worker worker) {
+        final Predicate<Unit> inRange = c -> Utility.distance(worker.getPos(), c.getPos()) < c.getDef().getBuildDistance();
+        return (int)caretakers.stream().filter(inRange).count();
+    }
+
+    /**
+     * Create a reclaimTask
+     * @param worker
+     * @return
+     */
+    public ReclaimTask createReclaimTask(Worker worker) {
+        ReclaimTask rt = new ReclaimTask();
+        rt.addWorker(worker);
+        worker.setTask(rt, frame);
+        reclaimTasks.add(rt);
+        return rt;
+    }
+
+    public ConstructionTask createCaretakerTask(Worker worker) {
+        final String UNIT_DEF = "armnanotc";
+
+        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
+        final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
+        final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
+        if(ordered.isPresent()) {
+            UnitDef careDef = callback.getUnitDefByName(UNIT_DEF);
+            //TODO not build on Metal Spot
+            AIFloat3 pos = callback.getMap().findClosestBuildSite(careDef, ordered.get().getPos(), careDef.getBuildDistance(), BUILDING_DIST, 0);
+            ConstructionTask ct = new ConstructionTask(careDef, pos, 0);
+            constructionTasks.add(ct);
+            caretakerTasks.add(ct);
+            ct.addWorker(worker);
+            worker.setTask(ct, frame);
+            return ct;
+        }
+
+        //FALLBACK: Build caretaker at first available spot near worker
+        return createConstructionTask(worker, UNIT_DEF, caretakerTasks);
+    }
+
+    /**
+     * TODO Remove redundancy with this method.
+     */
+    public ConstructionTask createConstructionTask(Worker worker, final String defName, ArrayList<ConstructionTask> list) {
+        UnitDef building = callback.getUnitDefByName(defName);
+        ConstructionTask ct = getBuildSite(worker, building, list, false);
+        constructionTasks.add(ct);
+        return ct;
     }
 
     public ConstructionTask createLotusTask(Worker worker) {
