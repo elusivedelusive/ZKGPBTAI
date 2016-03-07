@@ -60,8 +60,8 @@ public class EconomyManager extends Manager {
     int entries = 0;
     int totalEco = 0;
     double mexCount = 0;
-    int highestIncome = 0;
-    int totalExpenditure = 0;
+    double highestIncome = 0;
+    double totalExpenditure = 0;
 
     Deque<Worker> idlers;
     public ArrayList<Worker> workers, factories, commanders;
@@ -366,7 +366,7 @@ public class EconomyManager extends Manager {
         return highestIncome;
     }
 
-    public int getTotalExpenditure() {
+    public double getTotalExpenditure() {
         return totalExpenditure;
     }
 

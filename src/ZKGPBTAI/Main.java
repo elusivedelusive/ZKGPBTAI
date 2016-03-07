@@ -152,7 +152,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         double avgMex = economyManager.getAvgMexVSSpots();
         double highestIncome = economyManager.getHighestIncome()/50d;
-        double killVsExpenditureMetal= militaryManager.enemiesKilledMetalValue/economyManager.getTotalExpenditure();
+        double killVsExpenditureMetal= ((double)militaryManager.getEnemiesKilledMetalValue())/(double)economyManager.getTotalExpenditure();
+        callback.getGame().sendTextMessage("KillvsExpenditure " + killVsExpenditureMetal,0 );
+        callback.getGame().sendTextMessage("enemiesKilledMValue " + militaryManager.getEnemiesKilledMetalValue() + " totalExpend " + economyManager.getTotalExpenditure(),0 );
         killVsExpenditureMetal /= 2;
         if(killVsExpenditureMetal > 1d)
             killVsExpenditureMetal = 1d;
