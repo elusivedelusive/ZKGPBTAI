@@ -53,8 +53,8 @@ public abstract class WorkerTask extends Observable {
         return assignedWorkers;
     }
 
-    public void complete(){ setResult(Boolean.TRUE);}
-    public void fail() { setResult(Boolean.FALSE);}
+    public void complete(int frame){ setResult(Boolean.TRUE, frame);}
+    public void fail(int frame) { setResult(Boolean.FALSE, frame);}
 
     /**
      * Use complete and fail instead!
@@ -65,10 +65,12 @@ public abstract class WorkerTask extends Observable {
 //        setResult(new Boolean(result));
 //    }
 
-    private void setResult(Boolean result) {
+    protected void setResult(Boolean result, int frame) {
         this.result = result;
         setChanged();
         notifyObservers();
+        stopWorkers(frame);
+        assignedWorkers = new ArrayList<>();
     }
 
     public Boolean getResult() {
@@ -80,7 +82,7 @@ public abstract class WorkerTask extends Observable {
      * @return  false if a single worker failed
      */
     public boolean startAll() {
-        List<Worker> starts = assignedWorkers.stream().filter(w -> !start(w)).collect(Collectors.toList());
+        final List<Worker> starts = assignedWorkers.stream().filter(w -> !start(w)).collect(Collectors.toList());
         return starts.isEmpty();
     }
 }

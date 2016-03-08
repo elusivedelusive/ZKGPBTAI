@@ -11,8 +11,10 @@ public class ReclaimMetal extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager em = getBlackboard().economyManager;
-        ReclaimTask rt = em.createReclaimTask(em.getWorker(tree));
-        return null;
+        ReclaimTask rt = getBlackboard().economyManager.createReclaimTask(getBlackboard().economyManager.getWorker(tree));
+        if(null == rt) {
+            result = true;
+        }
+        return rt;
     }
 }

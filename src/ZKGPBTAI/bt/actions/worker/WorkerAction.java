@@ -20,7 +20,7 @@ import java.util.Optional;
 public abstract class WorkerAction extends Action<Main> {
 
     // Three states: null(Running), true(Succeed) and false(failed)
-    private Boolean result = (null);
+    protected Boolean result = (null);
 
     protected abstract WorkerTask getWorkerTask();
 
@@ -36,7 +36,7 @@ public abstract class WorkerAction extends Action<Main> {
                 getBlackboard().getCallback().getGame().sendTextMessage("Observer " + result, 0);
                 task.get().deleteObservers();
             });
-        } else
+        } else if(null == result)
             result = false;
     }
 
