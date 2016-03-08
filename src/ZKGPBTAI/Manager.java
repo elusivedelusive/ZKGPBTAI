@@ -33,9 +33,7 @@ public abstract class Manager extends AbstractOOAI {
     public static boolean runningBt = false;
     protected int frame = 0;
 
-    //BT
-    public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
-    public static Optional<BehaviourTree<Main>> opt;
+
 
     public abstract String getModuleName();
 
