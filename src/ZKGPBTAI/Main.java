@@ -77,7 +77,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
-            inputTree = jonatanTree;
+            inputTree = "inverter(buildMex)";
             opt = new TreeInterpreter<>(this).create(classes, inputTree);
             executorService = Executors.newWorkStealingPool();
 
@@ -175,7 +175,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         double killVsExpenditureMetal = ((double) militaryManager.getEnemiesKilledMetalValue()) / (double) economyManager.getTotalExpenditure();
         callback.getGame().sendTextMessage("KillvsExpenditure " + killVsExpenditureMetal, 0);
         callback.getGame().sendTextMessage("enemiesKilledMValue " + militaryManager.getEnemiesKilledMetalValue() + " totalExpend " + economyManager.getTotalExpenditure(), 0);
-
+        callback.getGame().sendTextMessage("avgMex " + avgMex, 0);
         killVsExpenditureMetal /= 2;
         if (killVsExpenditureMetal > 1d)
             killVsExpenditureMetal = 1d;

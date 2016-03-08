@@ -12,7 +12,7 @@
 
   [modoptions]
 	{
-		minspeed=20;
+		minspeed=5;
 	}
 
   [PLAYER0]

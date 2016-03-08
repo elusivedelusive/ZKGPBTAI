@@ -58,8 +58,8 @@ public class EconomyManager extends Manager {
     public float expendEnergy = 0;
 
     //used to calculate average economy
-    int entries = 0;
-    int totalEco = 0;
+    double entries = 0;
+    double totalEco = 0;
     double mexCount = 0;
     double highestIncome = 0;
     double totalExpenditure = 0;
@@ -147,7 +147,11 @@ public class EconomyManager extends Manager {
             //stats
             entries++;
             totalEco += effectiveIncome;
-            mexCount += metalExtractors.size();
+            mexCount = mexCount +  (double)metalExtractors.size();
+            write("mexes " + metalExtractors.size());
+            write("mexcount " + mexCount);
+            write("entries " + entries);
+            write("avgSimple " + mexCount/entries);
             int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
             if (income > highestIncome)
                 highestIncome = income;
@@ -333,7 +337,9 @@ public class EconomyManager extends Manager {
 
     public double getAvgMexVSSpots() {
         availablemetalspots = callback.getMap().getResourceMapSpotsPositions(m);
-        return (mexCount / (double)entries) / (double)(availablemetalspots.size());
+        write("avgMexSimple " + mexCount/entries);
+        write("avgMexFull " + (mexCount /entries) / ((double)(availablemetalspots.size())));
+        return (mexCount /entries) / ((double)(availablemetalspots.size()));
     }
 
     public double getHighestIncome() {
