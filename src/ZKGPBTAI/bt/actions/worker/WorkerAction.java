@@ -20,7 +20,7 @@ import java.util.Optional;
 public abstract class WorkerAction extends Action<EconomyManager> {
 
     // Three states: null(Running), true(Succeed) and false(failed)
-    private Boolean result = (null);
+    protected Boolean result = (null);
 
     protected abstract WorkerTask getWorkerTask();
 
@@ -36,7 +36,7 @@ public abstract class WorkerAction extends Action<EconomyManager> {
                 getBlackboard().write("Observer " + result);
                 task.get().deleteObservers();
             });
-        } else
+        } else if(null == result)
             result = false;
     }
 
