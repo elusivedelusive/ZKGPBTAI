@@ -77,7 +77,6 @@ public class EconomyManager extends Manager {
 
     //BT
     String inputTree = "";
-    private Class<? extends Task>[] classes;
     public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     public static Optional<BehaviourTree<Main>> opt;
     
@@ -157,10 +156,7 @@ public class EconomyManager extends Manager {
             entries++;
             totalEco += effectiveIncome;
             mexCount = mexCount +  (double)metalExtractors.size();
-            write("mexes " + metalExtractors.size());
-            write("mexcount " + mexCount);
-            write("entries " + entries);
-            write("avgSimple " + mexCount/entries);
+
             int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
             if (income > highestIncome)
                 highestIncome = income;
@@ -539,13 +535,13 @@ public class EconomyManager extends Manager {
         if(instance.isPresent())
                 requirements = requirements.and(w -> instance.get().isInstance(w.getTask()));
 
-
         Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
         worker.ifPresent(w -> {
             WorkerTask task = w.getTask();
             if(result) task.complete(frame); else task.fail(frame);
-            removeTaskFromAllLists(task);
-            w.clearTask(frame);
+            if(task.getResult() != (null)) {
+                removeTaskFromAllLists(task);
+            }
         });
     }
 
@@ -678,7 +674,7 @@ public class EconomyManager extends Manager {
 
     private void createBTForWorker(Worker w) {
 
-        final BehaviourTree<Main> bt = opt.get().nickname(w.getUnit().getDef().getHumanName());
+        final BehaviourTree<Main> bt = new TreeInterpreter<Main>(opt.get().getBlackboard()).create(Main.classes, inputTree).get().nickname(w.getUnit().getDef().getHumanName());
 
         LiveBT.startTransmission(bt);
 
@@ -869,13 +865,14 @@ public class EconomyManager extends Manager {
         final Predicate<Feature> reclaimable = f -> f.getDef().isReclaimable() && f.getDef().getContainedResource(m) > 0.0f;
         features.addAll(callback.getFeaturesIn(worker.getPos(), ReclaimTask.RECLAIM_RADIUS).stream().filter(reclaimable).collect(Collectors.toList()));
 
-        write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
-        features.forEach(f -> write("Feature: "+f.getDef().getName()+""));
+        //Remove features already scheduled to be reclaimed
+        reclaimTasks.forEach( rt -> features.removeAll(((ReclaimTask)rt).getStack()));
 
-        if(!features.isEmpty()) {
-            worker.getUnit().moveTo(features.get(0).getPosition(), (short) 0, Integer.MAX_VALUE);
-            worker.getUnit().reclaimInArea(features.get(0).getPosition(), ReclaimTask.FEATURE_RADIUS, (short) Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_SHIFT_KEY.getValue(), Integer.MAX_VALUE);
-        }
+        write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
+        features.forEach(f -> write("Feature: "+f.getDef().getName()+" Metal: "+f.getReclaimLeft()));
+
+
+
         if(features.isEmpty())
             return (null);
 
