@@ -74,14 +74,11 @@ public class EconomyManager extends Manager {
     ArrayList<Worker> idlersGivenWork;
 
     //BT
-    private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
-    Optional<BehaviourTree<Main>> opt;
     String inputTree = "";
-
     private Class<? extends Task>[] classes;
 
     //must be called before other managers
-    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt) {
+    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt, HashMap<BehaviourTree<Main>, Worker> trees ) {
         //set variables in Manager
         this.callback = cb;
         this.economy = cb.getEconomy();
@@ -91,6 +88,7 @@ public class EconomyManager extends Manager {
         this.runningBt = runningBT;
         this.opt = opt;
         this.inputTree = inputTree;
+        this.trees = trees;
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;

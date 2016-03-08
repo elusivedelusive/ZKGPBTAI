@@ -2,14 +2,19 @@ package ZKGPBTAI;
 
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
+import ZKGPBTAI.economy.Worker;
 import ZKGPBTAI.influence_map.InfluenceManager;
 import ZKGPBTAI.los.LOSManager;
 import ZKGPBTAI.military.MilitaryManager;
+import bt.BehaviourTree;
 import com.springrts.ai.oo.AbstractOOAI;
 import com.springrts.ai.oo.clb.Economy;
 import com.springrts.ai.oo.clb.Game;
 import com.springrts.ai.oo.clb.OOAICallback;
 import com.springrts.ai.oo.clb.Resource;
+
+import java.util.HashMap;
+import java.util.Optional;
 
 
 /**
@@ -27,6 +32,10 @@ public abstract class Manager extends AbstractOOAI {
     public static OOAICallback callback;
     public static boolean runningBt = false;
     protected int frame = 0;
+
+    //BT
+    public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
+    public static Optional<BehaviourTree<Main>> opt;
 
     public abstract String getModuleName();
 

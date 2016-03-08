@@ -52,11 +52,11 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
-    String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[buildRadar, buildGauss]]";
+    String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[inverter(inRadarRange),buildRadar, buildGauss]]";
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
+    String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
     //determines if the bot will look for a bt tree or not
-
     //BT
     public boolean runningBT = true;
     private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
@@ -77,7 +77,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
-            inputTree = bestInd;
+            inputTree = jonatanTree;
             opt = new TreeInterpreter<>(this).create(classes, inputTree);
             executorService = Executors.newWorkStealingPool();
 
@@ -91,7 +91,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         managers = new ArrayList<>();
         //Eco must be called before other managers
-        economyManager = new EconomyManager(callback, runningBT, inputTree, opt);
+        economyManager = new EconomyManager(callback, runningBT, inputTree, opt, trees);
         managers.add(economyManager);
         influenceManager = new InfluenceManager();
         managers.add(influenceManager);
@@ -101,7 +101,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(recruitmentManager);
         //losManager = new LOSManager();
         //managers.add(losManager);
-
 
 
         startTime = System.nanoTime();
@@ -151,10 +150,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         }
 
-        if (frame % 60 == 0) {
+        if (frame % 60 == 0 && runningBT) {
             try {
-                if (runningBT)
-                    executorService.submit(btRunner);
+                executorService.submit(btRunner);
             } catch (Exception e) {
                 callback.getGame().sendTextMessage("bt problem", 0);
             }
@@ -173,10 +171,10 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public int release(int reason) {
         int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         double avgMex = economyManager.getAvgMexVSSpots();
-        double highestIncome = economyManager.getHighestIncome()/50d;
-        double killVsExpenditureMetal= ((double)militaryManager.getEnemiesKilledMetalValue())/(double)economyManager.getTotalExpenditure();
-        callback.getGame().sendTextMessage("KillvsExpenditure " + killVsExpenditureMetal,0 );
-        callback.getGame().sendTextMessage("enemiesKilledMValue " + militaryManager.getEnemiesKilledMetalValue() + " totalExpend " + economyManager.getTotalExpenditure(),0 );
+        double highestIncome = economyManager.getHighestIncome() / 50d;
+        double killVsExpenditureMetal = ((double) militaryManager.getEnemiesKilledMetalValue()) / (double) economyManager.getTotalExpenditure();
+        callback.getGame().sendTextMessage("KillvsExpenditure " + killVsExpenditureMetal, 0);
+        callback.getGame().sendTextMessage("enemiesKilledMValue " + militaryManager.getEnemiesKilledMetalValue() + " totalExpend " + economyManager.getTotalExpenditure(), 0);
 
         killVsExpenditureMetal /= 2;
         if (killVsExpenditureMetal > 1d)
