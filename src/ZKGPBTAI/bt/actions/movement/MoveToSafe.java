@@ -16,7 +16,7 @@ public class MoveToSafe extends WorkerAction{
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager em = getBlackboard();
+        EconomyManager em = getBlackboard().economyManager;
         final Worker worker = em.getWorker(tree);
 
         return em.createMoveTask(worker, Utility.getNearestSafeHaven(em.influenceManager.im, worker.getUnit().getPos()));

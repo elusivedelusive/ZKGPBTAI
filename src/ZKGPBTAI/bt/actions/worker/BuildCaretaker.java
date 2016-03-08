@@ -1,5 +1,6 @@
 package ZKGPBTAI.bt.actions.worker;
 
+import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 
 /**
@@ -9,6 +10,7 @@ public class BuildCaretaker extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        return getBlackboard().createCaretakerTask(getBlackboard().getWorker(tree));
+        EconomyManager em = getBlackboard().economyManager;
+        return em.createCaretakerTask(em.getWorker(tree));
     }
 }

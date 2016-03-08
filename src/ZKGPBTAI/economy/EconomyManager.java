@@ -1,5 +1,6 @@
 package ZKGPBTAI.economy;
 
+import ZKGPBTAI.Main;
 import ZKGPBTAI.Manager;
 import ZKGPBTAI.bt.actions.movement.MoveToMapCentre;
 import ZKGPBTAI.bt.actions.movement.MoveToRandom;
@@ -73,19 +74,14 @@ public class EconomyManager extends Manager {
     ArrayList<Worker> idlersGivenWork;
 
     //BT
-    private final HashMap<BehaviourTree<EconomyManager>, Worker> trees = new HashMap<>();
-    ExecutorService executorService;
-    Runnable btRunner;
-    Optional<BehaviourTree<EconomyManager>> opt;
+    private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
+    Optional<BehaviourTree<Main>> opt;
     String inputTree = "";
 
-    @SuppressWarnings("unchecked")
-    public Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
-            BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
-            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class};
+    private Class<? extends Task>[] classes;
 
     //must be called before other managers
-    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree) {
+    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt) {
         //set variables in Manager
         this.callback = cb;
         this.economy = cb.getEconomy();
@@ -93,7 +89,7 @@ public class EconomyManager extends Manager {
         this.m = callback.getResourceByName("Metal");
         this.e = callback.getResourceByName("Energy");
         this.runningBt = runningBT;
-
+        this.opt = opt;
         this.inputTree = inputTree;
 
         map_height = callback.getMap().getHeight() * 8f;
@@ -123,18 +119,6 @@ public class EconomyManager extends Manager {
         moveTasks = new ArrayList<>();
 
         setEcoManager(this);
-
-        if (runningBT) {
-            executorService = Executors.newWorkStealingPool();
-
-            btRunner = () -> {
-                trees.keySet().forEach(BehaviourTree::step);
-                LiveBT.draw();
-            };
-
-            write("inputtree = " + this.inputTree);
-//            opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
-        }
     }
 
     @Override
@@ -172,14 +156,6 @@ public class EconomyManager extends Manager {
         }
 
         if (frame % 60 == 0) {
-
-            try {
-                if (runningBt)
-                    executorService.submit(btRunner);
-            } catch (Exception e) {
-                write("bt problem");
-            }
-
             //write("===================================================================");
 
 /*            write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
@@ -409,8 +385,8 @@ public class EconomyManager extends Manager {
                 //================= BT ================
                 if (runningBt) {
                     if (trees.containsValue(w)) {
-                        BehaviourTree<EconomyManager> btToRemove = null;
-                        for (HashMap.Entry<BehaviourTree<EconomyManager>, Worker> entry : trees.entrySet()) {
+                        BehaviourTree<Main> btToRemove = null;
+                        for (HashMap.Entry<BehaviourTree<Main>, Worker> entry : trees.entrySet()) {
                             if (entry.getValue() == w) {
                                 btToRemove = entry.getKey();
                                 break;
@@ -666,8 +642,8 @@ public class EconomyManager extends Manager {
     }
 
     private void createBTForWorker(Worker w) {
-        opt = new TreeInterpreter<>(this).create(classes, inputTree);
-        final BehaviourTree<EconomyManager> bt = opt.get().nickname(w.getUnit().getDef().getHumanName());
+
+        final BehaviourTree<Main> bt = opt.get().nickname(w.getUnit().getDef().getHumanName());
 
         LiveBT.startTransmission(bt);
 

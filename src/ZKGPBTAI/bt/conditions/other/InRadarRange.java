@@ -1,5 +1,6 @@
 package ZKGPBTAI.bt.conditions.other;
 
+import ZKGPBTAI.Main;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.utils.MapHandler;
 import ZKGPBTAI.utils.Utility;
@@ -11,12 +12,12 @@ import java.util.List;
 /**
  * Created by Jonatan on 24-Feb-16.
  */
-public class InRadarRange extends Condition<EconomyManager> {
+public class InRadarRange extends Condition<Main> {
 
     @Override
     protected boolean condition() {
-        Unit u = getBlackboard().getWorker(tree).getUnit();
+        Unit u = getBlackboard().economyManager.getWorker(tree).getUnit();
 
-        return Utility.inRadarRange(getBlackboard().callback, u);
+        return Utility.inRadarRange(getBlackboard().getCallback(), u);
     }
 }

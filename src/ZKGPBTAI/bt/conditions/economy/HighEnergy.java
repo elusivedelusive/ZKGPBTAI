@@ -7,10 +7,10 @@ import bt.leaf.Condition;
 /**
  * Created by Jonatan on 15-Feb-16.
  */
-public class HighEnergy extends Condition<EconomyManager> {
+public class HighEnergy extends Condition<Main> {
     @Override
     protected boolean condition() {
-        EconomyManager m = getBlackboard();
+        EconomyManager m = getBlackboard().economyManager;
         return ((m.economyManager.energy/m.economyManager.energyStorage) > 0.9 && (m.economyManager.effectiveIncomeEnergy - m.economyManager.expendEnergy) > 0);
     }
 }

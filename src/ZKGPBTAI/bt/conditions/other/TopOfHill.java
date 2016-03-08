@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by Hallvard on 29.02.2016.
  */
-public class TopOfHill extends Condition<EconomyManager> {
+public class TopOfHill extends Condition<Main> {
 
     /**
      * TODO Not the best way, find a better solution..
@@ -20,7 +20,7 @@ public class TopOfHill extends Condition<EconomyManager> {
      */
     @Override
     protected boolean condition() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         final AIFloat3 pos = bb.getWorker(tree).getUnit().getPos();
         final Map map = bb.callback.getMap();
 

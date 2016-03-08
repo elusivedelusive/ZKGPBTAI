@@ -16,7 +16,7 @@ import ec.gp.GPIndividual;
 public class BuildMex  extends WorkerAction {
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         return bb.economyManager.createMetalExtractorTask(bb.getWorker(tree));
     }
 }
