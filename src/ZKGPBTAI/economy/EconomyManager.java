@@ -23,6 +23,7 @@ import bt.utils.graphics.LiveBT;
 import com.springrts.ai.Enumerations;
 import com.springrts.ai.oo.AIFloat3;
 import com.springrts.ai.oo.clb.*;
+import com.sun.istack.internal.Nullable;
 
 
 import java.io.PrintWriter;
@@ -30,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Created by Jonatan on 30-Nov-15.
@@ -121,6 +123,7 @@ public class EconomyManager extends Manager {
         idlersGivenWork = new ArrayList<>();
         assistTasks = new ArrayList<>();
         moveTasks = new ArrayList<>();
+        reclaimTasks = new ArrayList<>();
 
         setEcoManager(this);
 
@@ -278,7 +281,7 @@ public class EconomyManager extends Manager {
             if (ct.target != null) {
                 if (ct.target.getUnitId() == unit.getUnitId()) {
                     //================= BT ================
-                    ct.complete();
+                    ct.complete(frame);
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -291,7 +294,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.buildType == unit.getDef() && ct.position == unit.getPos()) {
                     //================= BT ================
-                    ct.complete();
+                    ct.complete(frame);
                     //================= BT ================
                     ct.stopWorkers(frame);
                     finished = ct;
@@ -381,7 +384,7 @@ public class EconomyManager extends Manager {
             for (ConstructionTask ct : constructionTasks) {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
-                        ct.fail();
+                        ct.fail(frame);
                         ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
@@ -480,7 +483,7 @@ public class EconomyManager extends Manager {
         } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
-                    w.getTask().complete();
+                    w.getTask().complete(frame);
                     constructionTasks.remove(w.getTask());
                     factoryTasks.remove(w.getTask());
                     w.clearTask(frame);
@@ -495,7 +498,7 @@ public class EconomyManager extends Manager {
 
     @Override
     public int unitMoveFailed(Unit unit) {
-        endTaskWithResult(unit, false, true);
+        endTaskWithResult(unit, false, Optional.of(MoveTask.class));
         return 0; // OK
     }
 
@@ -505,11 +508,13 @@ public class EconomyManager extends Manager {
         if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
             // Hax, just to avoid too many calls to endTaskWithResults
             if(unit.getDef().isBuilder()) {
-                endTaskWithResult(unit, true, true);
+                endTaskWithResult(unit, true, Optional.of(MoveTask.class));
             }
-        } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_AREA.getValue()) {
-            endTaskWithResult(unit, true, false);
-        }
+        } else if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_FEATURE.getValue()) {
+            endTaskWithResult(unit, true, Optional.of(ReclaimTask.class));
+            write("CommandTopic: Reclaimed! ");
+        } else if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_UNIT.getValue())
+            endTaskWithResult(unit, true, Optional.of(ReclaimTask.class));
         return 0; // OK
     }
 
@@ -518,21 +523,23 @@ public class EconomyManager extends Manager {
      *  Made completely nullsafe
      * @param unit      worker
      * @param result    task succeed or fail
-     * @param moveEvent this flag has to be set if the Task is a movetask.
+     * @param instance this flag has to be set if the Task is a movetask.
      *                  Otherwise uncomplete tasks might be cancelled. !important
      **/
-    private void endTaskWithResult(final Unit unit, boolean result, boolean moveEvent) {
+    private void endTaskWithResult(final Unit unit, boolean result, Optional<Class<? extends WorkerTask>> instance) {
         // If this event is a moveEvent, we have to check if the task is a movetask, otherwise: ignore
-        final Predicate<Worker> moveSafe = w -> !moveEvent || w.getTask() instanceof MoveTask;
         final Predicate<Worker> unitNotNull = w -> w.getUnit() != null;
         final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
-        final Predicate<Worker> requirements = moveSafe.and(unitNotNull).and(equals);
+        Predicate<Worker> requirements = unitNotNull.and(equals);
+        if(instance.isPresent())
+                requirements = requirements.and(w -> instance.get().isInstance(w.getTask()));
+
 
         Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
         worker.ifPresent(w -> {
             WorkerTask task = w.getTask();
-            if(result) task.complete(); else task.fail();
+            if(result) task.complete(frame); else task.fail(frame);
             removeTaskFromAllLists(task);
             w.clearTask(frame);
         });
@@ -850,13 +857,24 @@ public class EconomyManager extends Manager {
     /**
      * Create a reclaimTask
      * @param worker
-     * @return
+     * @return @Nullable
      */
     public ReclaimTask createReclaimTask(Worker worker) {
-        ReclaimTask rt = new ReclaimTask();
+        //Get a stack consisting of all reclaimable Features within the workers reclaim-radius
+        Stack<Feature> features = new Stack<>();
+        final Predicate<Feature> reclaimable = f -> f.getDef().isReclaimable() && f.getDef().getContainedResource(m) > 0.0f;
+        features.addAll(callback.getFeaturesIn(worker.getPos(), ReclaimTask.RECLAIM_RADIUS).stream().filter(reclaimable).collect(Collectors.toList()));
+
+        write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
+        features.forEach(f -> write("Feature: "+f.getDef().getName()+""));
+
+        if(features.isEmpty())
+            return (null);
+
+        ReclaimTask rt = new ReclaimTask(features);
+        reclaimTasks.add(rt);
         rt.addWorker(worker);
         worker.setTask(rt, frame);
-        reclaimTasks.add(rt);
         return rt;
     }
 
@@ -956,7 +974,6 @@ public class EconomyManager extends Manager {
                     break;
                 }
             }
-
 
             availablemetalspots.remove(metalPos);
         }
