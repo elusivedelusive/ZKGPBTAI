@@ -17,7 +17,7 @@ public class BuildRadar  extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         return bb.economyManager.createRadarTask(bb.getWorker(tree));
     }
 }

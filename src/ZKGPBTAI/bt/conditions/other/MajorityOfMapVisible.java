@@ -1,5 +1,6 @@
 package ZKGPBTAI.bt.conditions.other;
 
+import ZKGPBTAI.Main;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.utils.MapHandler;
 import bt.leaf.Condition;
@@ -11,16 +12,17 @@ import java.util.Optional;
 /**
  * Created by Hallvard on 24.02.2016.
  */
-public class MajorityOfMapVisible extends Condition<EconomyManager> {
+public class MajorityOfMapVisible extends Condition<Main> {
     @Override
     protected boolean condition() {
-        getBlackboard().write("MajorityOfMapVisible called()");
-        Map map = getBlackboard().callback.getMap();
+        EconomyManager em = getBlackboard().economyManager;
+        em.write("MajorityOfMapVisible called()");
+        Map map = em.callback.getMap();
         List<Integer> los = MapHandler.scale(map, map.getLosMap(), 8);
         List<Integer> radar = MapHandler.scale(map, map.getRadarMap(), 8);
 
         assert(los.size() == radar.size());
-        getBlackboard().write("MajorityOfMapVisible: "+los.size() +"_"+radar.size());
+        em.write("MajorityOfMapVisible: " + los.size() + "_" + radar.size());
 
         int observable = 0;
         int fogOfWar = 0;
@@ -31,7 +33,7 @@ public class MajorityOfMapVisible extends Condition<EconomyManager> {
             } else
                 observable++;
         }
-        getBlackboard().write("MajorityOfMapVisible result: "+observable+"_vs_"+fogOfWar);
+        em.write("MajorityOfMapVisible result: "+observable+"_vs_"+fogOfWar);
         return observable > fogOfWar;
     }
 }

@@ -1,5 +1,6 @@
 package ZKGPBTAI.bt.actions.worker;
 
+import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.tasks.ReclaimTask;
 import ZKGPBTAI.economy.tasks.WorkerTask;
 
@@ -10,7 +11,7 @@ public class ReclaimMetal extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        ReclaimTask rt = getBlackboard().createReclaimTask(getBlackboard().getWorker(tree));
+        ReclaimTask rt = getBlackboard().economyManager.createReclaimTask(getBlackboard().economyManager.getWorker(tree));
         if(null == rt) {
             result = true;
         }

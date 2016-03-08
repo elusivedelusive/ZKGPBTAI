@@ -17,7 +17,7 @@ import ec.gp.GPIndividual;
 public class AssistFactory extends WorkerAction {
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         return bb.economyManager.createAssistTask(bb.getWorker(tree), -1, null);
     }
 }

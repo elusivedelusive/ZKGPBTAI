@@ -30,9 +30,9 @@ public class MilitaryManager extends Manager {
     public int raiderCount = 0;
 
     public int enemiesKilled = 0;
-    public int enemiesKilledMetalValue = 0;
+    public double enemiesKilledMetalValue = 0;
     public int casualties = 0;
-    public int casualtiesMetalValue = 0;
+    public double casualtiesMetalValue = 0;
 
     public MilitaryManager() {
         soldiers = new ArrayList<>();
@@ -78,7 +78,7 @@ public class MilitaryManager extends Manager {
         return 0;
     }
 
-    public int getKillDeathRatioInMetalValue(){
+    public double getKillDeathRatioInMetalValue(){
         return enemiesKilledMetalValue/casualtiesMetalValue;
     }
 
@@ -86,7 +86,7 @@ public class MilitaryManager extends Manager {
         return enemiesKilled/casualties;
     }
 
-    public int getEnemiesKilledMetalValue(){
+    public double getEnemiesKilledMetalValue(){
         return enemiesKilledMetalValue;
     }
 

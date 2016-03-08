@@ -17,7 +17,7 @@ public class BuildStorage  extends WorkerAction {
 
     @Override
     protected WorkerTask getWorkerTask() {
-        EconomyManager bb = getBlackboard();
+        EconomyManager bb = getBlackboard().economyManager;
         return bb.economyManager.createStorageTask(bb.getWorker(tree));
     }
 }

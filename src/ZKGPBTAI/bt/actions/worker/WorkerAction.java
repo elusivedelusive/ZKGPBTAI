@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * Created by Hallvard on 15.02.2016.
  */
-public abstract class WorkerAction extends Action<EconomyManager> {
+public abstract class WorkerAction extends Action<Main> {
 
     // Three states: null(Running), true(Succeed) and false(failed)
     protected Boolean result = (null);
@@ -26,14 +26,14 @@ public abstract class WorkerAction extends Action<EconomyManager> {
 
     @Override
     public void start() {
-        getBlackboard().write("BT - Starting task " + this.getStandardName());
+        getBlackboard().getCallback().getGame().sendTextMessage("BT - Starting task " + this.getStandardName(), 0);
         Optional<WorkerTask> task = Optional.ofNullable(getWorkerTask());
 
         if(task.isPresent()) {
             task.get().addObserver((Observable obs, Object val) -> {
                 if (obs == task.get())
                     result = task.get().getResult();
-                getBlackboard().write("Observer " + result);
+                getBlackboard().getCallback().getGame().sendTextMessage("Observer " + result, 0);
                 task.get().deleteObservers();
             });
         } else if(null == result)
