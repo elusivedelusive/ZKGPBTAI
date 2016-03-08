@@ -77,8 +77,11 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
-            inputTree = "inverter(buildMex)";
-            opt = new TreeInterpreter<>(this).create(classes, inputTree);
+//            inputTree = "inverter(buildMex)";
+//            inputTree = bestInd;
+            inputTree = "sequence[buildMex, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, buildMex, reclaimMetal]";
+
+            opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 
             btRunner = () -> {

@@ -92,6 +92,10 @@ public class EconomyManager extends Manager {
         this.inputTree = inputTree;
         this.trees = trees;
 
+
+//        this.inputTree = "sequence[buildSolar, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, moveToRandom]";//inputTree;
+        this.inputTree = "sequence[buildMex, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, buildMex, reclaimMetal]";
+
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
         availablemetalspots = new ArrayList<>();
@@ -184,9 +188,13 @@ public class EconomyManager extends Manager {
             try {
                 cleanTasks();
             } catch (Exception e) {
-                write("cleanTasks has crashed");
+                write("cleanTasks has crashed.");
             }
 
+/*          TODO replace with this?
+
+            workers.forEach( w -> w.getTask().start(w));
+*/
 
             for (Worker w : workers) {
                 if (w.getTask() != null) {
@@ -253,6 +261,20 @@ public class EconomyManager extends Manager {
     public int unitFinished(Unit unit) {
 
         totalExpenditure += unit.getDef().getCost(m);
+
+
+/*      TODO replace under with this.
+
+        final Predicate<ConstructionTask> targetExists = ct -> ct.target != null;
+        final Predicate<ConstructionTask> matchingIDs = ct -> ct.target.getUnitId() == unit.getUnitId();
+        final Predicate<ConstructionTask> backup = ct -> ct.buildType == unit.getDef() && ct.position == unit.getPos();
+        Predicate<ConstructionTask> requirements = (targetExists.and(matchingIDs)).or(backup);
+        constructionTasks.stream().filter(requirements).forEach( ct -> {
+            ct.complete();
+            ct.stopWorkers(frame);
+            removeTaskFromAllLists(ct);
+        });
+*/
 
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
@@ -848,6 +870,10 @@ public class EconomyManager extends Manager {
         write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
         features.forEach(f -> write("Feature: "+f.getDef().getName()+""));
 
+        if(!features.isEmpty()) {
+            worker.getUnit().moveTo(features.get(0).getPosition(), (short) 0, Integer.MAX_VALUE);
+            worker.getUnit().reclaimInArea(features.get(0).getPosition(), ReclaimTask.FEATURE_RADIUS, (short) Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_SHIFT_KEY.getValue(), Integer.MAX_VALUE);
+        }
         if(features.isEmpty())
             return (null);
 

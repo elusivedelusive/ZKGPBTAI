@@ -41,10 +41,11 @@ public class ReclaimTask extends WorkerTask {
             return false;
         }
         current.orElse(features.pop());
-        current.ifPresent( feature -> { //should always happen
+/*        current.ifPresent( feature -> { //should always happen
             worker.getUnit().moveTo(feature.getPosition(), (short)0, Integer.MAX_VALUE);
             worker.getUnit().reclaimInArea(feature.getPosition(), FEATURE_RADIUS, (short)Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_SHIFT_KEY.getValue(), Integer.MAX_VALUE);
         });
+        */
         return true;
     }
 }
