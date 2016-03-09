@@ -1,11 +1,10 @@
 package ZKGPBTAI.bt.conditions.other;
 
 import ZKGPBTAI.Main;
-import ZKGPBTAI.economy.EconomyManager;
+import ZKGPBTAI.economy.Worker;
 import ZKGPBTAI.utils.MapHandler;
-import ZKGPBTAI.utils.Utility;
 import bt.leaf.Condition;
-import com.springrts.ai.oo.clb.Unit;
+import com.springrts.ai.oo.clb.Map;
 
 import java.util.List;
 
@@ -16,8 +15,15 @@ public class InRadarRange extends Condition<Main> {
 
     @Override
     protected boolean condition() {
-        Unit u = getBlackboard().economyManager.getWorker(tree).getUnit();
+        final int GRANUALITY = 8;
+        final int SCALE = GRANUALITY*8; //8 = difference between scale 1 and coordinates
 
-        return Utility.inRadarRange(getBlackboard().getCallback(), u);
+        Map map = getBlackboard().economyManager.callback.getMap();
+        Worker worker = getBlackboard().economyManager.getWorker(tree);
+
+        List<Integer> radar = MapHandler.scale(map, map.getRadarMap(), GRANUALITY);
+        final int x = (int)worker.getPos().x/SCALE;
+        final int z = (int)worker.getPos().z/SCALE;
+        return radar.get(z*(map.getHeight()/GRANUALITY) + x) > 0; //getHeight is on scale 1 in MapHandler
     }
 }

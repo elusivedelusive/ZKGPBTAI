@@ -77,7 +77,6 @@ public class EconomyManager extends Manager {
 
     //BT
     String inputTree = "";
-    private Class<? extends Task>[] classes;
     public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     public static Optional<BehaviourTree<Main>> opt;
     
@@ -93,6 +92,10 @@ public class EconomyManager extends Manager {
         this.opt = opt;
         this.inputTree = inputTree;
         this.trees = trees;
+
+
+//        this.inputTree = "sequence[buildSolar, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, moveToRandom]";//inputTree;
+        this.inputTree = "sequence[buildMex, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, buildMex, reclaimMetal]";
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -153,10 +156,7 @@ public class EconomyManager extends Manager {
             entries++;
             totalEco += effectiveIncome;
             mexCount = mexCount +  (double)metalExtractors.size();
-            write("mexes " + metalExtractors.size());
-            write("mexcount " + mexCount);
-            write("entries " + entries);
-            write("avgSimple " + mexCount/entries);
+
             int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
             if (income > highestIncome)
                 highestIncome = income;
@@ -186,9 +186,13 @@ public class EconomyManager extends Manager {
             try {
                 cleanTasks();
             } catch (Exception e) {
-                write("cleanTasks has crashed");
+                write("cleanTasks has crashed.");
             }
 
+/*          TODO replace with this?
+
+            workers.forEach( w -> w.getTask().start(w));
+*/
 
             for (Worker w : workers) {
                 if (w.getTask() != null) {
@@ -255,6 +259,20 @@ public class EconomyManager extends Manager {
     public int unitFinished(Unit unit) {
 
         totalExpenditure += unit.getDef().getCost(m);
+
+
+/*      TODO replace under with this.
+
+        final Predicate<ConstructionTask> targetExists = ct -> ct.target != null;
+        final Predicate<ConstructionTask> matchingIDs = ct -> ct.target.getUnitId() == unit.getUnitId();
+        final Predicate<ConstructionTask> backup = ct -> ct.buildType == unit.getDef() && ct.position == unit.getPos();
+        Predicate<ConstructionTask> requirements = (targetExists.and(matchingIDs)).or(backup);
+        constructionTasks.stream().filter(requirements).forEach( ct -> {
+            ct.complete();
+            ct.stopWorkers(frame);
+            removeTaskFromAllLists(ct);
+        });
+*/
 
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
@@ -517,13 +535,13 @@ public class EconomyManager extends Manager {
         if(instance.isPresent())
                 requirements = requirements.and(w -> instance.get().isInstance(w.getTask()));
 
-
         Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
         worker.ifPresent(w -> {
             WorkerTask task = w.getTask();
             if(result) task.complete(frame); else task.fail(frame);
-            removeTaskFromAllLists(task);
-            w.clearTask(frame);
+            if(task.getResult() != (null)) {
+                removeTaskFromAllLists(task);
+            }
         });
     }
 
@@ -570,6 +588,7 @@ public class EconomyManager extends Manager {
             }
         }
         for (ConstructionTask ct : uselessTasks) {
+            ct.fail(frame);
             ct.stopWorkers(frame);
             removeTaskFromAllLists(ct);
         }
@@ -656,7 +675,7 @@ public class EconomyManager extends Manager {
 
     private void createBTForWorker(Worker w) {
 
-        final BehaviourTree<Main> bt = opt.get().nickname(w.getUnit().getDef().getHumanName());
+        final BehaviourTree<Main> bt = new TreeInterpreter<Main>(opt.get().getBlackboard()).create(Main.classes, inputTree).get().nickname(w.getUnit().getDef().getHumanName());
 
         LiveBT.startTransmission(bt);
 
@@ -847,8 +866,13 @@ public class EconomyManager extends Manager {
         final Predicate<Feature> reclaimable = f -> f.getDef().isReclaimable() && f.getDef().getContainedResource(m) > 0.0f;
         features.addAll(callback.getFeaturesIn(worker.getPos(), ReclaimTask.RECLAIM_RADIUS).stream().filter(reclaimable).collect(Collectors.toList()));
 
+        //Remove features already scheduled to be reclaimed
+        reclaimTasks.forEach( rt -> features.removeAll(((ReclaimTask)rt).getStack()));
+
         write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
-        features.forEach(f -> write("Feature: "+f.getDef().getName()+""));
+        features.forEach(f -> write("Feature: "+f.getDef().getName()+" Metal: "+f.getReclaimLeft()));
+
+
 
         if(features.isEmpty())
             return (null);
