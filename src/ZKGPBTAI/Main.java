@@ -56,6 +56,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
     String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
+    String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
     //determines if the bot will look for a bt tree or not
     //BT
     public boolean runningBT = true;
@@ -77,11 +78,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
-//            inputTree = "inverter(buildMex)";
-//            inputTree = bestInd;
-            inputTree = "sequence[buildMex, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, buildMex, reclaimMetal]";
-
-            opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
+            inputTree = topOfHillTest;
+            opt = new TreeInterpreter<>(this).create(classes, inputTree);
             executorService = Executors.newWorkStealingPool();
 
             btRunner = () -> {
