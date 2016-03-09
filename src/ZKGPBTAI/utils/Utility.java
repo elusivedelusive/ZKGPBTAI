@@ -16,7 +16,7 @@ import java.util.List;
  */
 public final class Utility {
 
-    public static final float distance(AIFloat3 pos1, AIFloat3 pos2) {
+    public static float distance(AIFloat3 pos1, AIFloat3 pos2) {
         float x1 = pos1.x;
         float z1 = pos1.z;
         float x2 = pos2.x;
@@ -24,13 +24,11 @@ public final class Utility {
         return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2));
     }
 
+    @Deprecated
     public static boolean inRadarRange(OOAICallback callback, Unit u) {
         List<Integer> radar = MapHandler.scale(callback.getMap(), callback.getMap().getRadarMap(), 1);
         int pos = (int) (u.getPos().z * (callback.getMap().getWidth() / 8) + u.getPos().x);
-        if (radar.get(pos) > 0)
-            return true;
-        else
-            return false;
+        return (radar.get(pos) > 0);
     }
 
     //getNearestSafeHaven
