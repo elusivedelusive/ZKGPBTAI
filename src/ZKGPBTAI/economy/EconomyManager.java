@@ -79,8 +79,9 @@ public class EconomyManager extends Manager {
     String inputTree = "";
     public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     public static Optional<BehaviourTree<Main>> opt;
+
     //must be called before other managers
-    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt, HashMap<BehaviourTree<Main>, Worker> trees ) {
+    public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt, HashMap<BehaviourTree<Main>, Worker> trees) {
         //set variables in Manager
         this.callback = cb;
         this.economy = cb.getEconomy();
@@ -91,10 +92,6 @@ public class EconomyManager extends Manager {
         this.opt = opt;
         this.inputTree = inputTree;
         this.trees = trees;
-
-
-//        this.inputTree = "sequence[buildSolar, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, moveToRandom]";//inputTree;
-        this.inputTree = "sequence[buildMex, buildSolar, moveToMapCentre, buildSolar, reclaimMetal, buildMex, reclaimMetal]";
 
         map_height = callback.getMap().getHeight() * 8f;
         map_width = callback.getMap().getWidth() * 8f;
@@ -154,7 +151,7 @@ public class EconomyManager extends Manager {
             //stats
             entries++;
             totalEco += effectiveIncome;
-            mexCount = mexCount +  (double)metalExtractors.size();
+            mexCount = mexCount + (double) metalExtractors.size();
 
             int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
             if (income > highestIncome)
@@ -250,6 +247,9 @@ public class EconomyManager extends Manager {
                 idlersGivenWork.clear();
                 //write("===================================================================");
             }
+
+
+            assignCaretakers();
         }
         return 0;
     }
@@ -258,20 +258,6 @@ public class EconomyManager extends Manager {
     public int unitFinished(Unit unit) {
 
         totalExpenditure += unit.getDef().getCost(m);
-
-
-/*      TODO replace under with this.
-
-        final Predicate<ConstructionTask> targetExists = ct -> ct.target != null;
-        final Predicate<ConstructionTask> matchingIDs = ct -> ct.target.getUnitId() == unit.getUnitId();
-        final Predicate<ConstructionTask> backup = ct -> ct.buildType == unit.getDef() && ct.position == unit.getPos();
-        Predicate<ConstructionTask> requirements = (targetExists.and(matchingIDs)).or(backup);
-        constructionTasks.stream().filter(requirements).forEach( ct -> {
-            ct.complete();
-            ct.stopWorkers(frame);
-            removeTaskFromAllLists(ct);
-        });
-*/
 
         ConstructionTask finished = null;
         for (ConstructionTask ct : constructionTasks) {
@@ -332,10 +318,19 @@ public class EconomyManager extends Manager {
 
     public void assignCaretakers() {
         for (Unit u : caretakers) {
-            //if there is a factory find it and guard it. Guard makes caretaker help with construction
-            if (factories.size() != 0) {
-                u.guard(getNearestFac(u.getPos()).getUnit(), (short) 0, frame + 3000);
-                u.setRepeat(true, (short) 0, frame + 3000);
+            Comparator<Unit> health = (u1, u2) -> Float.compare(u1.getHealth() / u1.getMaxHealth(), u2.getHealth() / u2.getMaxHealth());
+            Predicate<Unit> notBeingBuilt = u0 -> !u0.isBeingBuilt();
+            Predicate<Unit> hasMaxHealth = u0 -> u0.getHealth() != u0.getMaxHealth();
+            Optional<Unit> needsRepair = callback.getFriendlyUnitsIn(u.getPos(), u.getDef().getBuildDistance()).stream().filter(notBeingBuilt.and(hasMaxHealth)).min(health);
+
+            if (needsRepair.isPresent()) {
+                u.guard(needsRepair.get(), (short) 0, frame + 3000);
+            } else {
+                //if there is a factory find it and guard it. Guard makes caretaker help with construction
+                if (factories.size() != 0) {
+                    u.guard(getNearestFac(u.getPos()).getUnit(), (short) 0, frame + 3000);
+                    u.setRepeat(true, (short) 0, frame + 3000);
+                }
             }
         }
     }
@@ -359,9 +354,9 @@ public class EconomyManager extends Manager {
 
     public double getAvgMexVSSpots() {
         availablemetalspots = callback.getMap().getResourceMapSpotsPositions(m);
-        write("avgMexSimple " + mexCount/entries);
-        write("avgMexFull " + (mexCount /entries) / ((double)(availablemetalspots.size())));
-        return (mexCount /entries) / ((double)(availablemetalspots.size()));
+        write("avgMexSimple " + mexCount / entries);
+        write("avgMexFull " + (mexCount / entries) / ((double) (availablemetalspots.size())));
+        return (mexCount / entries) / ((double) (availablemetalspots.size()));
     }
 
     public double getHighestIncome() {
@@ -506,24 +501,25 @@ public class EconomyManager extends Manager {
 
         if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
             // Hax, just to avoid too many calls to endTaskWithResults
-            if(unit.getDef().isBuilder()) {
+            if (unit.getDef().isBuilder()) {
                 endTaskWithResult(unit, true, Optional.of(MoveTask.class));
             }
-        } else if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_FEATURE.getValue()) {
+        } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_FEATURE.getValue()) {
             endTaskWithResult(unit, true, Optional.of(ReclaimTask.class));
             write("CommandTopic: Reclaimed! ");
-        } else if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_UNIT.getValue())
+        } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_UNIT.getValue())
             endTaskWithResult(unit, true, Optional.of(ReclaimTask.class));
         return 0; // OK
     }
 
     /**
-     *  Goes through all workers and sets the result of its task
-     *  Made completely nullsafe
-     * @param unit      worker
-     * @param result    task succeed or fail
+     * Goes through all workers and sets the result of its task
+     * Made completely nullsafe
+     *
+     * @param unit     worker
+     * @param result   task succeed or fail
      * @param instance this flag has to be set if the Task is a movetask.
-     *                  Otherwise uncomplete tasks might be cancelled. !important
+     *                 Otherwise uncomplete tasks might be cancelled. !important
      **/
     private void endTaskWithResult(final Unit unit, boolean result, Optional<Class<? extends WorkerTask>> instance) {
         // If this event is a moveEvent, we have to check if the task is a movetask, otherwise: ignore
@@ -531,14 +527,15 @@ public class EconomyManager extends Manager {
         final Predicate<Worker> equals = w -> unit.getUnitId() == w.id;
 
         Predicate<Worker> requirements = unitNotNull.and(equals);
-        if(instance.isPresent())
-                requirements = requirements.and(w -> instance.get().isInstance(w.getTask()));
+        if (instance.isPresent())
+            requirements = requirements.and(w -> instance.get().isInstance(w.getTask()));
 
         Optional<Worker> worker = workers.stream().filter(requirements).findFirst();
         worker.ifPresent(w -> {
             WorkerTask task = w.getTask();
-            if(result) task.complete(frame); else task.fail(frame);
-            if(task.getResult() != (null)) {
+            if (result) task.complete(frame);
+            else task.fail(frame);
+            if (task.getResult() != (null)) {
                 removeTaskFromAllLists(task);
             }
         });
@@ -846,16 +843,18 @@ public class EconomyManager extends Manager {
 
     /**
      * Returns how many caretakers are within the range of a worker (factory)
-     * @param worker    Current worker
-     * @return          How many caretakers have the unit within its build-range
+     *
+     * @param worker Current worker
+     * @return How many caretakers have the unit within its build-range
      */
     public int careTakersInRange(Worker worker) {
         final Predicate<Unit> inRange = c -> Utility.distance(worker.getPos(), c.getPos()) < c.getDef().getBuildDistance();
-        return (int)caretakers.stream().filter(inRange).count();
+        return (int) caretakers.stream().filter(inRange).count();
     }
 
     /**
      * Create a reclaimTask
+     *
      * @param worker
      * @return @Nullable
      */
@@ -866,14 +865,13 @@ public class EconomyManager extends Manager {
         features.addAll(callback.getFeaturesIn(worker.getPos(), ReclaimTask.RECLAIM_RADIUS).stream().filter(reclaimable).collect(Collectors.toList()));
 
         //Remove features already scheduled to be reclaimed
-        reclaimTasks.forEach( rt -> features.removeAll(((ReclaimTask)rt).getStack()));
+        reclaimTasks.forEach(rt -> features.removeAll(((ReclaimTask) rt).getStack()));
 
-        write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
-        features.forEach(f -> write("Feature: "+f.getDef().getName()+" Metal: "+f.getReclaimLeft()));
+        write("Reclaim task initialized: " + features.size() + " feature(s) in list..");
+        features.forEach(f -> write("Feature: " + f.getDef().getName() + " Metal: " + f.getReclaimLeft()));
 
 
-
-        if(features.isEmpty())
+        if (features.isEmpty())
             return (null);
 
         ReclaimTask rt = new ReclaimTask(features);
@@ -889,7 +887,7 @@ public class EconomyManager extends Manager {
         //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
         final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
         final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
-        if(ordered.isPresent()) {
+        if (ordered.isPresent()) {
             UnitDef careDef = callback.getUnitDefByName(UNIT_DEF);
             //TODO not build on Metal Spot
             AIFloat3 pos = callback.getMap().findClosestBuildSite(careDef, ordered.get().getPos(), careDef.getBuildDistance(), BUILDING_DIST, 0);
