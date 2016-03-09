@@ -79,7 +79,6 @@ public class EconomyManager extends Manager {
     String inputTree = "";
     public static HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     public static Optional<BehaviourTree<Main>> opt;
-    
     //must be called before other managers
     public EconomyManager(OOAICallback cb, boolean runningBT, String inputTree, Optional<BehaviourTree<Main>> opt, HashMap<BehaviourTree<Main>, Worker> trees ) {
         //set variables in Manager
