@@ -588,6 +588,7 @@ public class EconomyManager extends Manager {
             }
         }
         for (ConstructionTask ct : uselessTasks) {
+            ct.fail(frame);
             ct.stopWorkers(frame);
             removeTaskFromAllLists(ct);
         }
