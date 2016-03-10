@@ -55,10 +55,11 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[inverter(inRadarRange),buildRadar, buildGauss]]";
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
-    String inRadarRangeTester = "selector[inverter(selector[inRadarRange, buildRadar]), moveToRandom]";
     String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
     String repairUnitTester = "sequence[buildMex, buildSolar, repairUnit, moveToMapCentre, buildSolar, repairUnit, moveToRandom, buildSolar, repairUnit, moveToMapCentre, moveToMapCentre, buildFactory]";
     String bugTest = "";
+    String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
+    String caretakerTest = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar),buildSolar, buildCaretaker])";
     //determines if the bot will look for a bt tree or not
     //BT
     public boolean runningBT = true;
@@ -81,7 +82,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
-            inputTree = repairUnitTester;
+
+            inputTree = caretakerTest;
             opt = new TreeInterpreter<>(this).create(classes, inputTree);
             executorService = Executors.newWorkStealingPool();
 
