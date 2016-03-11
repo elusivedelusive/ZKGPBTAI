@@ -190,7 +190,7 @@ public class EconomyManager extends Manager {
             try {
                 cleanTasks();
             } catch (Exception e) {
-                write("cleanTasks has crashed.");
+                write("cleanTasks has crashed " + e.getMessage());
             }
 
 /*          TODO replace with this?
@@ -576,21 +576,25 @@ public class EconomyManager extends Manager {
                 write("Task was removed because it had no workers");
             }
 
-            //if no worker has that task
-/*            write("cleanTasks2");
+/*            //if no worker has that task
+
             boolean workerHasTask = false;
             for (Worker w : workers) {
                 if (w.getTask() != null) {
-                    write(((ConstructionTask) w.getTask()).buildType.getHumanName());
                     if (w.getTask().equals(ct))
                         workerHasTask = true;
                 }
             }
-            if (!workerHasTask)
-                uselessTasks.add(ct);*/
+            if (!workerHasTask) {
+                uselessTasks.add(ct);
+                write("no worker has task");
+            }*/
 
+            write("ct target " + ct.target);
+            write("ct buildType " + ct.buildType);
+            write("ct pos " + ct.getPos());
             //if it is not possible to build at the location
-            if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), 0)) {
+            if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), Integer.MAX_VALUE)) {
                 write("is not possible to build at");
                 uselessTasks.add(ct);
             }
@@ -929,7 +933,7 @@ public class EconomyManager extends Manager {
     public ConstructionTask createCaretakerTask(Worker worker) {
         final String UNIT_DEF = "armnanotc";
 
-        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
+/*        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
         final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
         final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
         if (ordered.isPresent()) {
@@ -942,7 +946,7 @@ public class EconomyManager extends Manager {
             ct.addWorker(worker);
             worker.setTask(ct, frame);
             return ct;
-        }
+        }*/
 
         //FALLBACK: Build caretaker at first available spot near worker
         return createConstructionTask(worker, UNIT_DEF, caretakerTasks);
