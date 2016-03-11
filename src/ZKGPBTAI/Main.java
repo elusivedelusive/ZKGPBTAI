@@ -11,6 +11,7 @@ import ZKGPBTAI.bt.conditions.economy.HighEnergy;
 import ZKGPBTAI.bt.conditions.economy.HighMetal;
 import ZKGPBTAI.bt.conditions.economy.LowEnergy;
 import ZKGPBTAI.bt.conditions.economy.LowMetal;
+import ZKGPBTAI.bt.conditions.influence_map.HighTension;
 import ZKGPBTAI.bt.conditions.other.*;
 import ZKGPBTAI.economy.EconomyManager;
 import ZKGPBTAI.economy.RecruitmentManager;
@@ -56,7 +57,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
     String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
-    String caretakerTest = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar),buildSolar, buildCaretaker])";
+    String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
     //determines if the bot will look for a bt tree or not
     //BT
     public boolean runningBT = true;
@@ -69,7 +70,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     @SuppressWarnings("unchecked")
     public static Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
-            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class};
+            MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class,
+            HighTension.class, IsCloaked.class, CloseToFactory.class};
 
     @Override
     public int init(int teamId, OOAICallback callback) {
@@ -79,7 +81,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
             inputTree = caretakerTest;
-            opt = new TreeInterpreter<>(this).create(classes, inputTree);
+            opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 
             btRunner = () -> {
