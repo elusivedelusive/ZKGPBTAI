@@ -56,6 +56,9 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[inverter(inRadarRange),buildRadar, buildGauss]]";
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
+    String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
+    String repairUnitTester = "sequence[buildMex, buildSolar, repairUnit, moveToMapCentre, buildSolar, repairUnit, moveToRandom, buildSolar, repairUnit, moveToMapCentre, moveToMapCentre, buildFactory]";
+    String bugTest = "";
     String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
     String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
     //determines if the bot will look for a bt tree or not
@@ -71,7 +74,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
             MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class,
-            HighTension.class, IsCloaked.class, CloseToFactory.class};
+            HighTension.class, IsCloaked.class, CloseToFactory.class, RepairUnit.class};
 
     @Override
     public int init(int teamId, OOAICallback callback) {
@@ -80,6 +83,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         INSTANCE = this;
 
         if (runningBT) {
+
             inputTree = caretakerTest;
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
