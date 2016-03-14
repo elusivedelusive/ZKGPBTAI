@@ -71,7 +71,6 @@ public class EconomyManager extends Manager {
     public ArrayList<Worker> workers, factories, commanders;
     public ArrayList<Unit> metalExtractors, solarPlants, radars, defences, aas, storages, caretakers;
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
-    ArrayList<AssistTask> assistTasks;
     ArrayList<WorkerTask> moveTasks;
     ArrayList<WorkerTask> reclaimTasks;
     ArrayList<WorkerTask> repairTasks;
@@ -123,7 +122,6 @@ public class EconomyManager extends Manager {
         caretakerTasks = new ArrayList<>();
         caretakers = new ArrayList<>();
         idlersGivenWork = new ArrayList<>();
-        assistTasks = new ArrayList<>();
         moveTasks = new ArrayList<>();
         reclaimTasks = new ArrayList<>();
         repairTasks = new ArrayList<>();
@@ -179,13 +177,6 @@ public class EconomyManager extends Manager {
             } catch (Exception e) {
                 write("ERROR cleanWorkers EM");
             }
-
-
-/*            //check is assistask is done
-            for (AssistTask at : assistTasks) {
-                if (at.isDone(frame))
-                    ((WorkerTask) at).stopWorkers(frame);
-            }*/
 
             try {
                 cleanTasks();
