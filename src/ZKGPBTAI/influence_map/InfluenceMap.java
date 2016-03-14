@@ -144,6 +144,9 @@ public class InfluenceMap {
         try {
             for (Unit u : influenceManager.friendlyUnits) {
 
+                if(u.getHealth()< 1)
+                    continue;
+
                 progress = "friendly";
                 int x = convertToIMCoordinate(u.getPos().x);
                 int z = convertToIMCoordinate(u.getPos().z);
@@ -160,7 +163,7 @@ public class InfluenceMap {
                     propagate(myInfluence, x, z, getMovementDissipationArea(u), u.getHealth(), getFullInfluenceArea(u));
                     progress += " propagate";
                 } catch (Exception deadUnit) {
-                    influenceManager.write("friendly math continued: " + deadUnit.getLocalizedMessage());
+                    influenceManager.write("friendly math continued: " + deadUnit.getMessage());
                     continue;
                 }
 
