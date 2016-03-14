@@ -706,22 +706,6 @@ public class EconomyManager extends Manager {
         return false;
     }
 
-    boolean needCaretaker() {
-        for (Worker f : factories) {
-            //find amount of caretakers close to a factory
-            int cCount = 0;
-            for (Unit c : caretakers) {
-                if (Utility.distance(f.getPos(), c.getPos()) < 350) cCount++;
-                for (WorkerTask wt : caretakerTasks) {
-                    if (Utility.distance(f.getPos(), wt.getPos()) < 350) cCount--;
-                }
-
-            }
-            if ((cCount < Math.floor(effectiveIncome / 15) && caretakers.size() < factories.size())) return true;
-        }
-        return false;
-    }
-
     void createWorkerTask(Worker worker) {
         AIFloat3 position = worker.getPos();
 
@@ -775,13 +759,6 @@ public class EconomyManager extends Manager {
         w.setTask(task, frame);
         moveTasks.add(task);
         return task;
-    }
-
-    public AssistTask createAssistTask(Worker w, int frame, Unit target) {
-        Unit fac = getNearestFac(w.getPos()).getUnit();
-        AssistTask at = new AssistTask(w, frame, target);
-        assistTasks.add(at);
-        return at;
     }
 
     public ConstructionTask getBuildSite(Worker w, UnitDef def, ArrayList<ConstructionTask> taskList, boolean isFactory) {
