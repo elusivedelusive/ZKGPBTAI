@@ -53,7 +53,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
-    String jonatanTree = "selector[selector[sequence[lowMetal, buildMex], sequence[lowEnergy, buildSolar, buildLotus]], sequence[highEnergy, highMetal, buildStorage, buildFactory],sequence[inverter(inRadarRange),buildRadar, buildGauss]]";
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
     String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
@@ -61,6 +60,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String bugTest = "";
     String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
     String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
+    String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[highEnergy, highMetal, buildStorage, buildFactory, buildCaretaker]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[sequence[lowHealth, moveToSafe], sequence[enemyBuildingNear, moveToSafe], sequence[isAreaControlled, moveToRandom], sequence[highTension, moveToSafe]])]"; //, randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
     //determines if the bot will look for a bt tree or not
     //BT
     public boolean runningBT = true;
@@ -84,7 +84,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
 
-            inputTree = caretakerTest;
+            inputTree = jonatanTree;
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 

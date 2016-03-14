@@ -792,15 +792,18 @@ public class EconomyManager extends Manager {
         boolean taskCreated = false;
         ConstructionTask ct = null;
         AIFloat3 position = w.getPos();
+
+        //finds a position in the direction of max tension for towers
         if (def.getName().equals("corllt") || def.getName().equals("armpb"))
             position = influenceManager.im.getArrayDirection(position, 5, false, influenceManager.im.getOpponentInfluence());
+
         if (w.getTask() == null) {
             while (taskCreated != true) {
                 position = w.getRadialPoint(position, 200f);
 
                 position = callback.getMap().findClosestBuildSite(def, position, MAX_BUILD_DIST, BUILDING_DIST, 0);
-                //then check if the closest build site is valid
 
+                //then check if the closest build site is valid to ensure factories are not built on map edge
                 if (isFactory && !isOffsetEdgeOfMap(position))
                     continue;
                 if (doesNotCoverMetalSPot(position)) {
@@ -833,7 +836,7 @@ public class EconomyManager extends Manager {
     //Checks if pos is too close to edge of map
     //used to ensure units in factories can move out
     public boolean isOffsetEdgeOfMap(AIFloat3 pos) {
-        float dist = 80f;
+        float dist = 100f;
         if ((pos.x - dist) < 0f || (pos.x + dist) > map_width) {
             write("posX: " + pos.x + " " + (pos.x - dist) + "  width " + map_width);
             return false;
