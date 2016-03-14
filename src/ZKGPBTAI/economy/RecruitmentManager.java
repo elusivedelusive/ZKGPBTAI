@@ -89,7 +89,7 @@ public class RecruitmentManager extends Manager {
     }
 
     private Boolean needWorkers() {
-        if (((float) economyManager.workers.size() - 1 < Math.floor(economyManager.effectiveIncome / 5))) {
+        if (((float) economyManager.workers.size() - 1 < Math.floor(economyManager.effectiveIncome / 4.5))) {
             return true;
         }
         return false;
