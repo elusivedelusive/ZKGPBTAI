@@ -144,7 +144,7 @@ public class InfluenceMap {
         try {
             for (Unit u : influenceManager.friendlyUnits) {
 
-                if(u.getHealth()< 1)
+                if(u== null || u.getHealth()< 1)
                     continue;
 
                 progress = "friendly";

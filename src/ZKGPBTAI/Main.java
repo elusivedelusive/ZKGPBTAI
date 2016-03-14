@@ -53,13 +53,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
-    String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
-    String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
-    String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
-    String repairUnitTester = "sequence[buildMex, buildSolar, repairUnit, moveToMapCentre, buildSolar, repairUnit, moveToRandom, buildSolar, repairUnit, moveToMapCentre, moveToMapCentre, buildFactory]";
-    String bugTest = "";
-    String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
-    String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
     String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[highEnergy, highMetal, buildStorage, buildFactory, buildCaretaker]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[sequence[lowHealth, moveToSafe], sequence[enemyBuildingNear, moveToSafe], sequence[isAreaControlled, moveToRandom], sequence[highTension, moveToSafe]])]"; //, randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
     //determines if the bot will look for a bt tree or not
     //BT
@@ -84,7 +77,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
 
-            inputTree = jonatanTree;
+            inputTree = readTree();
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 
@@ -106,8 +99,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         managers.add(militaryManager);
         recruitmentManager = new RecruitmentManager();
         managers.add(recruitmentManager);
-        //losManager = new LOSManager();
-        //managers.add(losManager);
 
 
         startTime = System.nanoTime();
@@ -164,12 +155,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
                 callback.getGame().sendTextMessage("bt problem", 0);
             }
         }
-
-
-/*        if (runningBT && frame % 100 == 0) {
-            executorService.submit(btTask);
-        }*/
-
         return 0;
     }
 
