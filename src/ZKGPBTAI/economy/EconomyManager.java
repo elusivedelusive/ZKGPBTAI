@@ -511,7 +511,7 @@ public class EconomyManager extends Manager {
 
         if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_MOVE.getValue()) {
             // Hax, just to avoid too many calls to endTaskWithResults
-            if(unit.getDef().isBuilder() && !moveTasks.isEmpty()) {
+            if (unit.getDef().isBuilder() && !moveTasks.isEmpty()) {
                 endTaskWithResult(unit, true, Optional.of(MoveTask.class));
             }
         } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_FEATURE.getValue()) {
@@ -519,7 +519,7 @@ public class EconomyManager extends Manager {
             write("CommandTopic: Reclaimed! ");
         } else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_RECLAIM_UNIT.getValue())
             endTaskWithResult(unit, true, Optional.of(ReclaimTask.class));
-        else if(commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_REPAIR.getValue())
+        else if (commandTopicId == Enumerations.CommandTopic.COMMAND_UNIT_REPAIR.getValue())
             endTaskWithResult(unit, true, Optional.of(RepairTask.class));
 
         return 0; // OK
@@ -576,7 +576,7 @@ public class EconomyManager extends Manager {
                 write("Task was removed because it had no workers");
             }
 
-/*            //if no worker has that task
+            //if no worker has that task
 
             boolean workerHasTask = false;
             for (Worker w : workers) {
@@ -588,11 +588,11 @@ public class EconomyManager extends Manager {
             if (!workerHasTask) {
                 uselessTasks.add(ct);
                 write("no worker has task");
-            }*/
+            }
 
-            write("ct target " + ct.target);
-            write("ct buildType " + ct.buildType);
-            write("ct pos " + ct.getPos());
+            //write("ct target " + ct.target);
+            //write("ct buildType " + ct.buildType);
+            //write("ct pos " + ct.getPos());
             //if it is not possible to build at the location
             if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), Integer.MAX_VALUE)) {
                 write("is not possible to build at");
@@ -741,6 +741,10 @@ public class EconomyManager extends Manager {
             createFactoryTask(worker);
         }
 
+        else if((caretakers.size() + caretakerTasks.size() )<= factories.size() && effectiveIncome > 30){
+            createCaretakerTask(worker);
+        }
+
         //do we have enough energy
         else if ((effectiveIncome < 15 && metalExtractors.size() > solarPlants.size() + solarTasks.size())
                 || (effectiveIncome > 15 && energy < 400 && solarTasks.size() < workers.size())
@@ -769,6 +773,7 @@ public class EconomyManager extends Manager {
         }
 
         if (worker.getTask() == null) {
+            createReclaimTask(worker);
             write("No suitable task");
         }
     }
@@ -876,26 +881,26 @@ public class EconomyManager extends Manager {
      * if there is none, it will create a task for a building within its line of sight with the same criterias.
      * NB! Might return null if no building matches description
      *
-     * @param worker    worker to repair units
-     * @return          Reclaimtask or null
+     * @param worker worker to repair units
+     * @return Reclaimtask or null
      */
     public RepairTask createRepairTask(Worker worker) {
-        final Comparator<Unit> health = (u1, u2) -> Float.compare(u1.getHealth()/u1.getMaxHealth(), u2.getHealth()/u2.getMaxHealth());
-        final Predicate<Unit> needRepair = u -> u.getHealth()/u.getMaxHealth() < RepairTask.REPAIR_THRESHOLD;
+        final Comparator<Unit> health = (u1, u2) -> Float.compare(u1.getHealth() / u1.getMaxHealth(), u2.getHealth() / u2.getMaxHealth());
+        final Predicate<Unit> needRepair = u -> u.getHealth() / u.getMaxHealth() < RepairTask.REPAIR_THRESHOLD;
         final Predicate<Unit> notBeingBuildt = u -> !u.isBeingBuilt() && u.getMaxSpeed() != 0f;
         Optional<Unit> importantBuilding = factories.stream().map(Worker::getUnit).filter(needRepair.and(notBeingBuildt)).min(health);
 //      Supplier<Unit> buildingInRadius = () -> callback.getFriendlyUnitsIn(worker.getPos(), worker.getUnit().getMaxRange())
-  //              .stream().filter(needRepair.and(u -> u.getMaxSpeed() != 0f)).min(health).get(); //Unit is stationary (building)
+        //              .stream().filter(needRepair.and(u -> u.getMaxSpeed() != 0f)).min(health).get(); //Unit is stationary (building)
 
-        write("REPAIR_TASK: "+(importantBuilding.isPresent() ? importantBuilding.get().getDef().getHumanName() : "empty"));
+        write("REPAIR_TASK: " + (importantBuilding.isPresent() ? importantBuilding.get().getDef().getHumanName() : "empty"));
 //        importantBuilding.orElseGet(buildingInRadius);
-        if(!importantBuilding.isPresent()) {
-            Optional<Unit> bbb = callback.getFriendlyUnitsIn(worker.getPos(), worker.getUnit().getMaxRange()*1.5f)
+        if (!importantBuilding.isPresent()) {
+            Optional<Unit> bbb = callback.getFriendlyUnitsIn(worker.getPos(), worker.getUnit().getMaxRange() * 1.5f)
                     .stream().filter(needRepair.and(notBeingBuildt)).min(health);
             importantBuilding = bbb;
         }
-        write("REPAIR_TASK_ELSE: "+(importantBuilding.isPresent() ? importantBuilding.get().getDef().getHumanName()+" life: "+importantBuilding.get().getHealth()/importantBuilding.get().getMaxHealth() : "empty"));
-        if(importantBuilding.isPresent()) {
+        write("REPAIR_TASK_ELSE: " + (importantBuilding.isPresent() ? importantBuilding.get().getDef().getHumanName() + " life: " + importantBuilding.get().getHealth() / importantBuilding.get().getMaxHealth() : "empty"));
+        if (importantBuilding.isPresent()) {
             RepairTask rt = new RepairTask(importantBuilding.get());
             repairTasks.add(rt);
             rt.addWorker(worker);
@@ -918,7 +923,7 @@ public class EconomyManager extends Manager {
         features.addAll(callback.getFeaturesIn(worker.getPos(), ReclaimTask.RECLAIM_RADIUS).stream().filter(reclaimable).collect(Collectors.toList()));
 
         //Remove features already scheduled to be reclaimed
-        reclaimTasks.forEach( rt -> features.removeAll(((ReclaimTask)rt).getStack()));
+        reclaimTasks.forEach(rt -> features.removeAll(((ReclaimTask) rt).getStack()));
 
 //        write("Reclaim task initialized: "+features.size()+" feature(s) in list..");
 //        features.forEach(f -> write("Feature: "+f.getDef().getName()+" Metal: "+f.getReclaimLeft()));
@@ -936,7 +941,7 @@ public class EconomyManager extends Manager {
     public ConstructionTask createCaretakerTask(Worker worker) {
         final String UNIT_DEF = "armnanotc";
 
-/*        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
+       //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
         final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
         final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
         if (ordered.isPresent()) {
@@ -949,7 +954,7 @@ public class EconomyManager extends Manager {
             ct.addWorker(worker);
             worker.setTask(ct, frame);
             return ct;
-        }*/
+        }
 
         //FALLBACK: Build caretaker at first available spot near worker
         return createConstructionTask(worker, UNIT_DEF, caretakerTasks);
@@ -1034,7 +1039,6 @@ public class EconomyManager extends Manager {
         }
 
         if (found) {
-            write("Creating metTask at " + ct.getPos());
             constructionTasks.add(ct);
             metExtractTasks.add(ct);
             worker.setTask(ct, frame);

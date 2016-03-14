@@ -63,7 +63,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[highEnergy, highMetal, buildStorage, buildFactory, buildCaretaker]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[sequence[lowHealth, moveToSafe], sequence[enemyBuildingNear, moveToSafe], sequence[isAreaControlled, moveToRandom], sequence[highTension, moveToSafe]])]"; //, randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
     //determines if the bot will look for a bt tree or not
     //BT
-    public boolean runningBT = true;
+    public boolean runningBT = false;
     private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     ExecutorService executorService;
     Runnable btRunner;
