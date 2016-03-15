@@ -53,6 +53,37 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
+    String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
+    String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
+    String repairUnitTester = "sequence[repairUnit, buildMex, buildSolar, repairUnit, moveToMapCentre, buildSolar, repairUnit, moveToRandom, buildSolar, repairUnit, moveToMapCentre, moveToMapCentre, buildFactory]";
+    String bugTest = "";
+    String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
+    String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
+
+    String deathOfJonatan2 = "";
+    String deathOfJonatan = "selector[" +
+            "selector[" +
+            "failer(selector[inRadarRange, buildRadar])," +
+            "failer(sequence[highMetal, inverter(lowEnergy), buildCaretaker])" +
+            "failer(sequence[highMetal, inverter(lowEnergy), buildFactory])"+
+            "failer(sequence[highMetal, highEnergy, buildStorage])," +
+            "failer(reclaimMetal)" +
+            "failer(selector[highMetal, failer(sequence[buildMex, buildSolar, buildSolar]), isAreaControlled, buildLotus])," +
+            "failer(selector[highMetal, sequence[buildMex, selector[inverter(selector[lowMetal, buildGauss]), buildLotus], buildSolar]])," +
+            "failer(untilSucceed(selector[inverter(lowEnergy), failer(buildSolar)])) " +
+            "]," +
+            "inverter(reclaimMetal)," +
+            "sequence[" +
+            "sequence[moveToMapCentre, selector[inverter(selector[lowMetal, buildGauss]), buildLotus], reclaimMetal, repairUnit]," +
+            "selector[" +
+            "sequence[moveToRandom, buildMex, buildLotus, buildSolar]" +
+            "failer(repairUnit)," +
+            "sequence[highEnergy, highMetal, inverter(enemyBuildingNear), buildFactory]," +
+            "reclaimMetal" +
+            "]" +
+            "]" +
+            "]";
     String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[highEnergy, highMetal, buildStorage, buildFactory, buildCaretaker]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[sequence[lowHealth, moveToSafe], sequence[enemyBuildingNear, moveToSafe], sequence[isAreaControlled, moveToRandom], sequence[highTension, moveToSafe]])]"; //, randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
     //determines if the bot will look for a bt tree or not
     //BT
@@ -77,6 +108,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
 
+//            inputTree = deathOfJonatan;
             inputTree = readTree();
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();

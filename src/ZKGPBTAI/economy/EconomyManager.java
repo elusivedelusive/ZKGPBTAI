@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 public class EconomyManager extends Manager {
     public static final int MAX_BUILD_DIST = 5000;
     public static final int BUILDING_DIST = 7;
+    public static final int MAX_TASK_TIME = 2000;
     public static float map_width;
     public static float map_height;
     boolean metalmap = false;
@@ -199,6 +200,25 @@ public class EconomyManager extends Manager {
                         write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
                         idlers.add(w);
+                    }
+
+                    //To avoid endless tasks
+                    int startFrame = w.getUnit().getLastUserOrderFrame();
+                    boolean notBeingBuilt = !w.getUnit().isBeingBuilt();
+                    boolean idle = w.getUnit().getSpeed() == 0;
+                    if(idle && frame-startFrame > MAX_TASK_TIME && notBeingBuilt) {
+                        if(w.getTask() instanceof ConstructionTask) {
+                            Unit target = ((ConstructionTask)w.getTask()).target;
+                            if(target != null) {
+                                if(!target.isBeingBuilt()) {
+                                    endTaskWithResult(w.getUnit(), false, Optional.empty());
+                                }
+                            } else {
+                                endTaskWithResult(w.getUnit(), false, Optional.empty());
+                            }
+                        } else {
+                            endTaskWithResult(w.getUnit(),false, Optional.empty());
+                        }
                     }
                 }
             }

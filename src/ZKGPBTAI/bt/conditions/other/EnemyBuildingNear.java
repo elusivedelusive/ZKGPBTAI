@@ -21,7 +21,7 @@ public class EnemyBuildingNear extends Condition<Main> {
 
         for(Enemy e : bb.militaryManager.getVisibleEnemies().values()) {
             if(e.isStatic)
-                if(Utility.distance(e.getPos(), uPos) > (e.unit.getDef().getLosRadius()*RADIUS_THRESHOLD))
+                if(Utility.distance(e.getPos(), uPos) < (e.unit.getDef().getLosRadius()*RADIUS_THRESHOLD))
                     return true;
         }
         return false;
