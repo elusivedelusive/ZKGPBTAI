@@ -27,17 +27,19 @@ public abstract class WorkerAction extends Action<Main> {
     @Override
     public void start() {
         getBlackboard().getCallback().getGame().sendTextMessage("BT - Starting task " + this.getStandardName(), 0);
-        Optional<WorkerTask> task = Optional.ofNullable(getWorkerTask());
+        Optional<WorkerTask> task = Optional.of(getWorkerTask());
 
         if(task.isPresent()) {
             task.get().addObserver((Observable obs, Object val) -> {
                 if (obs == task.get())
                     result = task.get().getResult();
-                getBlackboard().getCallback().getGame().sendTextMessage("Observer " + result, 0);
+                getBlackboard().getCallback().getGame().sendTextMessage("Observer "+this.getStandardName()+ " recieved value: " + result, 0);
                 task.get().deleteObservers();
             });
-        } else if(null == result)
+        } else if(null == result) {
+            getBlackboard().getCallback().getGame().sendTextMessage("BT - Task " + this.getStandardName()+" was null and could not start.", 0);
             result = false;
+        }
     }
 
 
