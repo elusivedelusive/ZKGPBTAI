@@ -3,9 +3,12 @@ package ZKGPBTAI.economy.tasks;
 import ZKGPBTAI.economy.Worker;
 import ZKGPBTAI.utils.Utility;
 import com.springrts.ai.Enumerations;
+import com.springrts.ai.Util;
 import com.springrts.ai.oo.clb.Feature;
 import com.sun.istack.internal.NotNull;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Stack;
 
@@ -16,7 +19,9 @@ public class ReclaimTask extends WorkerTask {
 
     private Stack<Feature> features;
 
-    public static final float RECLAIM_RADIUS = 500f;
+    private boolean sorted = false;
+
+    public static final float RECLAIM_RADIUS = 450f;
     public static final float FEATURE_RADIUS = 75f;
 
     public ReclaimTask(@NotNull Stack<Feature> featureStack) {
@@ -27,6 +32,7 @@ public class ReclaimTask extends WorkerTask {
     @Override
     protected void setResult(Boolean result, int frame) {
         features.pop();
+        sorted = false;
         if(features.empty())
             super.setResult(result, frame);
         else
@@ -35,6 +41,12 @@ public class ReclaimTask extends WorkerTask {
 
     @Override
     public boolean start(@NotNull Worker worker) {
+        //Sort so the closest feature gets reclaimed first
+        if(!sorted) {
+            Comparator<Feature> dist = (f1, f2) -> Float.compare(Utility.distance(f2.getPosition(), worker.getPos()), Utility.distance(f1.getPosition(), worker.getPos()));
+            Collections.sort(features, dist);
+            sorted = true;
+        }
 
         Feature current = features.peek();
         if(current.getReclaimLeft() <= 0) {

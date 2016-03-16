@@ -614,7 +614,7 @@ public class EconomyManager extends Manager {
 
         for (ConstructionTask ct : uselessTasks) {
             ct.fail(frame);
-            ct.stopWorkers(frame);
+//            ct.stopWorkers(frame); //Already called through ct.fail()
             removeTaskFromAllLists(ct);
         }
     }

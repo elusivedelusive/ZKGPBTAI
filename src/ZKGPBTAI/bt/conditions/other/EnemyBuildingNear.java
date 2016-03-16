@@ -18,10 +18,11 @@ public class EnemyBuildingNear extends Condition<Main> {
     protected boolean condition() {
         EconomyManager bb = getBlackboard().economyManager;
         final AIFloat3 uPos = bb.getWorker(tree).getUnit().getPos();
+        final float range = bb.getWorker(tree).getUnit().getDef().getBuildDistance();
 
         for(Enemy e : bb.militaryManager.getVisibleEnemies().values()) {
             if(e.isStatic)
-                if(Utility.distance(e.getPos(), uPos) < (e.unit.getDef().getLosRadius()*RADIUS_THRESHOLD))
+                if(Utility.distance(e.getPos(), uPos) < (range*RADIUS_THRESHOLD))
                     return true;
         }
         return false;
