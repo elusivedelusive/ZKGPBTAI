@@ -16,12 +16,10 @@ import java.util.List;
  */
 public final class Utility {
 
-    public static float distance(AIFloat3 pos1, AIFloat3 pos2) {
-        float x1 = pos1.x;
-        float z1 = pos1.z;
-        float x2 = pos2.x;
-        float z2 = pos2.z;
-        return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2));
+    public static float distance(AIFloat3 v0, AIFloat3 v1){
+        float dx = v0.x - v1.x;
+        float dz = v0.z - v1.z;
+        return (float) Math.sqrt(dx*dx+dz*dz);
     }
 
     @Deprecated
