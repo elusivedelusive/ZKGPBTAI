@@ -43,12 +43,17 @@ public class ReclaimTask extends WorkerTask {
         }
         if(Utility.distance(worker.getPos(), current.getPosition()) > FEATURE_RADIUS)
             worker.getUnit().moveTo(current.getPosition(), (short)0, Integer.MAX_VALUE);
-        worker.getUnit().reclaimInArea(current.getPosition(), FEATURE_RADIUS, (short)Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_SHIFT_KEY.getValue(), Integer.MAX_VALUE);
+        worker.getUnit().reclaimInArea(current.getPosition(), FEATURE_RADIUS, (short) Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_SHIFT_KEY.getValue(), Integer.MAX_VALUE);
 
         return true;
     }
 
     public Stack<Feature> getStack() {
         return features;
+    }
+
+    @Override
+    public String toString(){
+        return "reclaiming ";
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
  * Created by Jonatan on 14-Jan-16.
  */
 public final class Utility {
-    
+
     public static float distance(AIFloat3 v0, AIFloat3 v1){
         float dx = v0.x - v1.x;
         float dz = v0.z - v1.z;

@@ -20,7 +20,6 @@ public class CloseToFactory extends Condition<Main> {
         final Unit u = bb.getWorker(tree).getUnit();
 
         for (Worker w : bb.factories) {
-
             if (Utility.distance(w.getPos(), u.getPos()) < (u.getDef().getBuildDistance()*3.5))
                 return true;
         }

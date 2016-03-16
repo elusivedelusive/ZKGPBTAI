@@ -140,38 +140,20 @@ public class EconomyManager extends Manager {
     public int update(int frame) {
         this.frame = frame;
 
-
         if (frame % 5 == 0) {
-            //update economy
-            energyStorage = economy.getStorage(e);
-            metalStorage = economy.getStorage(m);
-
-            effectiveIncomeMetal = economy.getIncome(m);
-            effectiveIncomeEnergy = economy.getIncome(e);
-            metal = economy.getCurrent(m);
-            energy = economy.getCurrent(e);
-            expendMetal = economy.getUsage(m);
-            expendEnergy = economy.getUsage(e);
-            effectiveIncome = Math.min(effectiveIncomeMetal, effectiveIncomeEnergy);
-            effectiveExpenditure = Math.min(expendMetal, expendEnergy);
-
-            //stats
-            entries++;
-            totalEco += effectiveIncome;
-            mexCount = mexCount + (double) metalExtractors.size();
-
-            int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
-            if (income > highestIncome)
-                highestIncome = income;
+            try {
+                updateEconomy();
+            } catch (Exception e) {
+                write(e.getMessage() + " in updateEconomy");
+            }
         }
 
         if (frame % 60 == 0) {
-            //write("===================================================================");
-
-/*            write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size());
-            for (ConstructionTask task : constructionTasks) {
-                write("Tasks " + task.buildType.getHumanName() + " pos " + task.getPos());
-            }*/
+            try {
+                debugTasks();
+            } catch (Exception e) {
+                write(e.getMessage() + " in debugTasks");
+            }
 
             try {
                 cleanWorkers();
@@ -185,63 +167,28 @@ public class EconomyManager extends Manager {
                 write("cleanTasks has crashed " + e.getMessage());
             }
 
-/*          TODO replace with this?
-
-            workers.forEach( w -> w.getTask().start(w));
-*/
+            try {
+                assignCaretakers();
+            } catch (Exception e) {
+                write(e.getMessage() + " exception in assignCaretakers");
+            }
 
             for (Worker w : workers) {
                 if (w.getTask() != null) {
                     try {
                         w.getTask().start(w);
-//                        ConstructionTask ct = (ConstructionTask) w.getTask();
-                        //                      w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                     } catch (Exception e) {
                         write("EcoUpdate exception " + e.getMessage());
                         w.getTask().stopWorkers(frame);
                         idlers.add(w);
                     }
-
-                    //To avoid endless tasks
-                    int startFrame = w.getUnit().getLastUserOrderFrame();
-                    boolean notBeingBuilt = !w.getUnit().isBeingBuilt();
-                    boolean idle = w.getUnit().getSpeed() == 0;
-                    if(idle && frame-startFrame > MAX_TASK_TIME && notBeingBuilt) {
-                        if(w.getTask() instanceof ConstructionTask) {
-                            Unit target = ((ConstructionTask)w.getTask()).target;
-                            if(target != null) {
-                                if(!target.isBeingBuilt()) {
-                                    endTaskWithResult(w.getUnit(), false, Optional.empty());
-                                }
-                            } else {
-                                endTaskWithResult(w.getUnit(), false, Optional.empty());
-                            }
-                        } else {
-                            endTaskWithResult(w.getUnit(),false, Optional.empty());
-                        }
-                    }
                 }
             }
 
-            //==============DEBUGGING=================
-/*            for (Worker w : workers) {
-                String target = "";
-                String task = "";
-                String order = "";
-                if (w.getTask() != null) {
-                    task = ((ConstructionTask) w.getTask()).buildType.getHumanName();
-                    target = (((ConstructionTask) w.getTask()).target != null) ? ((ConstructionTask) w.getTask()).target.getDef().getHumanName() : "";
-                }
-                if (w.getUnit().getCurrentCommands().size() > 0)
-                    order = w.getUnit().getCurrentCommands().get(0).toString();
-
-                write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order);
-            }*/
-            //==============DEBUGGING=================
-
             if (!runningBt) {
                 for (Worker w : idlers) {
-                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0 || !constructionTasks.contains(w.getTask())) && workers.size() > constructionTasks.size()) {
+                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0) //|| !constructionTasks.contains(w.getTask())
+                            && workers.size() > (constructionTasks.size() + reclaimTasks.size() + repairTasks.size() + moveTasks.size())) {
                         try {
                             createWorkerTask(w);
                         } catch (Exception e) {
@@ -250,9 +197,6 @@ public class EconomyManager extends Manager {
                         ConstructionTask ct = (ConstructionTask) w.getTask();
                         try {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
-                            //==============DEBUGGING=================
-                            //write(w.id + " " + w.getUnit().getDef().getHumanName() + " - new " + ct.buildType.getHumanName());
-                            //==============DEBUGGING=================
                             idlersGivenWork.add(w);
                         } catch (Exception e) {
                             write("build command FAILED " + (w.getUnit().getHealth() > 0 ? "Handled" : "ERROR"));
@@ -264,13 +208,56 @@ public class EconomyManager extends Manager {
                 }
                 idlers.removeAll(idlersGivenWork);
                 idlersGivenWork.clear();
-                //write("===================================================================");
+
             }
-
-
-            assignCaretakers();
         }
         return 0;
+    }
+
+    private void debugTasks() {
+        write("===================================================================");
+        write("Workers: " + workers.size() + " Idlers: " + idlers.size() + " Tasks: " + constructionTasks.size() + reclaimTasks.size() + repairTasks.size() + moveTasks.size());
+        for (Worker w : workers) {
+            String target = "";
+            String task = "";
+            String order = "";
+            if (w.getTask() != null) {
+                if (w.getTask() instanceof ConstructionTask) {
+                    task = ((ConstructionTask) w.getTask()).buildType.getHumanName();
+                    target = (((ConstructionTask) w.getTask()).target != null) ? ((ConstructionTask) w.getTask()).target.getDef().getHumanName() : "";
+                } else {
+                    task = w.getTask().toString();
+                }
+            }
+            if (w.getUnit().getCurrentCommands().size() > 0)
+                order = w.getUnit().getCurrentCommands().get(0).toString();
+
+            write(w.id + " " + w.getUnit().getDef().getHumanName() + " - " + task + " - " + target + " - " + order + " - " + w.getUnit().getVel());
+        }
+        write("===================================================================");
+    }
+
+    private void updateEconomy() {
+        energyStorage = economy.getStorage(e);
+        metalStorage = economy.getStorage(m);
+
+        effectiveIncomeMetal = economy.getIncome(m);
+        effectiveIncomeEnergy = economy.getIncome(e);
+        metal = economy.getCurrent(m);
+        energy = economy.getCurrent(e);
+        expendMetal = economy.getUsage(m);
+        expendEnergy = economy.getUsage(e);
+        effectiveIncome = Math.min(effectiveIncomeMetal, effectiveIncomeEnergy);
+        effectiveExpenditure = Math.min(expendMetal, expendEnergy);
+
+        //stats
+        entries++;
+        totalEco += effectiveIncome;
+        mexCount = mexCount + (double) metalExtractors.size();
+
+        int income = (int) (economy.getIncome(m) + economy.getIncome(e)) / 2;
+        if (income > highestIncome)
+            highestIncome = income;
     }
 
     @Override
@@ -335,10 +322,13 @@ public class EconomyManager extends Manager {
         return 0;
     }
 
+
     public void assignCaretakers() {
-
-
         for (Unit u : caretakers) {
+            //ignore dead caretakers
+            if (u.getHealth() == 0 && u == null)
+                continue;
+
             Comparator<Unit> health = (u1, u2) -> Float.compare(u1.getHealth() / u1.getMaxHealth(), u2.getHealth() / u2.getMaxHealth());
             Predicate<Unit> notBeingBuilt = u0 -> !u0.isBeingBuilt();
             Predicate<Unit> hasMaxHealth = u0 -> u0.getHealth() != u0.getMaxHealth();
@@ -400,7 +390,6 @@ public class EconomyManager extends Manager {
                 if (ct.target != null) {
                     if (ct.target.getUnitId() == unit.getUnitId()) {
                         ct.fail(frame);
-                        ct.stopWorkers(frame);
                         removeTaskFromAllLists(ct);
                         break;
                     }
@@ -422,6 +411,7 @@ public class EconomyManager extends Manager {
                 write(unit.getUnitId() + " " + unit.getDef().getHumanName() + " IS DEAD");
                 if (w.getTask() != null) {
                     removeTaskFromAllLists(w.getTask());
+                    w.getTask().fail(frame);
                 }
 
                 //================= BT ================
@@ -498,11 +488,8 @@ public class EconomyManager extends Manager {
         } else if (!unit.isBeingBuilt()) {
             for (Worker w : workers) {
                 if (w.id == builder.getUnitId()) {
+                    removeTaskFromAllLists(w.getTask());
                     w.getTask().complete(frame);
-                    constructionTasks.remove(w.getTask());
-                    factoryTasks.remove(w.getTask());
-                    w.clearTask(frame);
-
                     if (runningBt)
                         createBTForWorker(w);
                 }
@@ -566,6 +553,10 @@ public class EconomyManager extends Manager {
 
     void removeTaskFromAllLists(WorkerTask wt) {
         constructionTasks.remove(wt);
+        moveTasks.remove(wt);
+        reclaimTasks.remove(wt);
+        repairTasks.remove(wt);
+
         metExtractTasks.remove(wt);
         storageTasks.remove(wt);
         solarTasks.remove(wt);
@@ -573,42 +564,54 @@ public class EconomyManager extends Manager {
         radarTasks.remove(wt);
         factoryTasks.remove(wt);
         caretakerTasks.remove(wt);
-        moveTasks.remove(wt);
-        reclaimTasks.remove(wt);
+
     }
 
     void cleanTasks() {
         ArrayList<ConstructionTask> uselessTasks = new ArrayList<>();
-        //if the task has no assigned workers
 
+        //if the task has no assigned workers
         for (ConstructionTask ct : constructionTasks) {
             if (ct.assignedWorkers.size() == 0) {
                 uselessTasks.add(ct);
                 write("Task was removed because it had no workers");
             }
 
-            //if no worker has that task
-
-            boolean workerHasTask = false;
-            for (Worker w : workers) {
-                if (w.getTask() != null) {
-                    if (w.getTask().equals(ct))
-                        workerHasTask = true;
-                }
-            }
-            if (!workerHasTask) {
-                uselessTasks.add(ct);
-                write("no worker has task");
-            }
-
-            //write("ct target " + ct.target);
-            //write("ct buildType " + ct.buildType);
-            //write("ct pos " + ct.getPos());
             //if it is not possible to build at the location
             if (ct.target == null && !callback.getMap().isPossibleToBuildAt(ct.buildType, ct.getPos(), Integer.MAX_VALUE)) {
                 write("is not possible to build at");
                 uselessTasks.add(ct);
             }
+
+            //ensures the first factory task is not removed
+            if (trees.size() > 0) {
+                for (Worker w : workers) {
+                    if (w.getTask() == null)
+                        continue;
+
+                    WorkerTask wt = w.getTask();
+
+                    boolean notBeingBuilt = !w.getUnit().isBeingBuilt();
+                    AIFloat3 vel = w.getUnit().getVel();
+                    boolean notMoving = (Math.abs(vel.x) < 0.1f && Math.abs(vel.z) < 0.1f);
+
+                    if (notMoving && (frame - w.lastTaskFrame) > 500 && notBeingBuilt) {
+                        if (wt instanceof ConstructionTask) {
+                            Unit target = ((ConstructionTask) wt).target;
+                            if (target != null) {
+                                if (!target.isBeingBuilt()) {
+                                    uselessTasks.add((ConstructionTask) wt);
+                                    write("Idle task removed");
+                                }
+                            } else {
+                                uselessTasks.add((ConstructionTask) wt);
+                                write("Idle task removed");
+                            }
+                        }
+                    }
+                }
+            }
+
         }
         for (ConstructionTask ct : uselessTasks) {
             ct.fail(frame);
@@ -637,6 +640,10 @@ public class EconomyManager extends Manager {
         for (Worker w : workers) {
             if (w.getTask() != null)
                 idlers.remove(w);
+/*            if(w.unstick(frame)) {
+                endTaskWithResult(w.getUnit(), false, Optional.empty());
+                write("unstuck");
+            }*/
         }
 
         //do not remove
@@ -734,9 +741,7 @@ public class EconomyManager extends Manager {
         if ((factories.size() == 0 && factoryTasks.size() == 0)
                 || (effectiveIncome > (20 + ((factories.size() - 1) * 10)) && factoryTasks.size() == 0)) {
             createFactoryTask(worker);
-        }
-
-        else if((caretakers.size() + caretakerTasks.size() )<= factories.size() && effectiveIncome > 30){
+        } else if ((caretakers.size() + caretakerTasks.size()) <= factories.size() && effectiveIncome > 30) {
             createCaretakerTask(worker);
         }
 
@@ -929,7 +934,7 @@ public class EconomyManager extends Manager {
     public ConstructionTask createCaretakerTask(Worker worker) {
         final String UNIT_DEF = "armnanotc";
 
-       //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
+        //PRIMARY: Build caretaker near the factory with the fewest caretakers within their building range
         final Comparator<Worker> careTakersInRange = (f1, f2) -> Integer.compare(careTakersInRange(f1), careTakersInRange(f2));
         final Optional<Worker> ordered = factories.stream().min(careTakersInRange);
         if (ordered.isPresent()) {

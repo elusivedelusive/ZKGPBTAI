@@ -44,6 +44,8 @@ public class RepairTask extends WorkerTask {
 
     @Override
     public String toString() {
+        if(target == null)
+            return "repairing";
         return " to repair " + target.getDef().getName();
     }
 }

@@ -20,4 +20,9 @@ public class MoveTask extends WorkerTask {
         worker.getUnit().moveTo(position, (short)Enumerations.UnitCommandOptions.UNIT_COMMAND_OPTION_RIGHT_MOUSE_KEY.getValue(), Integer.MAX_VALUE);
         return true;
     }
+
+    @Override
+    public String toString(){
+        return "moving to "+ position;
+    }
 }
