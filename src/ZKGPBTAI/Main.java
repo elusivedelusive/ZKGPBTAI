@@ -53,6 +53,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     public static GameState state = GameState.OFFENSIVE;
     public int teamId;
     Long startTime;
+    String randomSelectorTest = "randomSelector[buildLotus, buildSolar, buildMex]";
     String bestInd = "inverter(sequence[succeeder(inverter(buildMex)),succeeder(untilFail(buildSolar)),failer(untilSucceed(highEnergy)),buildSolar])";
     String tensionTester = "inverter(sequence[moveToTension, buildLotus,buildSolar])";
     String topOfHillTest = "sequence(moveToRandom, topOfHill, buildRadar)";
@@ -60,7 +61,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String bugTest = "";
     String inRadarRangeTester = "inverter(sequence[inverter(inRadarRange), buildRadar, moveToRandom])";
     String caretakerTest = "succeeder(sequence[succeeder(inverter(buildMex)),succeeder(buildSolar), buildSolar , untilSucceed(sequence[moveToRandom, topOfHill]), buildFactory, buildCaretaker])";
-
+    String reclaimTest = "sequence(buildMex, buildSolar, reclaimMetal, moveToRandom, reclaimMetal]";
     String deathOfJonatan2 = "";
     String deathOfJonatan = "selector[" +
             "selector[" +
@@ -99,7 +100,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
     String inputTree = "";
 
     @SuppressWarnings("unchecked")
-    public static Class<? extends Task>[] classes = new Class[]{BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
+    public static Class<? extends Task>[] classes = new Class[] {BuildFactory.class, BuildGauss.class, BuildLotus.class, BuildMex.class, BuildRadar.class, BuildSolar.class,
             BuildStorage.class, HighEnergy.class, LowEnergy.class, HighMetal.class, LowMetal.class, MajorityOfMapVisible.class, MoveToMapCentre.class, MoveToRandom.class,
             MoveToSafe.class, MoveToTension.class, EnemyBuildingNear.class, InRadarRange.class, IsAreaControlled.class, TopOfHill.class, LowHealth.class, BuildCaretaker.class, ReclaimMetal.class,
             HighTension.class, IsCloaked.class, CloseToFactory.class, RepairUnit.class};
@@ -112,7 +113,8 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
 
-            inputTree = jonatanTree;
+            inputTree = deathOfJonatan;
+//            inputTree = readTree();
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 
@@ -391,6 +393,5 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
         PrintWriter pw = new PrintWriter(sw);
         ex.printStackTrace(pw);
     }
-
 
 }
