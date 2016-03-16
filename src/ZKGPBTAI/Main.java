@@ -112,7 +112,7 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         if (runningBT) {
 
-            inputTree = jonatanTree;
+            inputTree = readTree();
             opt = new TreeInterpreter<>(this).create(classes, this.inputTree);
             executorService = Executors.newWorkStealingPool();
 

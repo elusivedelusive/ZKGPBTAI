@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 public class EconomyManager extends Manager {
     public static final int MAX_BUILD_DIST = 5000;
     public static final int BUILDING_DIST = 7;
-    public static final int MAX_TASK_TIME = 2000;
     public static float map_width;
     public static float map_height;
     boolean metalmap = false;
@@ -149,11 +148,11 @@ public class EconomyManager extends Manager {
         }
 
         if (frame % 60 == 0) {
-            try {
+/*            try {
                 debugTasks();
             } catch (Exception e) {
                 write(e.getMessage() + " in debugTasks");
-            }
+            }*/
 
             try {
                 cleanWorkers();
@@ -187,14 +186,14 @@ public class EconomyManager extends Manager {
 
             if (!runningBt) {
                 for (Worker w : idlers) {
-                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0) //|| !constructionTasks.contains(w.getTask())
+                    if ((w.getTask() == null || w.getUnit().getCurrentCommands().size() == 0 || !constructionTasks.contains(w.getTask()))
                             && workers.size() > (constructionTasks.size() + reclaimTasks.size() + repairTasks.size() + moveTasks.size())) {
                         try {
                             createWorkerTask(w);
                         } catch (Exception e) {
                             write("createWorkerTask " + e.getMessage() + " HEALTH " + w.getUnit().getHealth());
                         }
-                        ConstructionTask ct = (ConstructionTask) w.getTask();
+/*                        ConstructionTask ct = (ConstructionTask) w.getTask();
                         try {
                             w.getUnit().build(ct.buildType, ct.getPos(), ct.facing, (short) 0, frame + 5000);
                             idlersGivenWork.add(w);
@@ -203,7 +202,7 @@ public class EconomyManager extends Manager {
                             ct.stopWorkers(frame);
                             removeTaskFromAllLists(ct);
                             w.setTask(null, frame);
-                        }
+                        }*/
                     }
                 }
                 idlers.removeAll(idlersGivenWork);
@@ -582,37 +581,37 @@ public class EconomyManager extends Manager {
                 write("is not possible to build at");
                 uselessTasks.add(ct);
             }
+        }
 
-            //ensures the first factory task is not removed
-            if (trees.size() > 0) {
-                for (Worker w : workers) {
-                    if (w.getTask() == null)
-                        continue;
+        //ensures the first factory task is not removed
+        if (trees.size() > 0) {
+            for (Worker w : workers) {
+                if (w.getTask() == null)
+                    continue;
 
-                    WorkerTask wt = w.getTask();
+                WorkerTask wt = w.getTask();
 
-                    boolean notBeingBuilt = !w.getUnit().isBeingBuilt();
-                    AIFloat3 vel = w.getUnit().getVel();
-                    boolean notMoving = (Math.abs(vel.x) < 0.1f && Math.abs(vel.z) < 0.1f);
+                boolean notBeingBuilt = !w.getUnit().isBeingBuilt();
+                AIFloat3 vel = w.getUnit().getVel();
+                boolean notMoving = (Math.abs(vel.x) < 0.1f && Math.abs(vel.z) < 0.1f);
 
-                    if (notMoving && (frame - w.lastTaskFrame) > 500 && notBeingBuilt) {
-                        if (wt instanceof ConstructionTask) {
-                            Unit target = ((ConstructionTask) wt).target;
-                            if (target != null) {
-                                if (!target.isBeingBuilt()) {
-                                    uselessTasks.add((ConstructionTask) wt);
-                                    write("Idle task removed");
-                                }
-                            } else {
+                if (notMoving && (frame - w.lastTaskFrame) > 500 && notBeingBuilt) {
+                    if (wt instanceof ConstructionTask) {
+                        Unit target = ((ConstructionTask) wt).target;
+                        if (target != null) {
+                            if (!target.isBeingBuilt()) {
                                 uselessTasks.add((ConstructionTask) wt);
                                 write("Idle task removed");
                             }
+                        } else {
+                            uselessTasks.add((ConstructionTask) wt);
+                            write("Idle task removed");
                         }
                     }
                 }
             }
-
         }
+
         for (ConstructionTask ct : uselessTasks) {
             ct.fail(frame);
             ct.stopWorkers(frame);
@@ -773,7 +772,6 @@ public class EconomyManager extends Manager {
         }
 
         if (worker.getTask() == null) {
-            createReclaimTask(worker);
             write("No suitable task");
         }
     }

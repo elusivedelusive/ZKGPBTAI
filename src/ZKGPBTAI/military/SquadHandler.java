@@ -205,7 +205,7 @@ public class SquadHandler {
     void cleanUnits() {
         ArrayList<Integer> invalidFighters = new ArrayList<Integer>();
         for (Fighter f : fighters.values()) {
-            if (f.getUnit().getHealth() <= 0) {
+            if (f.getUnit().getHealth() == 0) {
                 if (f.squad != null) {
                     f.squad.removeUnit(f);
                 }
