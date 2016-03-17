@@ -71,7 +71,7 @@ public class EconomyManager extends Manager {
     public ArrayList<Worker> workers, factories, commanders;
     public ArrayList<Unit> metalExtractors, solarPlants, radars, defences, aas, storages, caretakers;
     ArrayList<ConstructionTask> solarTasks, constructionTasks, defenceTasks, metExtractTasks, factoryTasks, radarTasks, storageTasks, caretakerTasks;
-    ArrayList<WorkerTask> moveTasks;
+    ArrayList<MoveTask> moveTasks;
     ArrayList<WorkerTask> reclaimTasks;
     ArrayList<WorkerTask> repairTasks;
     ArrayList<Worker> idlersGivenWork;
@@ -164,6 +164,12 @@ public class EconomyManager extends Manager {
                 cleanTasks();
             } catch (Exception e) {
                 write("cleanTasks has crashed " + e.getMessage());
+            }
+
+            try {
+                cleanMoveTasks();
+            } catch (Exception e) {
+                write(e.getMessage() + " exception in cleanMoveTasks");
             }
 
             try {
@@ -676,6 +682,16 @@ public class EconomyManager extends Manager {
 *//*            if (w.unstick(frame))
                 write("unsticked");*//*
         }*/
+    }
+
+    void cleanMoveTasks(){
+        for(MoveTask mt: moveTasks){
+            if(mt.assignedWorkers.size() > 0) {
+                if (Utility.distance(mt.assignedWorkers.get(0).getPos(), mt.position) < 20){
+                    endTaskWithResult(mt.assignedWorkers.get(0).getUnit(), true, Optional.empty());
+                }
+            }
+        }
     }
 
     void checkIfWorker(Unit u) {
