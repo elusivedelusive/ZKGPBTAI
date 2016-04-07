@@ -167,7 +167,7 @@ public class EconomyManager extends Manager {
             }
 
             try {
-                cleanMoveTasks();
+                //cleanMoveTasks();
             } catch (Exception e) {
                 write(e.getMessage() + " exception in cleanMoveTasks");
             }

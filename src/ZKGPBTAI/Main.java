@@ -85,13 +85,15 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
             "]" +
             "]" +
             "]";
-    String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[selector[highMetal, highEnergy],randomSelector[buildCaretaker, buildFactory]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe], sequence[isAreaControlled, moveToRandom], randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
-
+    String jonatanTree = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(sequence[inverter(isAreaControlled), selector[sequence[inverter(lowMetal)], buildGauss],buildLotus]]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[selector[highMetal, highEnergy],randomSelector[buildCaretaker, buildFactory]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe], sequence[isAreaControlled, moveToRandom], randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]])]";
+    String jonatanClassic = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[sequence[isAreaControlled, moveToMapCentre, selector[sequence[sequence[lowEnergy, lowMetal], buildGauss], buildLotus]], sequence[ selector[closeToFactory, topOfHill, highTension], selector[sequence[sequence[lowEnergy, lowMetal], buildGauss], buildLotus]], selector[sequence[inverter(lowMetal), buildGauss],buildLotus]]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(sequence[selector[highMetal, highEnergy],randomSelector[buildCaretaker, buildFactory]]), failer(sequence[lowMetal, reclaimMetal]), failer(repairUnit), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe], sequence[isAreaControlled, moveToRandom], randomSelector[moveToMapCentre, moveToTension, inverter(isCloaked)]])]";
+    String jonatanNewAge = "selector[failer(selector[sequence[topOfHill,buildRadar],sequence[inverter(inRadarRange),buildRadar]]),failer(sequence[succeeder(sequence[inverter(highEnergy),buildSolar]),succeeder(sequence[inverter(highMetal),buildMex]),selector[sequence[sequence[lowEnergy,lowMetal],buildGauss],buildLotus]]),failer(sequence[succeeder(selector[sequence[isAreaControlled,moveToMapCentre,selector[sequence[sequence[lowEnergy,lowMetal],buildGauss],buildLotus]],sequence[selector[closeToFactory,topOfHill,highTension],selector[sequence[sequence[lowEnergy,lowMetal],buildGauss],buildLotus]],selector[sequence[inverter(lowMetal),buildGauss],buildLotus]]),succeeder(sequence[selector[highMetal,highEnergy],sequence[buildCaretaker,buildFactory,closeToFactory,buildCaretaker]])]),failer(sequence[succeeder(sequence[lowMetal,reclaimMetal]),succeeder(repairUnit)]),selector[sequence[selector[lowHealth,enemyBuildingNear,highTension],moveToSafe],sequence[isAreaControlled,moveToRandom],randomSelector[moveToMapCentre,moveToTension,inverter(isCloaked)]]]";
     //determines if the bot will look for a bt tree or not
     //BT
-    String jonatanTree2 = "sequence[randomSelector[sequence[sequence[inverter(highEnergy), buildSolar], sequence[inverter(highMetal), buildMex]], sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]], selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]], sequence[selector[highMetal, highEnergy], randomSelector[buildCaretaker, buildFactory]], sequence[sequence[lowMetal, reclaimMetal], repairUnit], selector[sequence[isAreaControlled, moveToRandom], randomSelector[moveToMapCentre, moveToRandom, moveToSafe, moveToTension]]], sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]";
-    String jonatanTree3 = "selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(sequence[inverter(highMetal), buildMex]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(sequence[inverter(isAreaControlled), selector[sequence[highMetal, buildGauss],sequence[inverter(lowMetal), buildLotus]]]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(sequence[selector[highMetal, highEnergy], randomSelector[buildCaretaker, buildFactory]]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(sequence[lowMetal, reclaimMetal]), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]]), failer(repairUnit), failer(selector[ sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe]])]";
+    String jonatan2 = "selector[selector[failer(sequence[inverter(highEnergy), buildSolar]), failer(sequence[inverter(highMetal), reclaimMetal, buildMex])], selector[failer(randomSelector[ selector[sequence[selector[closeToFactory, topOfHill, highTension], buildGauss] sequence[inverter(isAreaControlled),  selector[sequence[inverter(lowMetal)],buildGauss],buildLotus]],  selector[sequence[topOfHill, buildRadar], sequence[inverter(inRadarRange), buildRadar]],  sequence[selector[highMetal, highEnergy],randomSelector[buildCaretaker, buildFactory]], sequence[highEnergy, highMetal, buildStorage]]),failer(repairUnit)],selector[sequence[selector[lowHealth, enemyBuildingNear, highTension], moveToSafe], sequence[isAreaControlled, moveToRandom]]]";
     String closeToFac = "selector[failer(randomSelector[sequence[inverter(highEnergy), buildSolar], sequence[inverter(highMetal), buildMex]]), failer(sequence[closeToFactory, buildLotus])]";
+    String bestInd2 = "randomSelector[selector[selector[isAreaControlled, failer(buildMex)], sequence[sequence[selector[buildMex, majorityOfMapVisible], inverter(buildSolar), failer(untilSucceed(selector[isAreaControlled, sequence[topOfHill, highMetal, lowEnergy, highMetal, moveToRandom]])), buildGauss], buildMex]], untilSucceed(reclaimMetal), sequence[topOfHill, highMetal, lowEnergy, untilSucceed(reclaimMetal), moveToRandom]]";
+    String weirdGauss = "selector[moveToRandom, buildGauss]";
     public boolean runningBT = true;
     private final HashMap<BehaviourTree<Main>, Worker> trees = new HashMap<>();
     ExecutorService executorService;
@@ -185,19 +187,28 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
 
         }
 
-        if (frame % 60 == 0 && runningBT) {
+        if (frame % 20 == 0 && runningBT) {
             try {
                 executorService.submit(btRunner);
             } catch (Exception e) {
                 callback.getGame().sendTextMessage("bt problem", 0);
             }
         }
+
+        if(frame % 2500 == 0)
+            printFitness();
+
         return 0;
     }
 
     //when the ai is released AKA when game has ended
     @Override
     public int release(int reason) {
+        printFitness();
+        return 0;
+    }
+
+    public void printFitness(){
         int time = (int) TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
         double avgMex = economyManager.getAvgMexVSSpots();
         double highestIncome = economyManager.getHighestIncome() / 50d;
@@ -217,7 +228,6 @@ public class Main extends com.springrts.ai.oo.AbstractOOAI {
                 + " avgMex: " + avgMex
                 + " peakIncome: " + highestIncome
                 + " killVsExpenditureMetal: " + killVsExpenditureMetal, 0);
-        return 0;
     }
 
     private void activateDebug() {
